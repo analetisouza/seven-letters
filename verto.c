@@ -48,16 +48,16 @@ int main(int argc, char *argv[]) {
   GameState gameState;
   bool jogando = false; 
 
-
   if ( !inicializador() ) {
     printf("Falha ao inicializar!\n");
   }
   else {
     srandom((int)time(NULL));
     gameState.renderer = renderer;
-    telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
-    //SDL_DestroyTexture(background);
-    //SDL_DestroyTexture(jogar);
+    if ( !telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair)) {
+      saida();
+      exit(1);
+    }
     jogando = true;
     loadGame(&gameState);
     gameState.star = loadTextura("media/star.png");
@@ -192,12 +192,15 @@ void saida () {
 
 bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *jogar, SDL_Texture *niveis, SDL_Texture *opcoes, SDL_Texture *creditos, SDL_Texture *sair) {
   bool sucesso = true;
-  SDL_Event evento;
-
+  SDL_Texture *jogar2 = NULL;
+  SDL_Texture *imgCreditos = NULL;
+  SDL_Texture *imgNiveis = NULL;
+  //int x = evento.motion.x;
+  //int y = evento.motion.y;
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, background, NULL, NULL); //fundo
+    SDL_RenderCopy(renderer, background, NULL, NULL);
 
     jogar = loadTextura("media/jogar1.png");
     SDL_Rect jogarRect = {378, 397, 124, 50};
@@ -220,30 +223,60 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_RenderCopy(renderer, sair, NULL, &sairRect);
 
     SDL_RenderPresent(renderer);
-    
-    /*while ( SDL_PollEvent (&evento) != 0) {
-      if (evento.type == SDL_MOUSEMOTION) {
-          if (evento.type == SDL_MOUSEBUTTONDOWN) {
-              if (evento.button.x < 500 && evento.button.button == SDL_BUTTON_LEFT) {
 
+    SDL_Event event;
+    bool gameloop = true;
+  while (gameloop == true) {
+    while ( SDL_PollEvent (&event) ) {
+      if (event.type == SDL_QUIT) {
+        gameloop = false;
+        sucesso = false;
+        break;
+      }
+      switch (event.type) {
+        case SDL_MOUSEMOTION:
+            /*jogar2 = loadTextura("media/jogar3.png");
+            SDL_RenderCopy(renderer, jogar2, NULL, &jogarRect);
+            SDL_RenderPresent(renderer);*/
+          case SDL_MOUSEBUTTONDOWN:
+            if (event.motion.x > jogarRect.x && event.motion.x < jogarRect.x + jogarRect.w && event.motion.y > jogarRect.y && event.motion.y < jogarRect.y + jogarRect.h && event.button.button == SDL_BUTTON_LEFT) {
+                gameloop = false;
+            }
 
-          if (evento.button.button == SDL_BUTTON_LEFT) {
-            currentImage = gTeclado[tecla_space];
-          }
-              if (evento.button.button == SDL_BUTTON_RIGHT) {
-                currentImage = gTeclado[tecla_up];
-              }
-              if (evento.button.button == SDL_BUTTON_MIDDLE) {
-                currentImage = gTeclado[tecla_padrao];
-              }
-            }*/
-    SDL_Delay(5000);
+            if (event.motion.x > niveisRect.x && event.motion.x < niveisRect.x + niveisRect.w && event.motion.y > niveisRect.y && event.motion.y < niveisRect.y + niveisRect.h && event.button.button == SDL_BUTTON_LEFT) {
+              imgNiveis = loadTextura("media/creditos_teste.png");
+              SDL_RenderClear(renderer);
+              SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
+              SDL_RenderPresent(renderer);
+              SDL_Delay(4000);
+              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
+            }
+
+            if (event.motion.x > credRect.x && event.motion.x < credRect.x + credRect.w && event.motion.y > credRect.y && event.motion.y < credRect.y + credRect.h && event.button.button == SDL_BUTTON_LEFT) {
+              imgCreditos = loadTextura("media/creditos_teste.png");
+              SDL_RenderClear(renderer);
+              SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
+              SDL_RenderPresent(renderer);
+              SDL_Delay(4000);
+              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
+            }
+            //if
+            break;
+      }
+    }
+  }
+
+    SDL_Delay(300);
     SDL_DestroyTexture(background);
     SDL_DestroyTexture(jogar);
     SDL_DestroyTexture(niveis);
     SDL_DestroyTexture(opcoes);
     SDL_DestroyTexture(creditos);
     SDL_DestroyTexture(sair);
+    SDL_DestroyTexture(jogar2);
+    SDL_DestroyTexture(imgCreditos);
+    SDL_DestroyTexture(imgNiveis);
+    SDL_RenderClear(renderer);
 
   return sucesso;
 }
