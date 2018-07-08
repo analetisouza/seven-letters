@@ -304,8 +304,9 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
               SDL_RenderPresent(renderer);
               SDL_Delay(3000);
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               gameloop = false;
+              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
+              //gameloop = false;
             }
 
             if (event.motion.x > credRect.x && event.motion.x < credRect.x + credRect.w && event.motion.y > credRect.y && event.motion.y < credRect.y + credRect.h && event.button.button == SDL_BUTTON_LEFT) {
@@ -317,8 +318,9 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
               SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
               SDL_RenderPresent(renderer);
               SDL_Delay(3000);
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               gameloop = false;
+              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
+              //gameloop = false;
             }
 
             if (event.motion.x > opcRect.x && event.motion.x < opcRect.x + opcRect.w && event.motion.y > opcRect.y && event.motion.y < opcRect.y + opcRect.h && event.button.button == SDL_BUTTON_LEFT) {
@@ -330,15 +332,18 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
               SDL_RenderCopy(renderer, imgOpcoes, NULL, NULL);
               SDL_RenderPresent(renderer);
               SDL_Delay(3000);
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               gameloop = false;
+              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
+              //gameloop = false;
             }
 
             if (event.motion.x > sairRect.x && event.motion.x < sairRect.x + sairRect.w && event.motion.y > sairRect.y && event.motion.y < sairRect.y + sairRect.h && event.button.button == SDL_BUTTON_LEFT) {
               num = 5;
-              trocar(renderer, num);               
+              trocar(renderer, num);
+              SDL_Delay(500);               
               gameloop = false;
               sucesso = false;
+              exit(1);
             }
 
             break;
