@@ -29,9 +29,10 @@ bool eventos(SDL_Window*, GameState*);
 void doRender(SDL_Renderer*, GameState*);
 void saida();
 bool telainicial(SDL_Renderer*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*);
-void loadGame(GameState *);
-
 void trocar(SDL_Renderer*, int);
+void loadGame(GameState *);
+bool nivel1 ();
+
 SDL_Texture* loadTextura (const char *path); 
 
 
@@ -49,6 +50,7 @@ SDL_Texture* sair = NULL;
 int main(int argc, char *argv[]) {
   GameState gameState;
   bool jogando = false; 
+  int nivel;
 
   if ( !inicializador() ) {
     printf("Falha ao inicializar!\n");
@@ -61,6 +63,8 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
     jogando = true;
+    nivel = 1;
+    nivel1();
     loadGame(&gameState);
     gameState.star = loadTextura("media/star.png");
     while(jogando != false) {
@@ -69,6 +73,7 @@ int main(int argc, char *argv[]) {
       SDL_Delay(10);
     }
   }
+
   SDL_DestroyTexture(gameState.star);
   saida();
 
@@ -189,57 +194,9 @@ void saida () {
 
   IMG_Quit();
   SDL_Quit();
-}
-
-
-void trocar (SDL_Renderer *renderer, int num) {
-
-  if (num == 1) {
-    SDL_Texture *jogar2 = NULL;
-    SDL_Rect jogarRect = {378, 397, 124, 50};
-    jogar2 = loadTextura("media/jogar3.png");
-    SDL_RenderCopy(renderer, jogar2, NULL, &jogarRect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(jogar2);
-  }
-
-  if (num == 2) {
-    SDL_Texture *niveis2 = NULL;
-    SDL_Rect niveisRect = {385, 490, 146, 53};
-    niveis2 = loadTextura("media/niveis3.png");
-    SDL_RenderCopy(renderer, niveis2, NULL, &niveisRect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(niveis2);
-  }
-
-   if (num == 3) {
-    SDL_Texture *cred2 = NULL;
-    SDL_Rect credRect = {360, 587, 196, 57};
-    cred2 = loadTextura("media/creditos3.png");
-    SDL_RenderCopy(renderer, cred2, NULL, &credRect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(cred2);
-  }
-
-  if (num == 4) {
-    SDL_Texture *opcoes2 = NULL;
-    SDL_Rect opcRect = {770, 392, 148, 57};
-    opcoes2 = loadTextura("media/opcoes3.png");
-    SDL_RenderCopy(renderer, opcoes2, NULL, &opcRect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(opcoes2);
-  }
-
-  if (num == 5) {
-    SDL_Texture *sair2 = NULL;
-    SDL_Rect sairRect = {780, 490, 98, 41};
-    sair2 = loadTextura("media/sair3.png");
-    SDL_RenderCopy(renderer, sair2, NULL, &sairRect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(sair2);
-  }
 
 }
+
 
 bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *jogar, SDL_Texture *niveis, SDL_Texture *opcoes, SDL_Texture *creditos, SDL_Texture *sair) {
   bool sucesso = true;
@@ -365,6 +322,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_RenderClear(renderer);
 
   return sucesso;
+
 }
 
 
@@ -385,7 +343,9 @@ SDL_Texture* loadTextura(const char *path) {
   SDL_FreeSurface(loadedSurface);
 
   return textura;
+
 }
+
 
 void loadGame(GameState *gameState) {
   int i;
@@ -410,4 +370,91 @@ void loadGame(GameState *gameState) {
     gameState->stars[i].x = random()%LARG;
     gameState->stars[i].y = random()%ALT;
   }
+
+}
+
+
+void trocar (SDL_Renderer *renderer, int num) {
+
+  if (num == 1) {
+    SDL_Texture *jogar2 = NULL;
+    SDL_Rect jogarRect = {378, 397, 124, 50};
+    jogar2 = loadTextura("media/jogar3.png");
+    SDL_RenderCopy(renderer, jogar2, NULL, &jogarRect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(jogar2);
+  }
+
+  if (num == 2) {
+    SDL_Texture *niveis2 = NULL;
+    SDL_Rect niveisRect = {385, 490, 146, 53};
+    niveis2 = loadTextura("media/niveis3.png");
+    SDL_RenderCopy(renderer, niveis2, NULL, &niveisRect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(niveis2);
+  }
+
+   if (num == 3) {
+    SDL_Texture *cred2 = NULL;
+    SDL_Rect credRect = {360, 587, 196, 57};
+    cred2 = loadTextura("media/creditos3.png");
+    SDL_RenderCopy(renderer, cred2, NULL, &credRect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(cred2);
+  }
+
+  if (num == 4) {
+    SDL_Texture *opcoes2 = NULL;
+    SDL_Rect opcRect = {770, 392, 148, 57};
+    opcoes2 = loadTextura("media/opcoes3.png");
+    SDL_RenderCopy(renderer, opcoes2, NULL, &opcRect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(opcoes2);
+  }
+
+  if (num == 5) {
+    SDL_Texture *sair2 = NULL;
+    SDL_Rect sairRect = {780, 490, 98, 41};
+    sair2 = loadTextura("media/sair3.png");
+    SDL_RenderCopy(renderer, sair2, NULL, &sairRect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(sair2);
+  }
+
+}
+
+bool nivel1() {
+  bool sucesso = true;  
+  SDL_Texture *fundo = NULL;
+  SDL_Texture *barra = NULL;
+  SDL_Texture *vida = NULL;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(500);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    fundo = loadTextura("media/mapa.png");
+    SDL_RenderCopy(renderer, fundo, NULL, NULL);
+
+    barra = loadTextura("media/base_barra.png");
+    SDL_Rect barraRect = {0, 0, 1280, 109};
+    SDL_RenderCopy(renderer, barra, NULL, &barraRect);
+
+    vida = loadTextura("media/coracao_vida.png");
+    SDL_Rect vidaRect = {180, 10, 49, 39};
+    SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+
+    //if (alice.vida == 1)
+       
+    SDL_RenderPresent(renderer);
+
+
+    SDL_Delay(5000);
+
+    return sucesso;
+    
 }
