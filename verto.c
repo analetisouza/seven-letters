@@ -5,7 +5,8 @@
 #include <time.h>
 
 typedef struct {
-  int x, y;
+  float x, y;
+  float dy;
   short life;
   char *name;
 } Alice;
@@ -14,10 +15,19 @@ typedef struct {
   int x, y;
 } Star; //objetos
 
+typedef struct {
+  int x, y, w, h;
+} Ledge;
+
 typedef struct { //personagem
-  Alice alice;
+  Alice alice; //players
   Star stars[5]; //quantidade de objetos
+  Ledge ledges[5];
+
   SDL_Texture *star;
+  SDL_Texture *aliceFrames[2];
+  SDL_Texture *plataforma;
+
   SDL_Renderer *renderer;
 } GameState;
 
@@ -27,11 +37,13 @@ const int ALT = 720;
 bool inicializador();
 bool eventos(SDL_Window*, GameState*);
 void doRender(SDL_Renderer*, GameState*);
+void RenderNivel(SDL_Renderer*, GameState*);
+void RenderObjetos(SDL_Renderer*, GameState*);
 void saida();
 bool telainicial(SDL_Renderer*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*, SDL_Texture*);
 void trocar(SDL_Renderer*, int);
-void loadGame(GameState *);
-bool nivel1 ();
+void loadGame(GameState*);
+bool nivel1 (SDL_Renderer*);
 
 SDL_Texture* loadTextura (const char *path); 
 
@@ -48,7 +60,7 @@ SDL_Texture* sair = NULL;
 
 
 int main(int argc, char *argv[]) {
-  GameState gameState;
+  GameState game;
   bool jogando = false; 
   int nivel;
 
@@ -57,31 +69,34 @@ int main(int argc, char *argv[]) {
   }
   else {
     srandom((int)time(NULL));
-    gameState.renderer = renderer;
+    game.renderer = renderer;
     if ( !telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair)) {
       saida();
       exit(1);
     }
+
     jogando = true;
     nivel = 1;
-    nivel1();
-    loadGame(&gameState);
-    gameState.star = loadTextura("media/star.png");
-    while(jogando != false) {
-      jogando = eventos(janela, &gameState);
-      doRender(renderer, &gameState);
-      SDL_Delay(10);
-    }
-  }
+    nivel1(renderer);
 
-  SDL_DestroyTexture(gameState.star);
+    /*while(jogando != false) {
+      jogando = eventos(janela, &game);
+      //doRender(renderer, &game);
+      SDL_Delay(20);
+    }*/
+}
+
+  SDL_DestroyTexture(game.star);
+  SDL_DestroyTexture(game.plataforma);
+  SDL_DestroyTexture(game.aliceFrames[0]);
+  SDL_DestroyTexture(game.aliceFrames[1]);
   saida();
 
   return 0;
 }
 
 
-bool eventos(SDL_Window *janela, GameState *gameState) {
+bool eventos(SDL_Window *janela, GameState *game) {
   SDL_Event evento;
   bool jogando = true;
 
@@ -99,7 +114,7 @@ bool eventos(SDL_Window *janela, GameState *gameState) {
           jogando = false;
           break;
         case SDLK_BACKSPACE:
-          gameState->alice.y -= 5;
+          game->alice.y -= 5;
           break;
         default:
           break;
@@ -109,46 +124,41 @@ bool eventos(SDL_Window *janela, GameState *gameState) {
   
 const Uint8 *state = SDL_GetKeyboardState(NULL);
   if(state[SDL_SCANCODE_LEFT]) {
-    gameState->alice.x -= 5;
+    game->alice.x -= 5;
   }
   if(state[SDL_SCANCODE_RIGHT]) {
-    gameState->alice.x += 5;
+    game->alice.x += 5;
   }
   if(state[SDL_SCANCODE_UP]) {
-    gameState->alice.y -= 5;
+    game->alice.y -= 5;
   }
   if(state[SDL_SCANCODE_DOWN]) {
-    gameState->alice.y += 5;
+    game->alice.y += 5;
   }
   
   return jogando;
 }
 
-void doRender(SDL_Renderer *renderer, GameState *gameState) {
+void doRender(SDL_Renderer *renderer, GameState *game) {
   int i;
-  //set the drawing color to blue
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-  
-  SDL_RenderClear(renderer);
-  
-  //set the drawing color to white
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-  //estrela
-  SDL_Rect starRect = {50, 50, 64, 64};
-  SDL_RenderCopy(renderer, gameState->star, NULL, &starRect);
-
-  //retangulo
-  SDL_Rect rect = { gameState->alice.x, gameState->alice.y, 80, 80 };
-  SDL_RenderFillRect(renderer, &rect);
 
   for(i = 0; i < 5; i++) {
-    SDL_Rect starRect = { gameState->stars[i].x, gameState->stars[i].y, 64, 64 };
-    SDL_RenderCopy(renderer, gameState->star, NULL, &starRect);
+    SDL_Rect starRect = { game->stars[i].x, game->stars[i].y, 64, 64 };
+    SDL_RenderCopy(renderer, game->star, NULL, &starRect);
   }
 
+  for(i = 0; i < 5; i++) {
+    SDL_Rect ledgeRect = { game->ledges[i].x, game->ledges[i].y, game->ledges[i].w, game->ledges[i].h };
+    SDL_RenderCopy(renderer, game->plataforma, NULL, &ledgeRect);
+  }
+
+  SDL_Rect rect = { game->alice.x, game->alice.y, 64, 64 };
+  SDL_RenderCopyEx(renderer, game->aliceFrames[0], NULL, &rect, 0, NULL, 0);
+
   SDL_RenderPresent(renderer);
+
 }
+
 
 bool inicializador () {
   bool sucesso = true;
@@ -346,30 +356,113 @@ SDL_Texture* loadTextura(const char *path) {
 
 }
 
+void RenderNivel(SDL_Renderer *renderer, GameState *game) {
+  SDL_Texture *fundo = NULL;
+  SDL_Texture *barra = NULL;
+  SDL_Texture *vida = NULL;
 
-void loadGame(GameState *gameState) {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    fundo = loadTextura("media/mapa.png");
+    SDL_RenderCopy(renderer, fundo, NULL, NULL);
+
+    barra = loadTextura("media/base_barra.png");
+    SDL_Rect barraRect = {0, 0, 1280, 109};
+    SDL_RenderCopy(renderer, barra, NULL, &barraRect);
+
+    //if (alice.vida == 1)
+    vida = loadTextura("media/coracao_vida.png");
+    SDL_Rect vidaRect = {180, 10, 49, 39};
+    SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+
+    //if (alice.vida == 2)
+    //SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+    SDL_Rect vida2Rect = {245, 10, 49, 39};
+    SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
+
+    //if (alice.vida == 3) 
+    SDL_Rect vida3Rect = {310, 10, 49, 39};
+    SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
+
+}
+
+void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
-  SDL_Surface *starSurface = NULL;
 
-  //Load images and create rendering textures from them
-  starSurface = IMG_Load("media/star.png");
-  if(starSurface == NULL) {
-    printf("Cannot find star.png!\n\n");
-    SDL_Quit();
-    exit(1);
+  for(i = 0; i < 5; i++) {
+    SDL_Rect starRect = { game->stars[i].x, game->stars[i].y, 64, 64 };
+    SDL_RenderCopy(renderer, game->star, NULL, &starRect);
   }
-  
-  gameState->star = SDL_CreateTextureFromSurface(gameState->renderer, starSurface);
-  SDL_FreeSurface(starSurface);
 
-  gameState->alice.x = 320-40;
-  gameState->alice.y = 240-40;
+  for(i = 0; i < 5; i++) {
+    SDL_Rect ledgeRect = { game->ledges[i].x, game->ledges[i].y, game->ledges[i].w, game->ledges[i].h };
+    SDL_RenderCopy(renderer, game->plataforma, NULL, &ledgeRect);
+  }
+
+  SDL_Rect rect = { game->alice.x, game->alice.y, 64, 64 };
+  SDL_RenderCopyEx(renderer, game->aliceFrames[0], NULL, &rect, 0, NULL, 0);
+
+}
+
+
+void loadGame(GameState *game) {
+  int i;
+  SDL_Surface *surface = NULL;
+
+  surface = IMG_Load("media/star.png");
+  if(surface == NULL) {
+    printf("Não foi possivel encontrar o arquivo 'star.png'!\n");
+  }
+  game->star = SDL_CreateTextureFromSurface(game->renderer, surface);
+  SDL_FreeSurface(surface);
+
+
+  surface = IMG_Load("media/default.png");
+  if(surface == NULL) {
+    printf("Não foi possivel encontrar o arquivo 'default.png'!\n");
+  }
+  game->aliceFrames[0] = SDL_CreateTextureFromSurface(game->renderer, surface);
+  SDL_FreeSurface(surface);
+
+
+  surface = IMG_Load("media/andando.png");
+  if(surface == NULL) {
+    printf("Não foi possivel encontrar o arquivo 'andando.png'!\n");
+  }
+  game->aliceFrames[1] = SDL_CreateTextureFromSurface(game->renderer, surface);
+  SDL_FreeSurface(surface);
+
+
+  surface = IMG_Load("media/plataforma.png");
+  if(surface == NULL) {
+    printf("Não foi possivel encontrar o arquivo 'plataforma.png'!\n");
+  }
+  game->plataforma = SDL_CreateTextureFromSurface(game->renderer, surface);
+  SDL_FreeSurface(surface);
+
+  game->alice.x = 320-40;
+  game->alice.y = 240-40;
 
   //init stars
   for (i = 0; i < 5; i++) {
-    gameState->stars[i].x = random()%LARG;
-    gameState->stars[i].y = random()%ALT;
+    game->stars[i].x = random()%LARG;
+    game->stars[i].y = random()%ALT;
   }
+
+  //init ledges
+  for(int i = 0; i < 5; i++) {
+    game->ledges[i].x = i*100;
+    game->ledges[i].y = 400;
+    game->ledges[i].w = 256;
+    game->ledges[i].h = 64;
+  }
+
+  game->ledges[4].x = 100;
+  game->ledges[4].y = 200;
+  
+  game->ledges[3].x = 350;
+  game->ledges[3].y = 350;
 
 }
 
@@ -423,37 +516,38 @@ void trocar (SDL_Renderer *renderer, int num) {
 
 }
 
-bool nivel1() {
-  bool sucesso = true;  
-  SDL_Texture *fundo = NULL;
-  SDL_Texture *barra = NULL;
-  SDL_Texture *vida = NULL;
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-    SDL_Delay(500);
+bool nivel1(SDL_Renderer *renderer) {
+  bool sucesso = true;
+  bool jogando = true;
+  GameState game;
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
+  SDL_RenderClear(renderer);
+  SDL_RenderPresent(renderer);
+  SDL_Delay(50);
 
-    fundo = loadTextura("media/mapa.png");
-    SDL_RenderCopy(renderer, fundo, NULL, NULL);
+  loadGame(&game);
+  game.star = loadTextura("media/star.png");
+  game.plataforma = loadTextura("media/plataforma.png");
+  game.aliceFrames[0] = loadTextura("media/andando.png");
 
-    barra = loadTextura("media/base_barra.png");
-    SDL_Rect barraRect = {0, 0, 1280, 109};
-    SDL_RenderCopy(renderer, barra, NULL, &barraRect);
+    while(jogando != false) {
+      RenderNivel(renderer, &game);
+      SDL_RenderClear(renderer);
 
-    vida = loadTextura("media/coracao_vida.png");
-    SDL_Rect vidaRect = {180, 10, 49, 39};
-    SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+      RenderNivel(renderer, &game);
+      RenderObjetos(renderer, &game);
+      jogando = eventos(janela, &game);
+      SDL_RenderPresent(renderer);
+      SDL_Delay(10);
+    }
 
-    //if (alice.vida == 1)
-       
-    SDL_RenderPresent(renderer);
-
-
-    SDL_Delay(5000);
+    SDL_Delay(1000);
+    SDL_DestroyTexture(game.star);
+    SDL_DestroyTexture(game.plataforma);
+    SDL_DestroyTexture(game.aliceFrames[0]);
+    SDL_DestroyTexture(game.aliceFrames[1]);
 
     return sucesso;
     
