@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define Gravidade 0.16f
+#define Gravidade 0.5f
 
 typedef struct {
   float x, y;
@@ -14,20 +14,14 @@ typedef struct {
   int onPlat;
 } Alice;
 
-/*typedef struct {
-  int x, y;
-} Star; //objetos*/
-
 typedef struct {
   int x, y, w, h;
 } PLAT;
 
 typedef struct { //personagem
   Alice alice; //players
-  //Star stars[5]; //quantidade de objetos
   PLAT plat[5];
 
-  //SDL_Texture *star;
   SDL_Texture *aliceFrames[2]; //
   SDL_Texture *plataforma;
 
@@ -47,6 +41,7 @@ void trocar(SDL_Renderer*, int);
 void loadGame(GameState*);
 bool nivel1 (SDL_Renderer*);
 void colisaoplat(GameState*);
+void colisaochao(GameState*);
 void processo(GameState*);
 void extremjanela(GameState*);
 
@@ -77,6 +72,8 @@ int main(int argc, char *argv[]) {
     game.renderer = renderer;
     if ( !telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair)) {
       saida();
+      IMG_Quit();
+      SDL_Quit();
       exit(1);
     }
 
@@ -112,6 +109,12 @@ bool eventos(SDL_Window *janela, GameState *game) {
         case SDLK_ESCAPE: //ajeitar
           jogando = false;
           break;
+        case SDLK_SPACE:
+          if (game->alice.onPlat == 1) { //só se tiver no chão
+            game->alice.dy = -6;
+            game->alice.onPlat = 0;
+          }
+          break;
         //default:
           //break;
       }
@@ -120,47 +123,48 @@ bool eventos(SDL_Window *janela, GameState *game) {
   
 const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   if(state[SDL_SCANCODE_LEFT]) {
-    if (game->alice.x < 0) {
+    if (game->alice.x - 10 < 0) {
       game->alice.x = 0;
     }
     else {
       game->alice.x -= 10;
     }
-    
-    if (game->alice.y + 70 > 605) {
-      game->alice.y = 605; //altura da janela até a plataforma do cenário - altura da alice
+
+    game->alice.dx -= 0.5;
+    if(game->alice.dx < -6) {
+      game->alice.dx = -6;
     }
   }
-  if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 52 + 5) > LARG) {
-      game->alice.x = LARG - 52;
+
+  else if(state[SDL_SCANCODE_RIGHT]) {
+    if ((game->alice.x + 84 + 10) > LARG) {
+      game->alice.x = LARG - 84;
     }
     else {
       game->alice.x += 10;
     }
-    if (game->alice.y + 70 > 605) {
-      game->alice.y = 605; //altura da janela até a plataforma do cenário - altura da alice
+
+    game->alice.dx += 0.5;
+    if(game->alice.dx > 6) {
+      game->alice.dx = 6;
+    }
+  }
+  else {
+    game->alice.dx *= 0.8f;
+    if (fabsf(game->alice.dx) < 0.1f) {
+      game->alice.dx = 0;
     }
   }
 
-  if(state[SDL_SCANCODE_SPACE]) {
+   /*if(state[SDL_SCANCODE_SPACE]) {
     if(game->alice.onPlat) {
       game->alice.dy = -20;
       game->alice.onPlat = 0;
     }
-  }
-
- /* if(state[SDL_SCANCODE_UP]) {
-    game->alice.y -= 10;
-  }
-  if(state[SDL_SCANCODE_DOWN]) {
-    game->alice.y += 10;
   }*/
   
   return jogando;
 }
-
-
 
 
 bool inicializador () {
@@ -388,6 +392,10 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect vida3Rect = {310, 10, 49, 39};
     SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
 
+    SDL_DestroyTexture(fundo);
+    SDL_DestroyTexture(barra);
+    SDL_DestroyTexture(vida);
+
 }
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
@@ -407,7 +415,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   //SDL_RenderCopy(renderer, game->plataforma, NULL, &plat2Rect);
 
   //Alice
-  SDL_Rect rect = { game->alice.x, game->alice.y, 52, 70 };
+  SDL_Rect rect = { game->alice.x, game->alice.y, 84, 144 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[0], NULL, &rect, 0, NULL, 0);
 
 }
@@ -425,9 +433,9 @@ void loadGame(GameState *game) {
   SDL_FreeSurface(surface);*/
 
 
-  surface = IMG_Load("media/outros/char/padrao.png");
+  surface = IMG_Load("media/alice.png");
   if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'padrao.png'!\n");
+    printf("Não foi possivel encontrar o arquivo 'alice.png'!\n");
   }
   game->aliceFrames[0] = SDL_CreateTextureFromSurface(game->renderer, surface);
   SDL_FreeSurface(surface);
@@ -456,9 +464,10 @@ void loadGame(GameState *game) {
   game->plataforma = SDL_CreateTextureFromSurface(game->renderer, surface);
   SDL_FreeSurface(surface);
 
+
   //posição da alice;
-  game->alice.x = 50;
-  game->alice.y = 605;
+  game->alice.x = 30;
+  game->alice.y = 500;
   game->alice.dy = 0;
   game->alice.onPlat = 0;
 
@@ -469,21 +478,21 @@ void loadGame(GameState *game) {
   }*/
 
   //posição das plataformas
-  game->plat[0].x = 130;
-  game->plat[0].y = 600;
+  game->plat[0].x = 0;
+  game->plat[0].y = 675;
 
-  game->plat[1].x = 260;
+  game->plat[1].x = 300;
   game->plat[1].y = 530;
   
-  game->plat[2].x = 390;
+  game->plat[2].x = 600;
   game->plat[2].y = 460;
 
-  game->plat[3].x = 0;
-  game->plat[3].y = 675;
+  //game->plat[3].x = 0;
+  //game->plat[3].y = 675;
   /*for(int i = 0; i < 5; i++) {
     game->plat[i].x = (i+1)*150;
     game->plat[i].y = (i+1)*300;
-  }*/
+  }*/ 
 
 }
 
@@ -549,9 +558,8 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_Delay(50);
 
   loadGame(&game);
-  //game.star = loadTextura("media/star.png");
   game.plataforma = loadTextura("media/plataforma.png");
-  game.aliceFrames[0] = loadTextura("media/outros/char/padrao.png");
+  game.aliceFrames[0] = loadTextura("media/alice.png");
 
     while(jogando != false) {
       RenderNivel(renderer, &game);
@@ -564,12 +572,11 @@ bool nivel1(SDL_Renderer *renderer) {
       colisaoplat(&game);
       //extremjanela(&game);
       SDL_RenderPresent(renderer);
-      SDL_Delay(10);
+      SDL_Delay(1/60);
       //SDL_Delay(1000/60);
     }
 
     SDL_Delay(500);
-    //SDL_DestroyTexture(game.star);
     SDL_DestroyTexture(game.plataforma);
     SDL_DestroyTexture(game.aliceFrames[0]);
     SDL_DestroyTexture(game.aliceFrames[1]);  
@@ -589,25 +596,6 @@ void processo(GameState *game) {
 }
 
 /*void extremjanela(GameState *game) {
-  //verifica se a alice passa ou não de alguma extremidade
-  if (game->alice.x < 0) {
-    game->alice.x = 0;
-  }
-  else { 
-    if (game->alice.x + 52 > LARG) {
-      game->alice.x = LARG - 52; //largura - comprimento da alice
-    }
-    else {
-      if (game->alice.y + 70 > 605) {
-        game->alice.y = 605; //altura da janela até a plataforma do cenário - altura da alice
-      }
-      else {
-        if (game->alice.y < 0) {
-          game->alice.y  = 0;
-        }
-      }
-    }
-  }
 
 //verifica se o inimigo passa ou não de alguma extremidade
   /*if (game->alice.x < 0) {
@@ -635,48 +623,54 @@ void colisaoplat(GameState *game) {
   int i;
 
   for (i = 0; i < 100; i++) {
-  float aw = 52, ah = 70; //largura e altura da alice;
+  float aw = 84, ah = 144; //largura e altura da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
   float pw = 128, ph = 30; //largura e altura da plat;
   float px = game->plat[i].x, py = game->plat[i].y; //posição da plat;
 
-  if (py < (ay+ah) && ay < (py+ph)) {
-      //rubbing against right edge
-      if (ax < (px+pw) && (ax+aw) > (px+pw)) {
-        //correct x
-        game->alice.x = px + pw;
-        ax = px + pw;
-      }
-      else {
-        //rubbing against right edge
-        if (px < (ax+aw) && px > ax) {
-          //correct x
-          game->alice.x = px - aw;
-          ax = px - aw;
-        }
-      }
-    }
-
-    if (px < (ax+aw) && ax < (px+pw)) {
+  if (px < (ax+aw/2) && ((ax+aw/2) < (px+pw))) {
       //are we bumping our head?
-      if (ay < (py+ph) && ay > py) {
+    if (ay < (py+ph) && ay > py && game->alice.dy < 0) {
         //correct y
-        game->alice.y = py - ph;
+        game->alice.y = py + ph;
+        ay = py + ph; 
         //bumped our head, stop any jump velocity
         game->alice.dy = 0;
         game->alice.onPlat = 1;
-      }
-      else {
-        if (py < (ay+ah) && ay < py) {
-          //correct y
-          game->alice.y = py - ah;
-          //landed on this ledge, stop any jump velocity
-          game->alice.dy = 0;
-          game->alice.onPlat = 1;
-        }
+    }
+  }
+
+  if (px < ax+aw && ax < px+pw) {
+    if (ay+ah > py && ay < py && game->alice.dy > 0) {
+      //correct y
+      game->alice.y = py - ah;
+      ay = py - ah;
+      //landed on this ledge, stop any jump velocity
+      game->alice.dy = 0;
+      game->alice.onPlat = 1;
+    }
+  }
+
+  if (py < ay+ah && ay < py+ph) {
+    //rubbing against right edge
+    if (ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
+      //correct x
+      game->alice.x = px + pw;
+      ax = px + pw;
+
+      game->alice.dx = 0;
+    }
+    else {
+      //rubbing against left edge
+      if (px < ax+aw && ax < px && game->alice.dx > 0) {
+        //correct x
+        game->alice.x = px-aw;
+        ax = px-aw;
+        
+        game->alice.dx = 0;
       }
     }
-
+  }
   }
 }
