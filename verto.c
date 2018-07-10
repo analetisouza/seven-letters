@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define Gravidade 0.5f
+#define Gravidade 3.5f
 
 typedef struct {
   float x, y;
@@ -20,7 +20,7 @@ typedef struct {
 
 typedef struct { //personagem
   Alice alice; //players
-  PLAT plat[5];
+  PLAT plat[100];
 
   SDL_Texture *aliceFrames[2]; //
   SDL_Texture *plataforma;
@@ -111,7 +111,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
-            game->alice.dy = -6;
+            game->alice.dy = -20;
             game->alice.onPlat = 0;
           }
           break;
@@ -123,7 +123,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
   
 const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   if(state[SDL_SCANCODE_LEFT]) {
-    if (game->alice.x - 10 < 0) {
+    if (game->alice.x - 11 < 0) {
       game->alice.x = 0;
     }
     else {
@@ -137,7 +137,7 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 84 + 10) > LARG) {
+    if ((game->alice.x + 84 + 11) > LARG) {
       game->alice.x = LARG - 84;
     }
     else {
@@ -406,13 +406,10 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->star, NULL, &starRect);
   }*/
 
-  for(i = 0; i < 3; i++) { //quantidades de plataformas que existirão
+  for (i = 0; i < 11; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
-
-  //SDL_Rect plat2Rect = { 0, 675, 1280, 30 };
-  //SDL_RenderCopy(renderer, game->plataforma, NULL, &plat2Rect);
 
   //Alice
   SDL_Rect rect = { game->alice.x, game->alice.y, 84, 144 };
@@ -424,14 +421,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
 void loadGame(GameState *game) {
   int i;
   SDL_Surface *surface = NULL;
-
-  /*surface = IMG_Load("media/star.png");
-  if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'star.png'!\n");
-  }
-  game->star = SDL_CreateTextureFromSurface(game->renderer, surface);
-  SDL_FreeSurface(surface);*/
-
 
   surface = IMG_Load("media/alice.png");
   if(surface == NULL) {
@@ -478,14 +467,16 @@ void loadGame(GameState *game) {
   }*/
 
   //posição das plataformas
-  game->plat[0].x = 0;
-  game->plat[0].y = 675;
+  for (i = 0; i < 10; i++) {
+    game->plat[i].x = 0+(128*i);
+    game->plat[i].y = 675;
+  }
 
-  game->plat[1].x = 300;
-  game->plat[1].y = 530;
+  game->plat[10].x = 300;
+  game->plat[10].y = 600;
   
-  game->plat[2].x = 600;
-  game->plat[2].y = 460;
+  //game->plat[9].x = 600;
+  //game->plat[9].y = 460;
 
   //game->plat[3].x = 0;
   //game->plat[3].y = 675;
@@ -593,6 +584,7 @@ void processo(GameState *game) {
   alice->y += alice->dy;
 
   alice->dy += Gravidade;
+
 }
 
 /*void extremjanela(GameState *game) {
