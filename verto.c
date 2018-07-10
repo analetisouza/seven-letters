@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define Gravidade 3.5f
+#define Gravidade 3.8f
 
 typedef struct {
   float x, y;
@@ -12,6 +12,8 @@ typedef struct {
   short life;
   char *name;
   int onPlat;
+
+  int animFrame, facingLeft, slowingDown;
 } Alice;
 
 typedef struct {
@@ -22,8 +24,10 @@ typedef struct { //personagem
   Alice alice; //players
   PLAT plat[100];
 
-  SDL_Texture *aliceFrames[2]; //
+  SDL_Texture *aliceFrames[4]; //
   SDL_Texture *plataforma;
+
+  int time;
 
   SDL_Renderer *renderer;
 } GameState;
@@ -130,10 +134,12 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
       game->alice.x -= 10;
     }
 
-    game->alice.dx -= 0.5;
+    game->alice.dx -= 0.5; //aceleração
     if(game->alice.dx < -6) {
       game->alice.dx = -6;
     }
+    game->alice.facingLeft = 1;
+    game->alice.slowingDown = 0;
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
@@ -144,25 +150,23 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
       game->alice.x += 10;
     }
 
-    game->alice.dx += 0.5;
+    game->alice.dx += 0.5; //aceleração
     if(game->alice.dx > 6) {
       game->alice.dx = 6;
     }
+    game->alice.facingLeft = 0;
+    game->alice.slowingDown = 0;
   }
+
   else {
+    game->alice.animFrame = 0;
     game->alice.dx *= 0.8f;
+    game->alice.slowingDown = 1;
     if (fabsf(game->alice.dx) < 0.1f) {
       game->alice.dx = 0;
     }
   }
 
-   /*if(state[SDL_SCANCODE_SPACE]) {
-    if(game->alice.onPlat) {
-      game->alice.dy = -20;
-      game->alice.onPlat = 0;
-    }
-  }*/
-  
   return jogando;
 }
 
@@ -401,19 +405,14 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
 
-  /*for(i = 0; i < 5; i++) {
-    SDL_Rect starRect = { game->stars[i].x, game->stars[i].y, 64, 64 };
-    SDL_RenderCopy(renderer, game->star, NULL, &starRect);
-  }*/
-
-  for (i = 0; i < 11; i++) { //quantidades de plataformas que existirão
+  for (i = 0; i < 13; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
 
   //Alice
   SDL_Rect rect = { game->alice.x, game->alice.y, 84, 144 };
-  SDL_RenderCopyEx(renderer, game->aliceFrames[0], NULL, &rect, 0, NULL, 0);
+  SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
 }
 
@@ -422,7 +421,7 @@ void loadGame(GameState *game) {
   int i;
   SDL_Surface *surface = NULL;
 
-  surface = IMG_Load("media/alice.png");
+  surface = IMG_Load("media/p1_front.png");
   if(surface == NULL) {
     printf("Não foi possivel encontrar o arquivo 'alice.png'!\n");
   }
@@ -430,20 +429,12 @@ void loadGame(GameState *game) {
   SDL_FreeSurface(surface);
 
 
-  surface = IMG_Load("media//outros/char/right.png");
+  surface = IMG_Load("media/p1_jump.png");
   if(surface == NULL) {
     printf("Não foi possivel encontrar o arquivo 'right.png'!\n");
   }
   game->aliceFrames[1] = SDL_CreateTextureFromSurface(game->renderer, surface);
   SDL_FreeSurface(surface);
-
-
-  /*surface = IMG_Load("media//outros/char/left.png");
-  if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'left.png'!\n");
-  }
-  game->aliceFrames[2] = SDL_CreateTextureFromSurface(game->renderer, surface);
-  SDL_FreeSurface(surface);*/
 
 
   surface = IMG_Load("media/plataforma.png");
@@ -457,8 +448,14 @@ void loadGame(GameState *game) {
   //posição da alice;
   game->alice.x = 30;
   game->alice.y = 500;
+  game->alice.dx = 0;
   game->alice.dy = 0;
   game->alice.onPlat = 0;
+  game->alice.animFrame = 0;
+  game->alice.facingLeft = 0; //0 pq o boneco tá virado pra direita
+  game->alice.slowingDown = 0;
+
+  game->time = 0;
 
   /*posição aleatoria de stars, caso queira inserir algo aleatório
   for (i = 0; i < 5; i++) {
@@ -466,24 +463,20 @@ void loadGame(GameState *game) {
     game->stars[i].y = random()%ALT;
   }*/
 
-  //posição das plataformas
-  for (i = 0; i < 10; i++) {
+  //posição das plataformas 
+  for (i = 0; i < 10; i++) { //do chão
     game->plat[i].x = 0+(128*i);
     game->plat[i].y = 675;
   }
 
   game->plat[10].x = 300;
   game->plat[10].y = 600;
-  
-  //game->plat[9].x = 600;
-  //game->plat[9].y = 460;
 
-  //game->plat[3].x = 0;
-  //game->plat[3].y = 675;
-  /*for(int i = 0; i < 5; i++) {
-    game->plat[i].x = (i+1)*150;
-    game->plat[i].y = (i+1)*300;
-  }*/ 
+  game->plat[11].x = 450;
+  game->plat[11].y = 500;
+
+  game->plat[12].x = 300;
+  game->plat[12].y = 400;
 
 }
 
@@ -546,11 +539,12 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
-  SDL_Delay(50);
+  SDL_Delay(500);
 
   loadGame(&game);
   game.plataforma = loadTextura("media/plataforma.png");
-  game.aliceFrames[0] = loadTextura("media/alice.png");
+  game.aliceFrames[0] = loadTextura("media/p1_front.png");
+  game.aliceFrames[1] = loadTextura("media/p1_jump.png");
 
     while(jogando != false) {
       RenderNivel(renderer, &game);
@@ -563,7 +557,7 @@ bool nivel1(SDL_Renderer *renderer) {
       colisaoplat(&game);
       //extremjanela(&game);
       SDL_RenderPresent(renderer);
-      SDL_Delay(1/60);
+      SDL_Delay(1/3600);
       //SDL_Delay(1000/60);
     }
 
@@ -579,37 +573,29 @@ bool nivel1(SDL_Renderer *renderer) {
 }
 
 void processo(GameState *game) {
+  //add time
+  game->time++;
+
+  //movimento da Alice
   Alice *alice = &game->alice;
   alice->x += alice->dx;
   alice->y += alice->dy;
 
   alice->dy += Gravidade;
 
-}
-
-/*void extremjanela(GameState *game) {
-
-//verifica se o inimigo passa ou não de alguma extremidade
-  /*if (game->alice.x < 0) {
-    game->alice.x = -(game->alice.x);
-  }
-  else { 
-    if (game->alice.x + 52 > LARG) {
-      game->alice.x = -(game->alice.x);
-    }
-    else {
-      if (game->alice.y < 0) {
-        game->alice.y = -(game->alice.y);
+  if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
+    if (game->time % 1 == 0) {
+      if (alice->animFrame == 0) {
+        alice->animFrame = 1;
       }
       else {
-        if (game->alice.y + 70 > 602) {
-          game->alice.y = -(game->alice.y);
-        }
+        alice->animFrame = 0;
       }
     }
   }
 
-}*/
+}
+
 
 void colisaoplat(GameState *game) {
   int i;
@@ -643,7 +629,7 @@ void colisaoplat(GameState *game) {
       game->alice.onPlat = 1;
     }
   }
-
+  //arrumar esssa parte pq tá teleportando
   if (py < ay+ah && ay < py+ph) {
     //rubbing against right edge
     if (ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
@@ -657,6 +643,7 @@ void colisaoplat(GameState *game) {
       //rubbing against left edge
       if (px < ax+aw && ax < px && game->alice.dx > 0) {
         //correct x
+        //game->alice.x -= 1;
         game->alice.x = px-aw;
         ax = px-aw;
         
