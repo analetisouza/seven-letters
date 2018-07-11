@@ -31,11 +31,13 @@ typedef struct {
 } INIMIGO;
 
 typedef struct { //personagem
+  float scrollX;
+
   Alice alice; //players
   PLAT plat[100];
   INIMIGO inim;
 
-  SDL_Texture *aliceFrames[4]; //alterar pra não dar erro de seg
+  SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
   SDL_Texture *inimFrames[4];
   SDL_Texture *label;
@@ -238,8 +240,8 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 84 + 6) > LARG) {
-      game->alice.x = LARG - 84;
+    if ((game->alice.x + 84 + 6) > 2560) {
+      game->alice.x = 2560 - 84;
     }
     else {
       game->alice.x += 5;
@@ -487,8 +489,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderClear(renderer);
 
     fundo = loadTextura("media/mapa.png");
-    SDL_Rect fundoRect = {0, 0, 1280, 720};
-    SDL_RenderCopy(renderer, fundo, &fundoRect, NULL);
+    SDL_Rect fundoRect = {game->scrollX + 0, 0, 2560, 720};
+    SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
 
     barra = loadTextura("media/base_barra.png");
     SDL_Rect barraRect = {0, 0, 1280, 109};
@@ -517,7 +519,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
 
     placa = loadTextura("media/signRight.png");
-    SDL_Rect placRect = { 120, 570, 70, 100 };
+    SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
     pause = loadTextura("media/botao_pausa.png");
@@ -551,19 +553,26 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     draw_status_lives(game);
   }
   else if (game->statusState == STATUS_STATE_GAME) {
-  for (i = 0; i < 13; i++) { //quantidades de plataformas que existirão
-    SDL_Rect platRect = { game->plat[i].x, game->plat[i].y, 128, 30 };
+    SDL_Texture *placa = NULL;
+
+    placa = loadTextura("media/signRight.png");
+    SDL_Rect placRect = { game->scrollX + 1260, 570, 70, 100 };
+    SDL_RenderCopy(renderer, placa, NULL, &placRect);
+
+  for (i = 0; i < 24; i++) { //quantidades de plataformas que existirão
+    SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
 
   //inimigo arrumar
-  SDL_Rect inimRect = { game->inim.x, game->inim.y, 50, 28 };
+  SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 };
   SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
 
   //Alice
-  SDL_Rect rect = { game->alice.x, game->alice.y, 68, 118 };
+  SDL_Rect rect = { game->scrollX + game->alice.x, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
   }
+
 }
 
 
@@ -587,21 +596,22 @@ void loadGame(GameState *game) {
   init_status_lives(game);
 
   game->time = 0;
+  game->scrollX = 0;
 
   //posição das plataformas 
-  for (i = 0; i < 10; i++) { //do chão
+  for (i = 0; i < 20; i++) { //do chão
     game->plat[i].x = 0+(128*i);
     game->plat[i].y = 675;
   }
 
-  game->plat[10].x = 300;
-  game->plat[10].y = 600;
+  game->plat[21].x = 300;
+  game->plat[21].y = 600;
 
-  game->plat[11].x = 450;
-  game->plat[11].y = 500;
+  game->plat[22].x = 450;
+  game->plat[22].y = 500;
 
-  game->plat[12].x = 300;
-  game->plat[12].y = 400;
+  game->plat[23].x = 300;
+  game->plat[23].y = 400;
 
   game->inim.x = 700;
   game->inim.y = 644;
@@ -779,6 +789,14 @@ void processo(GameState *game) {
   if (inim->x + 3 < 0) {  //vai só pra esquerda
     inim->x = LARG + 3;
   }
+
+  game->scrollX = -game->alice.x + 320;
+  if (game->scrollX > 0) {
+    game->scrollX = 0;
+  }
+  if (game->scrollX > 2240) {
+    game->scrollX = 2560 - 320;
+  }
 }
 
  //vai só pra esquerda
@@ -808,7 +826,7 @@ void processo(GameState *game) {
 void colisaoplat(GameState *game) {
   int i;
 
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 100; i++) {
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
