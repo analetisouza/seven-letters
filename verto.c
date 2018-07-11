@@ -240,11 +240,11 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 84 + 6) > 2560) {
-      game->alice.x = 2560 - 84;
+    if ((game->alice.x + 68 + 6) > 2560) {
+      game->alice.x = 2560 - 68;
     }
     else {
-      game->alice.x += 5;
+      game->alice.x += 10;
     }
 
     game->alice.dx += 0.5; //aceleração
@@ -321,10 +321,13 @@ void saida () {
 bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *jogar, SDL_Texture *niveis, SDL_Texture *ranking, SDL_Texture *creditos, SDL_Texture *sair) {
   bool sucesso = true;
   int num = 0;
+  bool apertou = false;
   SDL_Texture *imgNiveis = NULL;
   SDL_Texture *imgCreditos = NULL;
   SDL_Texture *imgRanking = NULL;
+  SDL_Texture *imgAjuda = NULL;
   SDL_Texture *retornar = NULL;
+  SDL_Texture *ajuda = NULL;
 
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -334,7 +337,6 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     jogar = loadTextura("media/jogar1.png");
     SDL_Rect jogarRect = {378, 397, 124, 50};
     SDL_RenderCopy(renderer, jogar, NULL, &jogarRect);
-
 
     niveis = loadTextura("media/niveis1.png");
     SDL_Rect niveisRect = {385, 490, 146, 53};
@@ -352,6 +354,10 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_Rect sairRect = {780, 490, 98, 41};
     SDL_RenderCopy(renderer, sair, NULL, &sairRect);
 
+    ajuda = loadTextura("media/interrogacao.png");
+    SDL_Rect ajudaRect = {1150, 600, 100, 98};
+    SDL_RenderCopy(renderer, ajuda, NULL, &ajudaRect);
+
     retornar = loadTextura("media/retornar1.png");
     SDL_Rect retRect = {30, 600, 100, 100};
 
@@ -364,20 +370,24 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
       if (event.type == SDL_QUIT) {
         gameloop = false;
         sucesso = false;
+        exit(1);
         break;
       }
       else {
       switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
-          //printf ("%d\n", event.motion.x);
-            if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
+          if (event.button.button == SDL_BUTTON_LEFT) {
+            apertou = true;
+          }
+            if (apertou == true && event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 num = 1;
                 trocar(renderer, num);
                 SDL_Delay(300);
                 gameloop = false;
+                apertou = false;
             }
-            if (event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (apertou == true && event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
               num = 2;
               trocar(renderer, num);
               SDL_Delay(300);
@@ -386,10 +396,11 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
+              apertou = false;
               //gameloop = false;
             }
 
-            if (event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (apertou == true && event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660 && event.button.button == SDL_BUTTON_LEFT) {
               num = 3;
               trocar(renderer, num);
               SDL_Delay(300);
@@ -398,33 +409,47 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
               SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
+              apertou = false;
               //gameloop = false;
             }
 
-            if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (apertou == true && event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
               num = 4;
               trocar(renderer, num);
               SDL_Delay(300);
-              imgRanking = loadTextura("media/ranking.png"); //
+              imgRanking = loadTextura("media/ranking.png"); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
+              apertou = false; 
               //gameloop = false;
             }
 
-            if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (apertou == true && event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
               num = 5;
               trocar(renderer, num);
               SDL_Delay(300);               
               gameloop = false;
               sucesso = false;
+              apertou = false; 
               exit(1);
             }
 
-            if(event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
+            else if (apertou == true && event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695 && event.button.button == SDL_BUTTON_LEFT) {
+              SDL_Delay(300);
+              imgAjuda = loadTextura("media/ranking.png"); 
+              SDL_RenderClear(renderer);
+              SDL_RenderCopy(renderer, imgAjuda, NULL, NULL);
+              SDL_RenderCopy(renderer, retornar, NULL, &retRect);
+              SDL_RenderPresent(renderer);
+              apertou = false; 
+            }
+
+            else if(apertou == true && event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
               gameloop = false;
               telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
+              apertou = false; 
             }
 
             break;
@@ -440,9 +465,11 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_DestroyTexture(ranking);
     SDL_DestroyTexture(creditos);
     SDL_DestroyTexture(sair);
+    SDL_DestroyTexture(ajuda);
     SDL_DestroyTexture(imgNiveis);
     SDL_DestroyTexture(imgCreditos);
     SDL_DestroyTexture(imgRanking);
+    SDL_DestroyTexture(imgAjuda);
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
 
@@ -485,11 +512,11 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     }
     else if (game->statusState == STATUS_STATE_GAME) {
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 
     fundo = loadTextura("media/mapa.png");
-    SDL_Rect fundoRect = {game->scrollX + 0, 0, 2560, 720};
+    SDL_Rect fundoRect = {game->scrollX + 0, 0, 2560+155, 720};
     SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
 
     barra = loadTextura("media/base_barra.png");
@@ -556,10 +583,10 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Texture *placa = NULL;
 
     placa = loadTextura("media/signRight.png");
-    SDL_Rect placRect = { game->scrollX + 1260, 570, 70, 100 };
+    SDL_Rect placRect = { game->scrollX + 2500, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
-  for (i = 0; i < 24; i++) { //quantidades de plataformas que existirão
+  for (i = 0; i < 23; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
@@ -604,14 +631,14 @@ void loadGame(GameState *game) {
     game->plat[i].y = 675;
   }
 
-  game->plat[21].x = 300;
-  game->plat[21].y = 600;
+  game->plat[20].x = 300;
+  game->plat[20].y = 600;
 
-  game->plat[22].x = 450;
-  game->plat[22].y = 500;
+  game->plat[21].x = 450;
+  game->plat[21].y = 500;
 
-  game->plat[23].x = 300;
-  game->plat[23].y = 400;
+  game->plat[22].x = 300;
+  game->plat[22].y = 400;
 
   game->inim.x = 700;
   game->inim.y = 644;
@@ -790,14 +817,15 @@ void processo(GameState *game) {
     inim->x = LARG + 3;
   }
 
-  game->scrollX = -game->alice.x + 320;
-  if (game->scrollX > 0) {
+  game->scrollX = -game->alice.x + 598;
+  if(game->scrollX > 0) {
     game->scrollX = 0;
   }
-  if (game->scrollX > 2240) {
-    game->scrollX = 2560 - 320;
+  if(game->scrollX < -2580 + 598) {
+    game->scrollX = -2580 + 598;
   }
-}
+
+  }
 
  //vai só pra esquerda
   /*if (i == 0) {
@@ -878,12 +906,7 @@ void colisaoplat(GameState *game) {
   }
 }
 
-/*void colisaoplat(GameState *game) {
-  float aw = 84, ah = 144; //largura e altura da alice;
-  float ax = game->alice.x, ay = game->alice.y; //posição da alice
-
-  float pw = 50, ph = 28; 
-  float px = game->inim.x, py = game->inim.y; 
-
-  if ()
-}*/
+int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2)
+{
+  return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
+}
