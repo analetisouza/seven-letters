@@ -138,23 +138,41 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+bool telapause(SDL_Renderer *renderer){
+  bool sucesso = true;
+  SDL_Texture *telaPause = NULL;
+  telaPause = loadTextura("media/menu_pausa.png");
+  //SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, telaPause, NULL, NULL);
+  SDL_RenderPresent(renderer);
+  SDL_Delay(3000);
+
+}
 
 bool eventos(SDL_Window *janela, GameState *game) {
-  SDL_Event evento;
+  SDL_Event event;
   bool jogando = true;
+  while(SDL_PollEvent(&event) != 0) {
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+          case SDL_MOUSEBUTTONDOWN:
+            if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT) {
+              telapause(renderer);
+            }
 
-  while(SDL_PollEvent(&evento) != 0) {
-    if (evento.type == SDL_QUIT) {
+    }
+    if (event.type == SDL_QUIT) {
       jogando = false;
       break;
     }
-    if (evento.type == SDL_KEYDOWN) {
-      switch (evento.key.keysym.sym) {
+    if (event.type == SDL_KEYDOWN) {
+      switch (event.key.keysym.sym) {
         case (SDLK_LALT && SDLK_F4):
           jogando = false;
           break;
         case SDLK_ESCAPE: //ajeitar
-          jogando = false;
+          //jogando = false;
+          telapause(renderer);
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
@@ -272,6 +290,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
   SDL_Texture *imgCreditos = NULL;
   SDL_Texture *imgRanking = NULL;
   SDL_Texture *retornar = NULL;
+  SDL_Texture *jogar3 = NULL;
 
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -281,6 +300,8 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     jogar = loadTextura("media/jogar1.png");
     SDL_Rect jogarRect = {378, 397, 124, 50};
     SDL_RenderCopy(renderer, jogar, NULL, &jogarRect);
+
+    jogar3 = loadTextura("media/jogar2.png");
 
     niveis = loadTextura("media/niveis1.png");
     SDL_Rect niveisRect = {385, 490, 146, 53};
@@ -374,14 +395,15 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             }
 
             break;
+        }
       }
-    }
     }
   }
 
     SDL_Delay(300);
     SDL_DestroyTexture(background);
     SDL_DestroyTexture(jogar);
+    SDL_DestroyTexture(jogar3);
     SDL_DestroyTexture(niveis);
     SDL_DestroyTexture(ranking);
     SDL_DestroyTexture(creditos);
@@ -488,7 +510,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
-
 
   }
     
@@ -616,11 +637,6 @@ void trocar (SDL_Renderer *renderer, int num) {
 
 }
 
-
-bool telapause(SDL_Renderer *renderer){
-  bool sucesso = true;
-
-}
 
 
 bool nivel1(SDL_Renderer *renderer) {
@@ -784,28 +800,6 @@ void colisaoplat(GameState *game) {
         game->alice.dx = 0;
       }
     }
-  //arrumar esssa parte pq tá teleportando
-  /*if (py < ay+ah && ay < py+ph) {
-    //rubbing against right edge
-    if (ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
-      //correct x
-      game->alice.x = px + pw;
-      ax = px + pw;
-
-      game->alice.dx = 0;
-    }
-    else {
-      //rubbing against left edge
-      if (px < ax+aw && ax < px && game->alice.dx > 0) {
-        //correct x
-        //game->alice.x -= 1;
-        game->alice.x = px-aw;
-        ax = px-aw;
-        
-        game->alice.dx = 0;
-      }
-    }
-  }*/
   }
 }
 
