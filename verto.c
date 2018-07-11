@@ -104,7 +104,7 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* background = NULL;
 SDL_Texture* jogar = NULL;
 SDL_Texture* niveis = NULL;
-SDL_Texture* opcoes = NULL;
+SDL_Texture* ranking = NULL;
 SDL_Texture* creditos = NULL;
 SDL_Texture* sair = NULL;
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
   else {
     //srandom((int)time(NULL));
     game.renderer = renderer;
-    if ( !telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair)) {
+    if ( !telainicial(renderer, background, jogar, niveis, ranking, creditos, sair)) {
       saida();
       IMG_Quit();
       SDL_Quit();
@@ -265,12 +265,13 @@ void saida () {
 }
 
 
-bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *jogar, SDL_Texture *niveis, SDL_Texture *opcoes, SDL_Texture *creditos, SDL_Texture *sair) {
+bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *jogar, SDL_Texture *niveis, SDL_Texture *ranking, SDL_Texture *creditos, SDL_Texture *sair) {
   bool sucesso = true;
   int num = 0;
   SDL_Texture *imgNiveis = NULL;
   SDL_Texture *imgCreditos = NULL;
   SDL_Texture *imgRanking = NULL;
+  SDL_Texture *retornar = NULL;
 
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -289,13 +290,16 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_Rect credRect = {360, 587, 196, 57};
     SDL_RenderCopy(renderer, creditos, NULL, &credRect);
 
-    opcoes = loadTextura("media/opcoes1.png");
-    SDL_Rect opcRect = {770, 392, 148, 57};
-    SDL_RenderCopy(renderer, opcoes, NULL, &opcRect);
+    ranking = loadTextura("media/ranking1.png");
+    SDL_Rect ranRect = {740, 392, 196, 57};
+    SDL_RenderCopy(renderer, ranking, NULL, &ranRect);
 
     sair = loadTextura("media/sair1.png");
     SDL_Rect sairRect = {780, 490, 98, 41};
     SDL_RenderCopy(renderer, sair, NULL, &sairRect);
+
+    retornar = loadTextura("media/retornar1.png");
+    SDL_Rect retRect = {30, 600, 100, 100};
 
     SDL_RenderPresent(renderer);
 
@@ -312,62 +316,61 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
       switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
-            if (event.motion.x > jogarRect.x && event.motion.x < jogarRect.x + jogarRect.w && event.motion.y > jogarRect.y && event.motion.y < jogarRect.y + jogarRect.h && event.button.button == SDL_BUTTON_LEFT) {
+          //printf ("%d\n", event.motion.x);
+            if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 num = 1;
                 trocar(renderer, num);
                 SDL_Delay(300);
                 gameloop = false;
             }
-
-            if (event.motion.x > niveisRect.x && event.motion.x < niveisRect.x + niveisRect.w && event.motion.y > niveisRect.y && event.motion.y < niveisRect.y + niveisRect.h && event.button.button == SDL_BUTTON_LEFT) {
+            if (event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
               num = 2;
               trocar(renderer, num);
               SDL_Delay(300);
               imgNiveis = loadTextura("media/menu_niveis.png"); //
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
+              SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              SDL_Delay(3000);
-              gameloop = false;
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               //gameloop = false;
             }
 
-            if (event.motion.x > credRect.x && event.motion.x < credRect.x + credRect.w && event.motion.y > credRect.y && event.motion.y < credRect.y + credRect.h && event.button.button == SDL_BUTTON_LEFT) {
+            if (event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660 && event.button.button == SDL_BUTTON_LEFT) {
               num = 3;
               trocar(renderer, num);
               SDL_Delay(300);
               imgCreditos = loadTextura("media/creditos_teste.png"); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
+              SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              SDL_Delay(3000);
-              gameloop = false;
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               //gameloop = false;
             }
 
-            if (event.motion.x > opcRect.x && event.motion.x < opcRect.x + opcRect.w && event.motion.y > opcRect.y && event.motion.y < opcRect.y + opcRect.h && event.button.button == SDL_BUTTON_LEFT) {
+            if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
               num = 4;
               trocar(renderer, num);
               SDL_Delay(300);
               imgRanking = loadTextura("media/ranking.png"); //
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
+              SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              SDL_Delay(3000);
-              gameloop = false;
-              telainicial(renderer, background, jogar, niveis, opcoes, creditos, sair);
               //gameloop = false;
             }
 
-            if (event.motion.x > sairRect.x && event.motion.x < sairRect.x + sairRect.w && event.motion.y > sairRect.y && event.motion.y < sairRect.y + sairRect.h && event.button.button == SDL_BUTTON_LEFT) {
+            if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
               num = 5;
               trocar(renderer, num);
               SDL_Delay(500);               
               gameloop = false;
               sucesso = false;
               exit(1);
+            }
+
+            if(event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
+              gameloop = false;
+              telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
             }
 
             break;
@@ -380,12 +383,13 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_DestroyTexture(background);
     SDL_DestroyTexture(jogar);
     SDL_DestroyTexture(niveis);
-    SDL_DestroyTexture(opcoes);
+    SDL_DestroyTexture(ranking);
     SDL_DestroyTexture(creditos);
     SDL_DestroyTexture(sair);
     SDL_DestroyTexture(imgNiveis);
     SDL_DestroyTexture(imgCreditos);
     SDL_DestroyTexture(imgRanking);
+    SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
 
   return sucesso;
@@ -593,12 +597,12 @@ void trocar (SDL_Renderer *renderer, int num) {
   }
 
   if (num == 4) {
-    SDL_Texture *opcoes2 = NULL;
-    SDL_Rect opcRect = {770, 392, 148, 57};
-    opcoes2 = loadTextura("media/opcoes3.png");
-    SDL_RenderCopy(renderer, opcoes2, NULL, &opcRect);
+    SDL_Texture *ranking2 = NULL;
+    SDL_Rect ranRect = {740, 392, 196, 57};
+    ranking2 = loadTextura("media/ranking3.png");
+    SDL_RenderCopy(renderer, ranking2, NULL, &ranRect);
     SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(opcoes2);
+    SDL_DestroyTexture(ranking2);
   }
 
   if (num == 5) {
