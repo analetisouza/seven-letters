@@ -139,43 +139,60 @@ int main(int argc, char *argv[]) {
 }
 
 void telapause(SDL_Renderer *renderer) {
-  int num = 0;
+  int num = 0, stop;
+  bool gameloop = true;
   SDL_Event event;
   SDL_Texture *telaPause = NULL;
   SDL_Texture *menuPause = NULL;
 
-  while(SDL_PollEvent(&event) != 0) {
-    printf ("%d\n", event.motion.x);
+  telaPause = loadTextura("media/menu_pausa.png");
+  SDL_RenderCopy(renderer, telaPause, NULL, NULL);
+  SDL_RenderPresent(renderer);
+
+  while (gameloop == true) {
+  while(SDL_PollEvent(&event)) {
     switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
-          printf ("%d\n", event.motion.x);
-        }
+            if (event.motion.x > 372 && event.motion.x < 520 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
+              num = 6;
+              trocar(renderer, num);
+              SDL_Delay(1000);
+              telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
+              gameloop = false;
+            }
+            if (event.motion.x > 565 && event.motion.x < 714 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
+              num = 7;
+              trocar(renderer, num);
+              SDL_Delay(500);
+              gameloop = false;
+            }
+            if (event.motion.x > 780 && event.motion.x < 889 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
+              num = 8;
+              trocar(renderer, num);
+              SDL_Delay(500);
+              gameloop = false;
+            }
+          break;
+       }
+      if (event.type == SDL_QUIT) {
+        exit(1);
+      }
+    }
   }
-  //printf ("%d\n", event.motion.x);
-  telaPause = loadTextura("media/menu_pausa.png");
-  //SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, telaPause, NULL, NULL);
-  SDL_RenderPresent(renderer);
-  //num = 6;
-  //menu3.png
-  //trocar(renderer, num);
-  SDL_Delay(10000);
-  //event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT
-
 
 }
 
 bool eventos(SDL_Window *janela, GameState *game) {
   SDL_Event event;
   bool jogando = true;
-  while(SDL_PollEvent(&event) != 0) {
+  while(SDL_PollEvent(&event)) {
     //printf ("%d\n", event.motion.x);
     switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT) {
-              telapause(renderer);
+                telapause(renderer);
             }
     }
     if (event.type == SDL_QUIT) {
@@ -306,7 +323,6 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
   SDL_Texture *imgCreditos = NULL;
   SDL_Texture *imgRanking = NULL;
   SDL_Texture *retornar = NULL;
-  SDL_Texture *jogar3 = NULL;
 
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -317,7 +333,6 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_Rect jogarRect = {378, 397, 124, 50};
     SDL_RenderCopy(renderer, jogar, NULL, &jogarRect);
 
-    jogar3 = loadTextura("media/jogar2.png");
 
     niveis = loadTextura("media/niveis1.png");
     SDL_Rect niveisRect = {385, 490, 146, 53};
@@ -419,7 +434,6 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_Delay(300);
     SDL_DestroyTexture(background);
     SDL_DestroyTexture(jogar);
-    SDL_DestroyTexture(jogar3);
     SDL_DestroyTexture(niveis);
     SDL_DestroyTexture(ranking);
     SDL_DestroyTexture(creditos);
@@ -652,6 +666,30 @@ void trocar (SDL_Renderer *renderer, int num) {
   }
 
   if (num == 6) {
+    SDL_Texture *menu2 = NULL;
+    SDL_Rect menu2Rect = {356, 365, 175, 200};
+    menu2 = loadTextura("media/menu3.png");
+    SDL_RenderCopy(renderer, menu2, NULL, &menu2Rect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(menu2);
+  }
+
+    if (num == 7) {
+    SDL_Texture *cont2 = NULL;
+    SDL_Rect cont2Rect = {552, 364, 175, 200};
+    cont2 = loadTextura("media/continuar3.png");
+    SDL_RenderCopy(renderer, cont2, NULL, &cont2Rect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(cont2);
+  }
+
+    if (num == 8) {
+    SDL_Texture *pause2 = NULL;
+    SDL_Rect pause2Rect = {746, 364, 175, 200};
+    pause2 = loadTextura("media/opcoes_pausa3.png");
+    SDL_RenderCopy(renderer, pause2, NULL, &pause2Rect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(pause2);
   }
 
 }
