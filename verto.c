@@ -1,10 +1,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
 
 #define Gravidade 6.0f
+#define STATUS_STATE_LIVES 0
+#define STATUS_STATE_GAME 1
+#define STATUS_STATE_GAMEOVER 2
+
 
 typedef struct {
   float x, y;
@@ -33,8 +38,12 @@ typedef struct { //personagem
   SDL_Texture *aliceFrames[6]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
   SDL_Texture *inimFrames[2];
+  SDL_Texture *label;
+
+  TTF_Font *font;
 
   int time;
+  int statusState;
 
   SDL_Renderer *renderer;
 } GameState;
@@ -54,7 +63,22 @@ bool nivel1 (SDL_Renderer*);
 void colisaoplat(GameState*);
 void colisaoinim(GameState*);
 void processo(GameState*);
+void init_status_lives(GameState*);
+void draw_status_lives(GameState*);
+void shutdown_status_lives(GameState*);
 
+
+void init_status_lives(GameState* game) {
+
+}
+
+void draw_status_lives(GameState* game) {
+
+}
+
+void shutdown_status_lives(GameState* game) {
+
+}
 
 SDL_Texture* loadTextura (const char *path); 
 
@@ -196,6 +220,7 @@ bool inicializador () {
         sucesso = false;
       }
       else {
+        TTF_Init();
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         int imgFlags = IMG_INIT_PNG;
         if ( !(IMG_Init(imgFlags) & imgFlags) ) {
@@ -217,6 +242,7 @@ void saida () {
   janela = NULL;
   renderer = NULL;
 
+  TTF_Quit();
   IMG_Quit();
   SDL_Quit();
 
@@ -378,6 +404,11 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
 
+    if (game->statusState == STATUS_STATE_LIVES) {
+      draw_status_lives(game);
+    }
+    else if (game->statusState == STATUS_STATE_GAME) {
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
@@ -417,12 +448,16 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(vida);
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
+  }
     
 }
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
-
+  if (game->statusState == STATUS_STATE_LIVES) {
+    draw_status_lives(game);
+  }
+  else if (game->statusState == STATUS_STATE_GAME) {
   for (i = 0; i < 13; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
@@ -435,13 +470,15 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   //Alice
   SDL_Rect rect = { game->alice.x, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
-
+  }
 }
 
 
 void loadGame(GameState *game) {
   int i;
   //posição da alice;
+  game->label = NULL;
+
   game->alice.x = 30;
   game->alice.y = 500;
   game->alice.dx = 0;
@@ -450,6 +487,9 @@ void loadGame(GameState *game) {
   game->alice.animFrame = 0;
   game->alice.facingLeft = 0; //0 pq o boneco tá virado pra direita
   game->alice.slowingDown = 0;
+  game->statusState = STATUS_STATE_LIVES;
+
+  init_status_lives(game);
 
   game->time = 0;
 
@@ -550,6 +590,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_Delay(1000);
 
   loadGame(&game);
+  game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 48);
   game.plataforma = loadTextura("media/plataforma.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
@@ -574,6 +615,10 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.inimFrames[0]);
   SDL_DestroyTexture(game.inimFrames[1]); 
+  if(game.label != NULL) {
+    SDL_DestroyTexture(game.label);
+  }
+  TTF_CloseFont(game.font);
 
 
     return sucesso;
@@ -584,6 +629,12 @@ void processo(GameState *game) {
   //add time
   game->time++;
 
+  if(game->time > 120) {
+    shutdown_status_lives(game);
+    game->statusState = STATUS_STATE_GAME;
+  }
+
+  if (game->statusState == STATUS_STATE_GAME) {
   //movimento da Alice
   Alice *alice = &game->alice;
   alice->x += alice->dx;
@@ -610,6 +661,7 @@ void processo(GameState *game) {
   if (inim->x + 3 < 0) {  //vai só pra esquerda
     inim->x = LARG + 3;
   }
+}
 
  //vai só pra esquerda
   /*if (i == 0) {
