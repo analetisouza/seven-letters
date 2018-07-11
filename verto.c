@@ -138,14 +138,31 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-bool telapause(SDL_Renderer *renderer){
-  bool sucesso = true;
+void telapause(SDL_Renderer *renderer) {
+  int num = 0;
+  SDL_Event event;
   SDL_Texture *telaPause = NULL;
+  SDL_Texture *menuPause = NULL;
+
+  while(SDL_PollEvent(&event) != 0) {
+    printf ("%d\n", event.motion.x);
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+          case SDL_MOUSEBUTTONDOWN:
+          printf ("%d\n", event.motion.x);
+        }
+  }
+  //printf ("%d\n", event.motion.x);
   telaPause = loadTextura("media/menu_pausa.png");
   //SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, telaPause, NULL, NULL);
   SDL_RenderPresent(renderer);
-  SDL_Delay(3000);
+  //num = 6;
+  //menu3.png
+  //trocar(renderer, num);
+  SDL_Delay(10000);
+  //event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT
+
 
 }
 
@@ -153,13 +170,13 @@ bool eventos(SDL_Window *janela, GameState *game) {
   SDL_Event event;
   bool jogando = true;
   while(SDL_PollEvent(&event) != 0) {
+    //printf ("%d\n", event.motion.x);
     switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT) {
               telapause(renderer);
             }
-
     }
     if (event.type == SDL_QUIT) {
       jogando = false;
@@ -170,8 +187,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
         case (SDLK_LALT && SDLK_F4):
           jogando = false;
           break;
-        case SDLK_ESCAPE: //ajeitar
-          //jogando = false;
+        case SDLK_ESCAPE:
           telapause(renderer);
           break;
         case SDLK_SPACE:
@@ -383,7 +399,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
               num = 5;
               trocar(renderer, num);
-              SDL_Delay(500);               
+              SDL_Delay(300);               
               gameloop = false;
               sucesso = false;
               exit(1);
@@ -633,6 +649,9 @@ void trocar (SDL_Renderer *renderer, int num) {
     SDL_RenderCopy(renderer, sair2, NULL, &sairRect);
     SDL_RenderPresent(renderer);
     SDL_DestroyTexture(sair2);
+  }
+
+  if (num == 6) {
   }
 
 }
