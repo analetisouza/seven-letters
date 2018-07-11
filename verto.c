@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define Gravidade 3.8f
+#define Gravidade 6.0f
 
 typedef struct {
   float x, y;
@@ -16,16 +16,23 @@ typedef struct {
   int animFrame, facingLeft, slowingDown;
 } Alice;
 
+
 typedef struct {
-  int x, y, w, h;
+  float x, y, w, h;
 } PLAT;
+
+typedef struct {
+  float x, y;
+} INIMIGO;
 
 typedef struct { //personagem
   Alice alice; //players
   PLAT plat[100];
+  INIMIGO inim;
 
-  SDL_Texture *aliceFrames[4]; //
+  SDL_Texture *aliceFrames[6]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
+  SDL_Texture *inimFrames[2];
 
   int time;
 
@@ -45,12 +52,11 @@ void trocar(SDL_Renderer*, int);
 void loadGame(GameState*);
 bool nivel1 (SDL_Renderer*);
 void colisaoplat(GameState*);
-void colisaochao(GameState*);
+void colisaoinim(GameState*);
 void processo(GameState*);
-void extremjanela(GameState*);
+
 
 SDL_Texture* loadTextura (const char *path); 
-
 
 SDL_Window* janela = NULL;
 SDL_Renderer* renderer = NULL;
@@ -87,9 +93,6 @@ int main(int argc, char *argv[]) {
 
 }
 
-  SDL_DestroyTexture(game.plataforma);
-  SDL_DestroyTexture(game.aliceFrames[0]);
-  SDL_DestroyTexture(game.aliceFrames[1]);  
   saida();
 
   return 0;
@@ -115,7 +118,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
-            game->alice.dy = -20;
+            game->alice.dy = -27;
             game->alice.onPlat = 0;
           }
           break;
@@ -127,32 +130,33 @@ bool eventos(SDL_Window *janela, GameState *game) {
   
 const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   if(state[SDL_SCANCODE_LEFT]) {
-    if (game->alice.x - 11 < 0) {
+    if (game->alice.x - 6 < 0) {
       game->alice.x = 0;
     }
     else {
-      game->alice.x -= 10;
+      game->alice.x -= 5;
     }
 
     game->alice.dx -= 0.5; //aceleração
-    if(game->alice.dx < -6) {
-      game->alice.dx = -6;
+
+    if(game->alice.dx < -5) {
+      game->alice.dx = -5;
     }
     game->alice.facingLeft = 1;
     game->alice.slowingDown = 0;
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 84 + 11) > LARG) {
+    if ((game->alice.x + 84 + 6) > LARG) {
       game->alice.x = LARG - 84;
     }
     else {
-      game->alice.x += 10;
+      game->alice.x += 5;
     }
 
     game->alice.dx += 0.5; //aceleração
-    if(game->alice.dx > 6) {
-      game->alice.dx = 6;
+    if(game->alice.dx > 5) {
+      game->alice.dx = 5;
     }
     game->alice.facingLeft = 0;
     game->alice.slowingDown = 0;
@@ -371,12 +375,15 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *fundo = NULL;
   SDL_Texture *barra = NULL;
   SDL_Texture *vida = NULL;
+  SDL_Texture *placa = NULL;
+  SDL_Texture *pause = NULL;
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
     fundo = loadTextura("media/mapa.png");
-    SDL_RenderCopy(renderer, fundo, NULL, NULL);
+    SDL_Rect fundoRect = {0, 0, 1280, 720};
+    SDL_RenderCopy(renderer, fundo, &fundoRect, NULL);
 
     barra = loadTextura("media/base_barra.png");
     SDL_Rect barraRect = {0, 0, 1280, 109};
@@ -387,6 +394,14 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect vidaRect = {180, 10, 49, 39};
     SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
 
+    placa = loadTextura("media/signRight.png");
+    SDL_Rect placRect = { 120, 570, 70, 100 };
+    SDL_RenderCopy(renderer, placa, NULL, &placRect);
+
+    pause = loadTextura("media/botao_pausa.png");
+    SDL_Rect pauseRect = { 1100, 15, 74, 75 };
+    SDL_RenderCopy(renderer, pause, NULL, &pauseRect);
+
     //if (alice.vida == 2)
     //SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
     SDL_Rect vida2Rect = {245, 10, 49, 39};
@@ -396,10 +411,13 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect vida3Rect = {310, 10, 49, 39};
     SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
 
+
     SDL_DestroyTexture(fundo);
     SDL_DestroyTexture(barra);
     SDL_DestroyTexture(vida);
-
+    SDL_DestroyTexture(placa);
+    SDL_DestroyTexture(pause);
+    
 }
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
@@ -410,8 +428,12 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
 
+  //inimigo arrumar
+  SDL_Rect inimRect = { game->inim.x, game->inim.y, 50, 28 };
+  SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
+
   //Alice
-  SDL_Rect rect = { game->alice.x, game->alice.y, 84, 144 };
+  SDL_Rect rect = { game->alice.x, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
 }
@@ -419,32 +441,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
 
 void loadGame(GameState *game) {
   int i;
-  SDL_Surface *surface = NULL;
-
-  surface = IMG_Load("media/p1_front.png");
-  if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'alice.png'!\n");
-  }
-  game->aliceFrames[0] = SDL_CreateTextureFromSurface(game->renderer, surface);
-  SDL_FreeSurface(surface);
-
-
-  surface = IMG_Load("media/p1_jump.png");
-  if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'right.png'!\n");
-  }
-  game->aliceFrames[1] = SDL_CreateTextureFromSurface(game->renderer, surface);
-  SDL_FreeSurface(surface);
-
-
-  surface = IMG_Load("media/plataforma.png");
-  if(surface == NULL) {
-    printf("Não foi possivel encontrar o arquivo 'plataforma.png'!\n");
-  }
-  game->plataforma = SDL_CreateTextureFromSurface(game->renderer, surface);
-  SDL_FreeSurface(surface);
-
-
   //posição da alice;
   game->alice.x = 30;
   game->alice.y = 500;
@@ -456,12 +452,6 @@ void loadGame(GameState *game) {
   game->alice.slowingDown = 0;
 
   game->time = 0;
-
-  /*posição aleatoria de stars, caso queira inserir algo aleatório
-  for (i = 0; i < 5; i++) {
-    game->stars[i].x = random()%LARG;
-    game->stars[i].y = random()%ALT;
-  }*/
 
   //posição das plataformas 
   for (i = 0; i < 10; i++) { //do chão
@@ -477,6 +467,18 @@ void loadGame(GameState *game) {
 
   game->plat[12].x = 300;
   game->plat[12].y = 400;
+
+  game->inim.x = 700;
+  game->inim.y = 644;
+  //game->inim.w = 50;
+  //game->inim.h = 28;
+
+
+  /*posição aleatoria de stars, caso queira inserir algo aleatório
+  for (i = 0; i < 5; i++) {
+    game->stars[i].x = random()%LARG;
+    game->stars[i].y = random()%ALT;
+  }*/
 
 }
 
@@ -531,6 +533,12 @@ void trocar (SDL_Renderer *renderer, int num) {
 }
 
 
+bool telapause(SDL_Renderer *renderer){
+  bool sucesso = true;
+
+}
+
+
 bool nivel1(SDL_Renderer *renderer) {
   bool sucesso = true;
   bool jogando = true;
@@ -539,33 +547,33 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
-  SDL_Delay(500);
+  SDL_Delay(1000);
 
   loadGame(&game);
   game.plataforma = loadTextura("media/plataforma.png");
-  game.aliceFrames[0] = loadTextura("media/p1_front.png");
-  game.aliceFrames[1] = loadTextura("media/p1_jump.png");
+  game.aliceFrames[0] = loadTextura("media/alice1.png");
+  game.aliceFrames[1] = loadTextura("media/alice2.png");
+  game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
+  game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
 
     while(jogando != false) {
-      RenderNivel(renderer, &game);
       SDL_RenderClear(renderer);
-
       RenderNivel(renderer, &game);
       RenderObjetos(renderer, &game);
       jogando = eventos(janela, &game);
       processo(&game);
       colisaoplat(&game);
-      //extremjanela(&game);
       SDL_RenderPresent(renderer);
-      SDL_Delay(1/3600);
-      //SDL_Delay(1000/60);
+      SDL_Delay(1000/60);
     }
 
     SDL_Delay(500);
-    SDL_DestroyTexture(game.plataforma);
-    SDL_DestroyTexture(game.aliceFrames[0]);
-    SDL_DestroyTexture(game.aliceFrames[1]);  
-    //SDL_DestroyTexture(game.aliceFrames[2]);
+
+  SDL_DestroyTexture(game.plataforma);
+  SDL_DestroyTexture(game.aliceFrames[0]);
+  SDL_DestroyTexture(game.aliceFrames[1]); 
+  SDL_DestroyTexture(game.inimFrames[0]);
+  SDL_DestroyTexture(game.inimFrames[1]); 
 
 
     return sucesso;
@@ -584,7 +592,7 @@ void processo(GameState *game) {
   alice->dy += Gravidade;
 
   if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
-    if (game->time % 1 == 0) {
+    if (game->time % 5 == 0) {
       if (alice->animFrame == 0) {
         alice->animFrame = 1;
       }
@@ -594,22 +602,52 @@ void processo(GameState *game) {
     }
   }
 
+  //movimento do inimigo
+  int velX = 3;
+  INIMIGO *inim = &game->inim;
+
+  inim->x -= velX;
+  if (inim->x + 3 < 0) {  //vai só pra esquerda
+    inim->x = LARG + 3;
+  }
+
+ //vai só pra esquerda
+  /*if (i == 0) {
+  if (inim->x - 3 < 0) {
+      inim->x = 0;
+      i = 1;
+  }
+  else {
+      inim->x -= velX;
+  }
+}
+  if (i == 1) {
+    if (inim->x + 50 + 3 > LARG) {
+      inim->x = LARG - 50;
+      i = 0;
+    }
+    else {
+      inim->x -= velX;
+    }
+  }*/
+
+
 }
 
 
 void colisaoplat(GameState *game) {
   int i;
 
-  for (i = 0; i < 100; i++) {
-  float aw = 84, ah = 144; //largura e altura da alice;
+  for (i = 0; i < 15; i++) {
+  float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
-  float pw = 128, ph = 30; //largura e altura da plat;
+  float pw = 128, ph = 29; //largura e altura da plat;
   float px = game->plat[i].x, py = game->plat[i].y; //posição da plat;
 
-  if (px < (ax+aw/2) && ((ax+aw/2) < (px+pw))) {
+  if (px < ax+aw/2 && ax+aw/2 < px+pw) {
       //are we bumping our head?
-    if (ay < (py+ph) && ay > py && game->alice.dy < 0) {
+    if (ay < py+ph && ay > py && game->alice.dy < 0) {
         //correct y
         game->alice.y = py + ph;
         ay = py + ph; 
@@ -629,8 +667,28 @@ void colisaoplat(GameState *game) {
       game->alice.onPlat = 1;
     }
   }
+
+      if(ay+ah > py && ay<py+ph) {
+      //rubbing against right edge
+      if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
+        //correct x
+        game->alice.x = px+pw;
+        ax = pw+pw;
+
+        game->alice.dx = 0;
+      }
+      //rubbing against left edge
+      else if(ax+aw > px && ax < px && game->alice.dx > 0)
+      {
+        //correct x
+        game->alice.x = px-aw;
+        ax = px-aw;
+        
+        game->alice.dx = 0;
+      }
+    }
   //arrumar esssa parte pq tá teleportando
-  if (py < ay+ah && ay < py+ph) {
+  /*if (py < ay+ah && ay < py+ph) {
     //rubbing against right edge
     if (ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
       //correct x
@@ -650,6 +708,16 @@ void colisaoplat(GameState *game) {
         game->alice.dx = 0;
       }
     }
-  }
+  }*/
   }
 }
+
+/*void colisaoplat(GameState *game) {
+  float aw = 84, ah = 144; //largura e altura da alice;
+  float ax = game->alice.x, ay = game->alice.y; //posição da alice
+
+  float pw = 50, ph = 28; 
+  float px = game->inim.x, py = game->inim.y; 
+
+  if ()
+}*/
