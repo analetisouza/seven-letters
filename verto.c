@@ -10,11 +10,11 @@
 #define STATUS_STATE_GAME 1
 #define STATUS_STATE_GAMEOVER 2
 
-
 typedef struct {
   float x, y;
   float dx, dy;
-  short life;
+  short lives;
+  int pontos;
   char *name;
   int onPlat;
 
@@ -35,10 +35,11 @@ typedef struct { //personagem
   PLAT plat[100];
   INIMIGO inim;
 
-  SDL_Texture *aliceFrames[6]; //alterar pra não dar erro de seg
+  SDL_Texture *aliceFrames[4]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
-  SDL_Texture *inimFrames[2];
+  SDL_Texture *inimFrames[4];
   SDL_Texture *label;
+  int labelW, labelH;
 
   TTF_Font *font;
 
@@ -69,15 +70,30 @@ void shutdown_status_lives(GameState*);
 
 
 void init_status_lives(GameState* game) {
+  SDL_Color white = {255, 255, 255, 255};
+
+  /*SDL_Surface *tmp = TTF_RenderText_Blended(game->font, "Words", white);
+  game->labelW = tmp->w;
+  game->labelH = tmp->h;
+  game->label = SDL_CreateTextureFromSurface(game->renderer, tmp);
+  SDL_FreeSurface(tmp);*/
 
 }
 
 void draw_status_lives(GameState* game) {
+  //SDL_Renderer *renderer = game->renderer;
+
+  SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(game->renderer);
+  SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 255);
+  SDL_Rect textRect = {320, 240-game->labelH, game->labelW, game->labelH};
+  SDL_RenderCopy(game->renderer, game->label, NULL, &textRect);
 
 }
 
 void shutdown_status_lives(GameState* game) {
-
+  SDL_DestroyTexture(game->label);
+  game->label = NULL;
 }
 
 SDL_Texture* loadTextura (const char *path); 
@@ -254,7 +270,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
   int num = 0;
   SDL_Texture *imgNiveis = NULL;
   SDL_Texture *imgCreditos = NULL;
-  SDL_Texture *imgOpcoes = NULL;
+  SDL_Texture *imgRanking = NULL;
 
     background = loadTextura("media/menu.png");
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -299,15 +315,15 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             if (event.motion.x > jogarRect.x && event.motion.x < jogarRect.x + jogarRect.w && event.motion.y > jogarRect.y && event.motion.y < jogarRect.y + jogarRect.h && event.button.button == SDL_BUTTON_LEFT) {
                 num = 1;
                 trocar(renderer, num);
-                SDL_Delay(500);
+                SDL_Delay(300);
                 gameloop = false;
             }
 
             if (event.motion.x > niveisRect.x && event.motion.x < niveisRect.x + niveisRect.w && event.motion.y > niveisRect.y && event.motion.y < niveisRect.y + niveisRect.h && event.button.button == SDL_BUTTON_LEFT) {
               num = 2;
               trocar(renderer, num);
-              SDL_Delay(500);
-              imgNiveis = loadTextura("media/creditos_teste.png"); //
+              SDL_Delay(300);
+              imgNiveis = loadTextura("media/menu_niveis.png"); //
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
               SDL_RenderPresent(renderer);
@@ -320,7 +336,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             if (event.motion.x > credRect.x && event.motion.x < credRect.x + credRect.w && event.motion.y > credRect.y && event.motion.y < credRect.y + credRect.h && event.button.button == SDL_BUTTON_LEFT) {
               num = 3;
               trocar(renderer, num);
-              SDL_Delay(500);
+              SDL_Delay(300);
               imgCreditos = loadTextura("media/creditos_teste.png"); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
@@ -334,10 +350,10 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             if (event.motion.x > opcRect.x && event.motion.x < opcRect.x + opcRect.w && event.motion.y > opcRect.y && event.motion.y < opcRect.y + opcRect.h && event.button.button == SDL_BUTTON_LEFT) {
               num = 4;
               trocar(renderer, num);
-              SDL_Delay(500);
-              imgOpcoes = loadTextura("media/creditos_teste.png"); //
+              SDL_Delay(300);
+              imgRanking = loadTextura("media/ranking.png"); //
               SDL_RenderClear(renderer);
-              SDL_RenderCopy(renderer, imgOpcoes, NULL, NULL);
+              SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
               SDL_RenderPresent(renderer);
               SDL_Delay(3000);
               gameloop = false;
@@ -369,7 +385,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
     SDL_DestroyTexture(sair);
     SDL_DestroyTexture(imgNiveis);
     SDL_DestroyTexture(imgCreditos);
-    SDL_DestroyTexture(imgOpcoes);
+    SDL_DestroyTexture(imgRanking);
     SDL_RenderClear(renderer);
 
   return sucesso;
@@ -398,11 +414,13 @@ SDL_Texture* loadTextura(const char *path) {
 }
 
 void RenderNivel(SDL_Renderer *renderer, GameState *game) {
+  SDL_Color preto = {0, 0, 0, 0};
   SDL_Texture *fundo = NULL;
   SDL_Texture *barra = NULL;
   SDL_Texture *vida = NULL;
   SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
+  SDL_Texture *Nivel1 = NULL;
 
     if (game->statusState == STATUS_STATE_LIVES) {
       draw_status_lives(game);
@@ -419,6 +437,23 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     barra = loadTextura("media/base_barra.png");
     SDL_Rect barraRect = {0, 0, 1280, 109};
     SDL_RenderCopy(renderer, barra, NULL, &barraRect);
+
+    //caso queira inserir algum texto
+    char str[128] = "";
+    sprintf (str, "%d", (int)game->alice.pontos);
+    SDL_Surface *tmp = TTF_RenderText_Blended(game->font, str, preto); 
+    game->labelW = tmp->w;
+    game->labelH = tmp->h;
+    game->label = SDL_CreateTextureFromSurface(renderer, tmp);
+    SDL_FreeSurface(tmp);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_Rect textRect = {965, 60-game->labelH, game->labelW, game->labelH};
+    SDL_RenderCopy(renderer, game->label, NULL, &textRect);
+    //game->alice.pontos++; 
+
+    Nivel1 = loadTextura("media/nivel1.png");
+    SDL_Rect nivel1Rect = {560, 35, 153, 41};
+    SDL_RenderCopy(renderer, Nivel1, NULL, &nivel1Rect);
 
     //if (alice.vida == 1)
     vida = loadTextura("media/coracao_vida.png");
@@ -448,6 +483,9 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(vida);
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
+    SDL_DestroyTexture(Nivel1);
+
+
   }
     
 }
@@ -487,6 +525,8 @@ void loadGame(GameState *game) {
   game->alice.animFrame = 0;
   game->alice.facingLeft = 0; //0 pq o boneco tá virado pra direita
   game->alice.slowingDown = 0;
+  game->alice.lives = 3;
+  game->alice.pontos = 0;
   game->statusState = STATUS_STATE_LIVES;
 
   init_status_lives(game);
@@ -587,10 +627,10 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
-  SDL_Delay(1000);
+  SDL_Delay(100);
 
   loadGame(&game);
-  game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 48);
+  game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
   game.plataforma = loadTextura("media/plataforma.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
@@ -606,6 +646,7 @@ bool nivel1(SDL_Renderer *renderer) {
       colisaoplat(&game);
       SDL_RenderPresent(renderer);
       SDL_Delay(1000/60);
+
     }
 
     SDL_Delay(500);
