@@ -108,7 +108,6 @@ int main(int argc, char *argv[]) {
     printf("Falha ao inicializar!\n");
   }
   else {
-    //srandom((int)time(NULL));
     game.renderer = renderer;
     if ( !telainicial(renderer, background, jogar, niveis, ranking, creditos, sair)) {
       saida();
@@ -204,8 +203,6 @@ bool eventos(SDL_Window *janela, GameState *game) {
             game->alice.onPlat = 0;
           }
           break;
-        //default:
-          //break;
       }
     }
   }
@@ -216,7 +213,7 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
       game->alice.x = 0;
     }
     else {
-      game->alice.x -= 5;
+      game->alice.x -= 10;
     }
 
     game->alice.dx -= 0.5; //aceleração
