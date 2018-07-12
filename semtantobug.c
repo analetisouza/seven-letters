@@ -189,6 +189,8 @@ bool eventos(SDL_Window *janela, GameState *game) {
     }
     if (event.type == SDL_QUIT) {
       jogando = false;
+      saida();
+      exit(1);
       break;
     }
     if (event.type == SDL_KEYDOWN) {
