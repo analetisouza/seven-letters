@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
+#include <stdlib.h>
 
 #define Gravidade 6.0f
 #define STATUS_STATE_LIVES 0
@@ -76,9 +78,10 @@ void trocar(SDL_Renderer*, int);
 void loadGame(GameState*);
 bool nivel1 (SDL_Renderer*);
 void colisaoplat(GameState*);
-int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2);
+int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2);
 void processo(GameState*);
 void shutdown_status_lives(GameState*);
+int distancia(int x1, int y1, int x2, int y2);
 
 
 void shutdown_status_lives(GameState* game) {
@@ -570,8 +573,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       }
     }
 
-      
-
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
@@ -905,7 +906,7 @@ void trocar (SDL_Renderer *renderer, int num) {
     SDL_DestroyTexture(cont2);
   }
 
-    if (num == 8) {
+    /*if (num == 8) {
     SDL_Texture *pause2 = NULL;
     SDL_Rect pause2Rect = {746, 364, 175, 200};
     pause2 = loadTextura("media/opcoes_pausa3.png");
@@ -921,7 +922,7 @@ void trocar (SDL_Renderer *renderer, int num) {
     SDL_RenderCopy(renderer, retornar2, NULL, &ret2Rect);
     SDL_RenderPresent(renderer);
     SDL_DestroyTexture(retornar2);
-  }
+  }*/
 }
 
 
@@ -1029,22 +1030,39 @@ void processo(GameState *game) {
 void colisaoplat(GameState *game) {
   int i = 0;
 
+  /*if (distancia(game->alice.x, game->alice.y, game->inim.x, game->inim.y) == 0) {
+    game->alice.morta = 1;
+    printf ("a\n");
+    if (game->alice.morta == 1) {
+      game->alice.x += 5;
+      game->alice.lives = 2;
+    }
+  }*/
+
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo
       game->alice.morta = 1;
+      if (game->time % 5 == 0) {
+        game->alice.morta = 0;
       if (game->alice.morta == 1) {
-        game->time%20 < 5;
         game->alice.x += 5;
-        colisao = 1 + i;
         i++;
+        if (i == 1) {
+          game->alice.lives = 2;
+        }
+        if (i == 2) {
+          game->alice.lives = 1;
+        }
+        //colisao = 1 + i;
+        //i++;
       }
-      if (colisao == 1) {
+      /*if (colisao == 1) {
         game->alice.lives = 2;
         game->alice.morta = 0;
       }
-      if (colisao == 2) {
+      if (colisao ==  2) {
         game->alice.lives = 1;
         game->alice.morta = 0;
-      }
+     }*/
   }
 
   for (i = 0; i < 26; i++) {
@@ -1106,6 +1124,12 @@ void colisaoplat(GameState *game) {
   }
 }
 
-int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2) {
+int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
+}
+
+int distancia(int x1, int y1, int x2, int y2) {
+  int d;
+  d = sqrt(pow((x1-x2),2) + pow((y1-y2),2));
+  return d;
 }
