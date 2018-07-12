@@ -14,7 +14,7 @@ typedef struct {
   float x, y;
   float dx, dy;
   short lives;
-  int pontos, Chaves;
+  int pontos;
   char *name;
   int onPlat, morta;
 
@@ -31,10 +31,6 @@ typedef struct {
 
 typedef struct {
   float x, y;
-} CHAVE;
-
-typedef struct {
-  float x, y;
 } MOEDA;
 
 typedef struct { //personagem
@@ -44,14 +40,12 @@ typedef struct { //personagem
   PLAT plat[100];
   INIMIGO inim;
   MOEDA moedas[100];
-  CHAVE chaves;
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
   SDL_Texture *inimFrames[4];
   SDL_Texture *fire;
   SDL_Texture *moeda;
-  SDL_Texture *chave;
   SDL_Texture *label;
   int labelW, labelH;
 
@@ -199,7 +193,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
-            game->alice.dy = -29;
+            game->alice.dy = -25;
             game->alice.onPlat = 0;
           }
           break;
@@ -440,9 +434,6 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
             }
 
             else if(apertou == true && event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
-              num = 9;
-              trocar(renderer, num);
-              SDL_Delay(300); 
               gameloop = false;
               telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
               apertou = false; 
@@ -497,13 +488,13 @@ SDL_Texture* loadTextura(const char *path) {
 void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Color preto = {0, 0, 0, 0};
   SDL_Texture *porta = NULL;
+  SDL_Texture *chave = NULL;
   SDL_Texture *fundo = NULL;
   SDL_Texture *barra = NULL;
   SDL_Texture *vida = NULL;
   SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
-  SDL_Texture *chavinha = NULL;
 
 
    if (game->statusState == STATUS_STATE_GAME) {
@@ -533,7 +524,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_FreeSurface(tmp);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Rect textRect = {965, 60-game->labelH, game->labelW, game->labelH};
-    SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
+    SDL_RenderCopy(renderer, game->label, NULL, &textRect);
+    //game->alice.pontos++; 
 
     Nivel1 = loadTextura("media/nivel1.png");
     SDL_Rect nivel1Rect = {560, 35, 153, 41};
@@ -556,18 +548,13 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
     }
 
-
-    chavinha = loadTextura("media/keyYellow.png");
-    SDL_Rect chavRect = {370, 10, 50, 50};
-
-    if (game->alice.Chaves == 1) {
-      SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
-    }
-      
-
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
+
+    chave = loadTextura("media/chave.png");
+    SDL_Rect chaveRect = { game->scrollX + 39, 350, 50, 25};
+    SDL_RenderCopy(renderer, chave, NULL, &chaveRect);
 
     pause = loadTextura("media/botao_pausa.png");
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
@@ -580,7 +567,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
-    SDL_DestroyTexture(chavinha);
 
   }
     
@@ -592,21 +578,18 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Texture *placa = NULL;
 
     placa = loadTextura("media/signRight.png");
-    //SDL_Rect placRect = { game->scrollX + 2500, 570, 70, 100 };
-    //SDL_RenderCopy(renderer, placa, NULL, &placRect);
+    SDL_Rect placRect = { game->scrollX + 2500, 570, 70, 100 };
+    SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
   for (i = 0; i < 51; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
 
-  for (i = 0; i < 6; i++) { //quantidades de moedas que existirão
+  for (i = 0; i < 26; i++) { //quantidades de moedas que existirão
     SDL_Rect moedaRect = { game->scrollX + game->moedas[i].x, game->moedas[i].y, 30, 30 };
     SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
-
-  SDL_Rect chaveRect = { game->scrollX + game->chaves.x, game->chaves.y, 100, 50}; //chave
-  SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   //inimigo arrumar
   SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 };
@@ -639,6 +622,7 @@ void loadGame(GameState *game) {
 
   game->time = 0;
   game->scrollX = 0;
+
 
 
 
@@ -727,13 +711,13 @@ void loadGame(GameState *game) {
   game->plat[44].x = 1226;
   game->plat[44].y = 290;
 
-  game->plat[45].x = 1566;
+  game->plat[45].x = 1466;
   game->plat[45].y = 350;
 
-  game->plat[46].x = 1694;
+  game->plat[46].x = 1594;
   game->plat[46].y = 350;
 
-  game->plat[47].x = 1822;
+  game->plat[47].x = 1722;
   game->plat[47].y = 350;
 
   game->plat[48].x = 1744;
@@ -746,26 +730,84 @@ void loadGame(GameState *game) {
   game->plat[50].y = 220;
 
   //MOEDINHAS
-  game->moedas[0].x = 118;
-  game->moedas[0].y = 370;
+  game->moedas[0].x = 540;
+  game->moedas[0].y = 560;
 
-  game->moedas[1].x = 158;
-  game->moedas[1].y = 370;
+  game->moedas[1].x = 140;
+  game->moedas[1].y = 300;
 
-  game->moedas[2].x = 198;
+  game->moedas[2].x = 180;
   game->moedas[2].y = 300;
 
-  game->moedas[3].x = 158;
-  game->moedas[3].y = 900;
+  game->moedas[3].x = 430;
+  game->moedas[3].y = 230;
 
   game->moedas[4].x = 640;
   game->moedas[4].y = 370;
 
   game->moedas[5].x = 600;
-  game->moedas[5].y = 420;
+  game->moedas[5].y = 370;
 
-  game->chaves.x = 14;
-  game->chaves.y = 350;
+  game->moedas[6].x = 680;
+  game->moedas[6].y = 370;
+
+  game->moedas[7].x = 920;
+  game->moedas[7].y = 450;
+
+  game->moedas[8].x = 880;
+  game->moedas[8].y = 450;
+
+  game->moedas[9].x = 840;
+  game->moedas[9].y = 450;
+
+  game->moedas[10].x = 1120;
+  game->moedas[10].y = 370;
+
+  game->moedas[11].x = 1160;
+  game->moedas[11].y = 370;
+
+  game->moedas[12].x = 1200;
+  game->moedas[12].y = 370;
+
+  game->moedas[13].x = 1240;
+  game->moedas[13].y = 370;
+
+  game->moedas[14].x = 1280;
+  game->moedas[14].y = 370;
+
+  game->moedas[15].x = 1320;
+  game->moedas[15].y = 370;
+
+  game->moedas[16].x = 320;
+  game->moedas[16].y = 450;
+
+  game->moedas[17].x = 320;
+  game->moedas[17].y = 450;
+
+  game->moedas[18].x = 1600;
+  game->moedas[18].y = 270;
+
+  game->moedas[19].x = 1560;
+  game->moedas[19].y = 270;
+
+  game->moedas[20].x = 1640;
+  game->moedas[20].y = 270;
+
+  game->moedas[21].x = 1280;
+  game->moedas[21].y = 230;
+
+  game->moedas[22].x = 390;
+  game->moedas[22].y = 230;
+
+  game->moedas[23].x = 470;
+  game->moedas[23].y = 230;
+
+  game->moedas[24].x = 730;
+  game->moedas[24].y = 170;
+
+  game->moedas[25].x = 770;
+  game->moedas[25].y = 170;
+
 
   game->inim.x = 700;
   game->inim.y = 644;
@@ -847,14 +889,6 @@ void trocar (SDL_Renderer *renderer, int num) {
     SDL_DestroyTexture(pause2);
   }
 
-  if (num == 9) {
-    SDL_Texture *retornar2 = NULL;
-    SDL_Rect ret2Rect = {30, 600, 100, 100};
-    retornar2 = loadTextura("media/retornar2.png");
-    SDL_RenderCopy(renderer, retornar2, NULL, &ret2Rect);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(retornar2);
-  }
 }
 
 
@@ -873,7 +907,6 @@ bool nivel1(SDL_Renderer *renderer) {
   game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
-  game.chave = loadTextura("media/chave.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
@@ -895,7 +928,6 @@ bool nivel1(SDL_Renderer *renderer) {
 
   SDL_DestroyTexture(game.plataforma);
   SDL_DestroyTexture(game.moeda);
-  SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.inimFrames[0]);
@@ -979,18 +1011,12 @@ void colisaoplat(GameState *game) {
 
   for (i = 0; i < 6; i++) {
     if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
-      game->alice.pontos = game->alice.pontos + 100;
+      game->alice.pontos+=100;
       game->moedas[i].x = -20;
       game->moedas[i].y = -20;
     }
   }
 
-
-    if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { 
-      game->alice.Chaves++;
-      game->chaves.x = -100;
-      game->chaves.y = -100;
-    }
 
 
   for (i = 0; i < 100; i++) {
