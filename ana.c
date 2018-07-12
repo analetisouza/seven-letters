@@ -108,7 +108,6 @@ int main(int argc, char *argv[]) {
     printf("Falha ao inicializar!\n");
   }
   else {
-    //srandom((int)time(NULL));
     game.renderer = renderer;
     if ( !telainicial(renderer, background, jogar, niveis, ranking, creditos, sair)) {
       saida();
@@ -118,8 +117,6 @@ int main(int argc, char *argv[]) {
     }
 
     jogando = true;
-    nivel = 1;
-    nivel1(renderer);
 
 }
 
@@ -173,31 +170,60 @@ void telapause(SDL_Renderer *renderer) {
 
 }
 
-/*void telafim(SDL_Renderer *renderer) {
+void telafim(SDL_Renderer *renderer) {
   int num = 0;
   bool gameloop = true;
   SDL_Event event;
-  SDL_Texture *telaPause = NULL;
-  SDL_Texture *menuPause = NULL;
+  SDL_Texture *telaFim = NULL;
+  SDL_Texture *jogardnv = NULL;
+  SDL_Texture *Menu = NULL;
 
   telaFim = loadTextura("media/fim_jogo.png");
   SDL_RenderCopy(renderer, telaFim, NULL, NULL);
+  jogardnv = loadTextura("media/novamente1.png");
+  SDL_Rect jogardnvRect = {80, 300, 175, 200};
+  SDL_RenderCopy(renderer, jogardnv, NULL, &jogardnvRect);
+  Menu = loadTextura("media/menu1.png");
+  SDL_Rect menuuRect = {80, 500, 175, 200};
+  SDL_RenderCopy(renderer, Menu, NULL, &menuuRect);
   SDL_RenderPresent(renderer);
+//90 245 307 485
+//92 243 503 686
 
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
+    //printf ("%d\n", event.motion.y);
     switch (event.type) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
+            if (event.motion.x > 90 && event.motion.x < 245 && event.motion.y > 307 && event.motion.y < 485 && event.button.button == SDL_BUTTON_LEFT) {
+              num = 10;
+              trocar(renderer, num);
+              SDL_Delay(300);
+              nivel1(renderer);
+              gameloop = false;
+            } 
+            if (event.motion.x > 92 && event.motion.x < 243 && event.motion.y > 503 && event.motion.y < 686 && event.button.button == SDL_BUTTON_LEFT) {
+              num = 11;
+              trocar(renderer, num);
+              SDL_Delay(300);
+              gameloop = false;
+              telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
+            }
           break;
        }
       if (event.type == SDL_QUIT) {
+        saida();
         exit(1);
       }
     }
   }
 
-}*/
+  SDL_DestroyTexture(telaFim);
+  SDL_DestroyTexture(jogardnv);
+  SDL_DestroyTexture(Menu);
+
+}
 
 bool eventos(SDL_Window *janela, GameState *game) {
   SDL_Event event;
@@ -403,7 +429,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
                 num = 1;
                 trocar(renderer, num);
                 SDL_Delay(300);
-                gameloop = false;
+                nivel1(renderer);
                 apertou = false;
             }
             else if (apertou == true && event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
@@ -454,7 +480,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
 
             else if (apertou == true && event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_Delay(300);
-              imgAjuda = loadTextura("media/ranking.png"); 
+              imgAjuda = loadTextura("media/instrucoes.png"); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgAjuda, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
@@ -586,7 +612,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
       if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
-        //telafim(renderer);
+        telafim(renderer);
       }
     }
 
@@ -941,6 +967,25 @@ void trocar (SDL_Renderer *renderer, int num) {
     SDL_RenderPresent(renderer);
     SDL_DestroyTexture(retornar2);
   }
+
+  if (num == 10) {
+    SDL_Texture *jogarnvm2 = NULL;
+    SDL_Rect jogarnv2Rect = {80, 300, 175, 200};
+    jogarnvm2 = loadTextura("media/novamente3.png");
+    SDL_RenderCopy(renderer, jogarnvm2, NULL, &jogarnv2Rect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(jogarnvm2);
+  }
+
+  if (num == 11) {
+    SDL_Texture *menu3 = NULL;
+    SDL_Rect menu3Rect = {80, 300, 175, 200};
+    menu3 = loadTextura("media/novamente3.png");
+    SDL_RenderCopy(renderer, menu3, NULL, &menu3Rect);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(menu3);
+  }
+
 }
 
 
