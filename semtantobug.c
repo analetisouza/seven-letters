@@ -147,6 +147,7 @@ void telapause(SDL_Renderer *renderer) {
             if (event.motion.x > 372 && event.motion.x < 520 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
               num = 6;
               trocar(renderer, num);
+              cont = 1;
               SDL_Delay(1000);
               telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
               gameloop = false;
@@ -231,7 +232,7 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
       game->alice.x = 2560 - 68;
     }
     else {
-      game->alice.x += 6;
+      game->alice.x += 7;
     }
 
     game->alice.dx += 0.5; //aceleração
