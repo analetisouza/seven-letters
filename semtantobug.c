@@ -66,7 +66,7 @@ typedef struct { //personagem
 
 const int LARG = 1280; 
 const int ALT = 720;
-int colisao = 0;
+int cont = 0;
 bool inicializador();
 bool eventos(SDL_Window*, GameState*);
 void RenderNivel(SDL_Renderer*, GameState*);
@@ -376,7 +376,9 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
                 num = 1;
                 trocar(renderer, num);
                 SDL_Delay(300);
-                //nivel1(renderer);
+                if(cont == 1) {
+                  nivel1(renderer);
+                }
                 gameloop = false;
                 apertou = false;
             }
@@ -565,6 +567,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         fim = loadTextura("media/fim_jogo.png");
         SDL_RenderCopy(renderer, fim, NULL, NULL);
         SDL_RenderPresent(renderer);
+        cont = 1;
         SDL_Delay(2000);
         telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
       }
@@ -749,7 +752,7 @@ void loadGame(GameState *game) {
   game->plat[50].y = 220;
 
   //MOEDINHAS
-game->moedas[0].x = 540;
+  game->moedas[0].x = 540;
   game->moedas[0].y = 560;
 
   game->moedas[1].x = 140;
