@@ -570,6 +570,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         SDL_RenderPresent(renderer);
         cont = 1;
         SDL_Delay(2000);
+        game->alice.Chaves = 0;
         telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
       }
     }
