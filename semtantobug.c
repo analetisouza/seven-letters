@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 
     jogando = true;
     //nivel = 1;
-    //nivel1(renderer);
+    nivel1(renderer);
 
 }
 
@@ -376,7 +376,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
                 num = 1;
                 trocar(renderer, num);
                 SDL_Delay(300);
-                nivel1(renderer);
+                //nivel1(renderer);
                 gameloop = false;
                 apertou = false;
             }
