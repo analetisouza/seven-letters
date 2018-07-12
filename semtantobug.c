@@ -429,7 +429,7 @@ bool telainicial (SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *
 
             else if (apertou == true && event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_Delay(300);
-              imgAjuda = loadTextura("media/ranking.png"); 
+              imgAjuda = loadTextura("media/instrucoes.png"); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgAjuda, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
@@ -502,6 +502,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
   SDL_Texture *chavinha = NULL;
+  SDL_Texture *fim = NULL;
 
 
    if (game->statusState == STATUS_STATE_GAME) {
@@ -561,7 +562,11 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
       if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
-        printf("oi");
+        fim = loadTextura("media/fim_jogo.png");
+        SDL_RenderCopy(renderer, fim, NULL, NULL);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(2000);
+        telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
       }
     }
 
@@ -583,6 +588,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
     SDL_DestroyTexture(chavinha);
+    SDL_DestroyTexture(fim);
 
   }
     
