@@ -553,7 +553,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
     chave = loadTextura("media/chave.png");
-    SDL_Rect chaveRect = { game->scrollX + 14, 350, 100, 50};
+    SDL_Rect chaveRect = { game->scrollX + 39, 350, 50, 25};
     SDL_RenderCopy(renderer, chave, NULL, &chaveRect);
 
     pause = loadTextura("media/botao_pausa.png");
@@ -711,13 +711,13 @@ void loadGame(GameState *game) {
   game->plat[44].x = 1226;
   game->plat[44].y = 290;
 
-  game->plat[45].x = 1566;
+  game->plat[45].x = 1466;
   game->plat[45].y = 350;
 
-  game->plat[46].x = 1694;
+  game->plat[46].x = 1594;
   game->plat[46].y = 350;
 
-  game->plat[47].x = 1822;
+  game->plat[47].x = 1722;
   game->plat[47].y = 350;
 
   game->plat[48].x = 1744;
