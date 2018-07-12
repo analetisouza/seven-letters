@@ -66,7 +66,7 @@ typedef struct { //personagem
 
 const int LARG = 1280; 
 const int ALT = 720;
-int cont = 0, reseta = 0;
+int cont = 0, reseta = 0, colisao = 0;
 bool inicializador();
 bool eventos(SDL_Window*, GameState*);
 void RenderNivel(SDL_Renderer*, GameState*);
@@ -560,6 +560,17 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
     }
 
+    if (game->alice.lives == 0) {
+      fim = loadTextura("media/fim_jogo.png");
+      SDL_RenderCopy(renderer, fim, NULL, NULL);
+      SDL_RenderPresent(renderer);
+      SDL_DestroyTexture(fim);
+      cont = 1;
+      SDL_Delay(2000);
+      reseta = 1;
+      telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
+    }
+
     chavinha = loadTextura("media/keyYellow.png");
     SDL_Rect chavRect = {370, 10, 50, 50};
 
@@ -570,6 +581,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         fim = loadTextura("media/fim_jogo.png");
         SDL_RenderCopy(renderer, fim, NULL, NULL);
         SDL_RenderPresent(renderer);
+        SDL_DestroyTexture(fim);
         cont = 1;
         SDL_Delay(2000);
         reseta = 1;
@@ -1002,7 +1014,7 @@ void processo(GameState *game) {
   }
 
   //movimento do inimigo
-  int velX = 3;
+  int velX = 10; //**
   INIMIGO *inim = &game->inim;
 
   inim->x -= velX;
@@ -1022,22 +1034,49 @@ void processo(GameState *game) {
 
 
 void colisaoplat(GameState *game) {
-  int i = 0;
-
+  int i = 0, j = 0;
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo
       game->alice.morta = 1;
-      if (game->alice.morta == 1) {
+      if (colisao == 0 && j == 0) {
+        game->alice.morta = 0;
+        colisao = 1;
         game->alice.x += 5;
-        i++;
-        if (i == 1) {
+        printf ("entrei\n");
+        printf ("%d colisao\n", colisao);
+      }
+      if (colisao == 1) {
+        j = 1;
+      }
+      game->time % 24 == 0;
+      if (game->time % 24 == 0 && colisao == 1 && j == 1) {
+        colisao = 2;
+        game->alice.x += 5;
+        printf ("entrei\n");
+        printf ("%d colisao\n", colisao);
+      }
+      game->time % 25 == 0;
+      if (colisao == 2) {
+        j = 2;
+      }
+      game->time % 25 == 0;
+      if (game->time % 25 == 0 && colisao == 2 && j == 2) {
+        colisao = 3;
+        game->alice.x += 5;
+        printf ("entrei\n");
+        printf ("%d colisao\n", colisao);
+      }
+      //}
+        if (colisao == 1) {
           game->alice.lives = 2;
         }
-        if (i == 2) {
+        if (colisao == 2) {
           game->alice.lives = 1;
         }
-      }
-  }
+        if (colisao == 3) {
+          game->alice.lives = 0;
+        }
+    }
 
   for (i = 0; i < 26; i++) {
     if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
