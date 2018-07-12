@@ -66,7 +66,7 @@ typedef struct { //personagem
 
 const int LARG = 1280; 
 const int ALT = 720;
-int cont = 0;
+int cont = 0, reseta = 0;
 bool inicializador();
 bool eventos(SDL_Window*, GameState*);
 void RenderNivel(SDL_Renderer*, GameState*);
@@ -570,7 +570,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         SDL_RenderPresent(renderer);
         cont = 1;
         SDL_Delay(2000);
-        game->alice.Chaves = 0;
+        reseta = 1;
         telainicial(renderer, background, jogar, niveis, ranking, creditos, sair);
       }
     }
@@ -1025,8 +1025,6 @@ void colisaoplat(GameState *game) {
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo
       game->alice.morta = 1;
-      if (game->time % 5 == 0) {
-        game->alice.morta = 0;
       if (game->alice.morta == 1) {
         game->alice.x += 5;
         i++;
@@ -1038,7 +1036,6 @@ void colisaoplat(GameState *game) {
         }
       }
   }
-}
 
   for (i = 0; i < 26; i++) {
     if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
@@ -1050,9 +1047,17 @@ void colisaoplat(GameState *game) {
 
 
   if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { 
-    game->alice.Chaves++;
-    game->chaves.x = -100;
-    game->chaves.y = -100;
+    if (reseta != 1) {
+      game->alice.Chaves++;
+      game->chaves.x = -100;
+      game->chaves.y = -100;
+    }
+    else {
+      game->alice.Chaves = 0;
+      game->alice.Chaves++;
+      game->chaves.x = -100;
+      game->chaves.y = -100;
+    }
   }
 
 
