@@ -979,7 +979,7 @@ void colisaoplat(GameState *game) {
 
   for (i = 0; i < 6; i++) {
     if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
-      game->alice.pontos++;
+      game->alice.pontos = game->alice.pontos + 100;
       game->moedas[i].x = -20;
       game->moedas[i].y = -20;
     }
