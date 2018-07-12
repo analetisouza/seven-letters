@@ -16,19 +16,22 @@ typedef struct {
   short lives;
   int pontos;
   char *name;
-  int onPlat;
+  int onPlat, morta;
 
   int animFrame, facingLeft, slowingDown;
 } Alice;
 
-
 typedef struct {
-  float x, y, w, h;
+  float x, y;
 } PLAT;
 
 typedef struct {
   float x, y;
 } INIMIGO;
+
+typedef struct {
+  float x, y;
+} MOEDA;
 
 typedef struct { //personagem
   float scrollX;
@@ -36,16 +39,19 @@ typedef struct { //personagem
   Alice alice; //players
   PLAT plat[100];
   INIMIGO inim;
+  MOEDA moedas[100];
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *plataforma;
   SDL_Texture *inimFrames[4];
+  SDL_Texture *fire;
+  SDL_Texture *moeda;
   SDL_Texture *label;
   int labelW, labelH;
 
   TTF_Font *font;
 
-  int time;
+  int time, mortes;
   int statusState;
 
   SDL_Renderer *renderer;
@@ -53,7 +59,7 @@ typedef struct { //personagem
 
 const int LARG = 1280; 
 const int ALT = 720;
-
+int colisao = 0;
 bool inicializador();
 bool eventos(SDL_Window*, GameState*);
 void RenderNivel(SDL_Renderer*, GameState*);
@@ -64,34 +70,10 @@ void trocar(SDL_Renderer*, int);
 void loadGame(GameState*);
 bool nivel1 (SDL_Renderer*);
 void colisaoplat(GameState*);
-void colisaoinim(GameState*);
+int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2);
 void processo(GameState*);
-void init_status_lives(GameState*);
-void draw_status_lives(GameState*);
 void shutdown_status_lives(GameState*);
 
-
-void init_status_lives(GameState* game) {
-  SDL_Color white = {255, 255, 255, 255};
-
-  /*SDL_Surface *tmp = TTF_RenderText_Blended(game->font, "Words", white);
-  game->labelW = tmp->w;
-  game->labelH = tmp->h;
-  game->label = SDL_CreateTextureFromSurface(game->renderer, tmp);
-  SDL_FreeSurface(tmp);*/
-
-}
-
-void draw_status_lives(GameState* game) {
-  //SDL_Renderer *renderer = game->renderer;
-
-  SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(game->renderer);
-  SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 255);
-  SDL_Rect textRect = {320, 240-game->labelH, game->labelW, game->labelH};
-  SDL_RenderCopy(game->renderer, game->label, NULL, &textRect);
-
-}
 
 void shutdown_status_lives(GameState* game) {
   SDL_DestroyTexture(game->label);
@@ -211,7 +193,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
-            game->alice.dy = -27;
+            game->alice.dy = -29;
             game->alice.onPlat = 0;
           }
           break;
@@ -254,7 +236,12 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
     game->alice.facingLeft = 0;
     game->alice.slowingDown = 0;
   }
-
+  else if (state[SDL_SCANCODE_SPACE]) {
+    if (game->alice.onPlat == 1) { //só se tiver no chão
+      game->alice.dy = 0;
+      game->alice.onPlat = 0;
+    }
+  }
   else {
     game->alice.animFrame = 0;
     game->alice.dx *= 0.8f;
@@ -509,10 +496,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
 
-    if (game->statusState == STATUS_STATE_LIVES) {
-      draw_status_lives(game);
-    }
-    else if (game->statusState == STATUS_STATE_GAME) {
+
+   if (game->statusState == STATUS_STATE_GAME) {
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -551,6 +536,18 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect vidaRect = {180, 10, 49, 39};
     SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
 
+    if (game->alice.lives == 3) {
+      SDL_Rect vida2Rect = {245, 10, 49, 39};
+      SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
+      SDL_Rect vida3Rect = {310, 10, 49, 39};
+      SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
+    }
+
+    if (game->alice.lives == 2) {
+      SDL_Rect vida2Rect = {245, 10, 49, 39};
+      SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
+    }
+
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
@@ -562,15 +559,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     pause = loadTextura("media/botao_pausa.png");
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
     SDL_RenderCopy(renderer, pause, NULL, &pauseRect);
-
-    //if (alice.vida == 2)
-    //SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
-    SDL_Rect vida2Rect = {245, 10, 49, 39};
-    SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
-
-    //if (alice.vida == 3) 
-    SDL_Rect vida3Rect = {310, 10, 49, 39};
-    SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
 
 
     SDL_DestroyTexture(fundo);
@@ -586,19 +574,21 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
-  if (game->statusState == STATUS_STATE_LIVES) {
-    draw_status_lives(game);
-  }
-  else if (game->statusState == STATUS_STATE_GAME) {
+  if (game->statusState == STATUS_STATE_GAME) {
     SDL_Texture *placa = NULL;
 
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 2500, 570, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
-  for (i = 0; i < 100; i++) { //quantidades de plataformas que existirão
+  for (i = 0; i < 51; i++) { //quantidades de plataformas que existirão
     SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
+  }
+
+  for (i = 0; i < 6; i++) { //quantidades de moedas que existirão
+    SDL_Rect moedaRect = { game->scrollX + game->moedas[i].x, game->moedas[i].y, 30, 30 };
+    SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
 
   //inimigo arrumar
@@ -630,10 +620,11 @@ void loadGame(GameState *game) {
   game->alice.pontos = 0;
   game->statusState = STATUS_STATE_LIVES;
 
-  init_status_lives(game);
-
   game->time = 0;
   game->scrollX = 0;
+
+
+
 
   //posição das plataformas 
   for (i = 0; i < 20; i++) { //do chão
@@ -738,18 +729,27 @@ void loadGame(GameState *game) {
   game->plat[50].x = 2000;
   game->plat[50].y = 220;
 
+  //MOEDINHAS
+  game->moedas[0].x = 118;
+  game->moedas[0].y = 370;
+
+  game->moedas[1].x = 158;
+  game->moedas[1].y = 370;
+
+  game->moedas[2].x = 198;
+  game->moedas[2].y = 300;
+
+  game->moedas[3].x = 158;
+  game->moedas[3].y = 900;
+
+  game->moedas[4].x = 640;
+  game->moedas[4].y = 370;
+
+  game->moedas[5].x = 600;
+  game->moedas[5].y = 420;
 
   game->inim.x = 700;
   game->inim.y = 644;
-  //game->inim.w = 50;
-  //game->inim.h = 28;
-
-
-  /*posição aleatoria de stars, caso queira inserir algo aleatório
-  for (i = 0; i < 5; i++) {
-    game->stars[i].x = random()%LARG;
-    game->stars[i].y = random()%ALT;
-  }*/
 
 }
 
@@ -845,6 +845,7 @@ bool nivel1(SDL_Renderer *renderer) {
   loadGame(&game);
   game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
   game.plataforma = loadTextura("media/plataforma.png");
+  game.moeda = loadTextura("media/moeda.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
@@ -865,6 +866,7 @@ bool nivel1(SDL_Renderer *renderer) {
     SDL_Delay(500);
 
   SDL_DestroyTexture(game.plataforma);
+  SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.inimFrames[0]);
@@ -925,33 +927,36 @@ void processo(GameState *game) {
   }
 
   }
-
- //vai só pra esquerda
-  /*if (i == 0) {
-  if (inim->x - 3 < 0) {
-      inim->x = 0;
-      i = 1;
-  }
-  else {
-      inim->x -= velX;
-  }
-}
-  if (i == 1) {
-    if (inim->x + 50 + 3 > LARG) {
-      inim->x = LARG - 50;
-      i = 0;
-    }
-    else {
-      inim->x -= velX;
-    }
-  }*/
-
-
 }
 
 
 void colisaoplat(GameState *game) {
   int i;
+
+  if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo
+      game->alice.morta = 1;
+      game->alice.x += 5;
+      if(game->alice.morta == 1) {
+        colisao++;
+      }
+      if (colisao == 1) {
+        game->alice.lives = 2;
+        game->alice.morta = 0;
+      }
+      if (colisao == 2) {
+        game->alice.lives = 1;
+      }
+  }
+
+  for (i = 0; i < 6; i++) {
+    if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
+      game->alice.pontos++;
+      game->moedas[i].x = -20;
+      game->moedas[i].y = -20;
+    }
+  }
+
+
 
   for (i = 0; i < 100; i++) {
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
@@ -961,12 +966,9 @@ void colisaoplat(GameState *game) {
   float px = game->plat[i].x, py = game->plat[i].y; //posição da plat;
 
   if (px < ax+aw/2 && ax+aw/2 < px+pw) {
-      //are we bumping our head?
     if (ay < py+ph && ay > py && game->alice.dy < 0) {
-        //correct y
         game->alice.y = py + ph;
         ay = py + ph; 
-        //bumped our head, stop any jump velocity
         game->alice.dy = 0;
         game->alice.onPlat = 1;
     }
@@ -974,28 +976,22 @@ void colisaoplat(GameState *game) {
 
   if (px < ax+aw && ax < px+pw) {
     if (ay+ah > py && ay < py && game->alice.dy > 0) {
-      //correct y
       game->alice.y = py - ah;
       ay = py - ah;
-      //landed on this ledge, stop any jump velocity
       game->alice.dy = 0;
       game->alice.onPlat = 1;
     }
   }
 
-      if(ay+ah > py && ay<py+ph) {
-      //rubbing against right edge
+    if(ay+ah > py && ay<py+ph) {
       if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
-        //correct x
         game->alice.x = px+pw;
         ax = pw+pw;
 
         game->alice.dx = 0;
       }
-      //rubbing against left edge
-      else if(ax+aw > px && ax < px && game->alice.dx > 0)
-      {
-        //correct x
+
+      else if(ax+aw > px && ax < px && game->alice.dx > 0) {
         game->alice.x = px-aw;
         ax = px-aw;
         
@@ -1005,7 +1001,6 @@ void colisaoplat(GameState *game) {
   }
 }
 
-int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2)
-{
+int collide2d(float x1, float y1, float x2, float y2, float wt1, float ht1, float wt2, float ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
