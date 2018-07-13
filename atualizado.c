@@ -307,6 +307,9 @@ bool telainicial (SDL_Renderer *renderer) {
 
   SDL_RenderPresent(renderer);
 
+  SDL_Texture* jogar3 = NULL;
+  jogar3 = loadTextura("media/jogar2.png");
+
   while (gameloop == true) {
     while ( SDL_PollEvent (&event) ) {
       if (event.type == SDL_QUIT) {
@@ -318,19 +321,19 @@ bool telainicial (SDL_Renderer *renderer) {
       }
       else {
       switch (event.type) {
-        case SDL_MOUSEMOTION:
+        case SDL_MOUSEMOTION: //colocar som
+        	//if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460) {
           case SDL_MOUSEBUTTONDOWN:
           	if (event.button.button == SDL_BUTTON_LEFT) {
             	apertou = true;
           	}
-
             if (apertou == true && event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 SDL_RenderCopy(renderer, jogar2, NULL, &jogar2Rect);
                 SDL_RenderPresent(renderer);
                 SDL_Delay(300);
-                /*if(cont == 1) {
+                if(cont == 1) {
                   nivel1(renderer);
-                }*/
+                }
                 gameloop = false;
                 apertou = false;
             }
@@ -544,12 +547,12 @@ bool nivel1(SDL_Renderer *renderer) {
     
 }
 
-void loadGame(GameState *game) {
+void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser mudados
   int i;
   //posição da alice;
   game->label = NULL;
 
-  game->alice.x = 30;
+  game->alice.x = 2400;
   game->alice.y = 500;
   game->alice.dx = 0;
   game->alice.dy = 0;
@@ -750,7 +753,7 @@ void loadGame(GameState *game) {
   game->chaves.x = 14;
   game->chaves.y = 350;
 
-  game->inim.x = 700;
+  game->inim.x = 1280;
   game->inim.y = 644;
 
 }
@@ -887,13 +890,14 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   //inimigo arrumar
-  SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 };
+  SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 }; //colocar game->scrollX
   SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
 
   //Alice
   SDL_Rect rect = { game->scrollX + game->alice.x, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
+  SDL_DestroyTexture(placa);
 }
 
 bool eventos(SDL_Window *janela, GameState *game) {
@@ -1028,7 +1032,7 @@ void processo(GameState *game) {
 void colisao(GameState *game) {
   int i = 0, j = 0;
 
-  if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo
+  if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
       game->alice.morta = 1;
       if (ncolisao == 0 && j == 0) {
         game->alice.morta = 0;
@@ -1047,8 +1051,8 @@ void colisao(GameState *game) {
       if (ncolisao == 2) {
         j = 2;
       }
-      game->time % 25 == 0;
-      if (game->time % 25 == 0 && ncolisao == 2 && j == 2) {
+      game->time % 10 == 0;
+      if (game->time % 10 == 0 && ncolisao == 2 && j == 2) {
         ncolisao = 3;
         game->alice.x += 5;
       }
