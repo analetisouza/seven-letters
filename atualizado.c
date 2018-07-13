@@ -223,7 +223,6 @@ SDL_Texture* loadTextura(const char *path) {
 
 bool telainicial (SDL_Renderer *renderer) {
   bool sucesso = true, apertou = false, gameloop = true;
-  int num = 0;
   SDL_Event event;
 
   SDL_Texture* background = NULL;
@@ -429,7 +428,6 @@ bool telainicial (SDL_Renderer *renderer) {
 
 
 void telapause(SDL_Renderer *renderer) { //falta a opção de opções de jogo
-  int num = 0;
   bool gameloop = true;
   SDL_Event event;
   SDL_Texture *telaPause = NULL;
@@ -496,6 +494,76 @@ void telapause(SDL_Renderer *renderer) { //falta a opção de opções de jogo
 
 }
 
+
+void telafim (SDL_Renderer *renderer, GameState *game) {
+  int num = 0;
+  bool gameloop = true;
+  SDL_Event event;
+  SDL_Texture *telaFim = NULL;
+  SDL_Texture *jogardnv = NULL;
+  SDL_Texture *Menu = NULL;
+
+  SDL_Texture *jogarnvm2 = NULL;
+  SDL_Rect jogarnv2Rect = {80, 300, 175, 200};
+  jogarnvm2 = loadTextura("media/novamente3.png");
+
+  SDL_Texture *menu3 = NULL;
+  SDL_Rect menu3Rect = {80, 500, 175, 200};
+  menu3 = loadTextura("media/menu3.png");
+
+  telaFim = loadTextura("media/fim_jogo.png");
+  SDL_RenderCopy(renderer, telaFim, NULL, NULL);
+
+  jogardnv = loadTextura("media/novamente1.png");
+  SDL_Rect jogardnvRect = {80, 300, 175, 200};
+  SDL_RenderCopy(renderer, jogardnv, NULL, &jogardnvRect);
+
+  Menu = loadTextura("media/menu1.png");
+  SDL_Rect menuuRect = {80, 500, 175, 200};
+  SDL_RenderCopy(renderer, Menu, NULL, &menuuRect);
+
+  SDL_RenderPresent(renderer);
+
+  while (gameloop == true) {
+  while(SDL_PollEvent(&event)) {
+    //printf ("%d\n", event.motion.y);
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+          case SDL_MOUSEBUTTONDOWN:
+            if (event.motion.x > 90 && event.motion.x < 245 && event.motion.y > 307 && event.motion.y < 485 && event.button.button == SDL_BUTTON_LEFT) {
+              SDL_RenderCopy(renderer, jogarnvm2, NULL, &jogarnv2Rect);
+              SDL_RenderPresent(renderer);
+              SDL_Delay(300);
+              game->alice.Chaves = 0;
+              nivel1(renderer);
+              gameloop = false;
+            } 
+            if (event.motion.x > 92 && event.motion.x < 243 && event.motion.y > 503 && event.motion.y < 686 && event.button.button == SDL_BUTTON_LEFT) {
+              SDL_RenderCopy(renderer, menu3, NULL, &menu3Rect);
+              SDL_RenderPresent(renderer);
+              SDL_Delay(300);
+              cont = 1;
+              game->alice.Chaves = 0;
+              gameloop = false;
+              telainicial(renderer);
+            }
+          break;
+       }
+      if (event.type == SDL_QUIT) {
+        saida();
+        exit(1);
+      }
+    }
+  }
+
+  SDL_DestroyTexture(jogarnvm2);
+  SDL_DestroyTexture(menu3);
+  SDL_DestroyTexture(telaFim);
+  SDL_DestroyTexture(jogardnv);
+  SDL_DestroyTexture(Menu);
+
+}
+
 bool nivel1(SDL_Renderer *renderer) {
   bool sucesso = true;
   bool jogando = true;
@@ -552,7 +620,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   //posição da alice;
   game->label = NULL;
 
-  game->alice.x = 2400;
+  game->alice.x = 30;
   game->alice.y = 500;
   game->alice.dx = 0;
   game->alice.dy = 0;
@@ -820,14 +888,18 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     }
 
     if (game->alice.lives == 0) {
-      fim = loadTextura("media/fim_jogo.png");
+      /*fim = loadTextura("media/fim_jogo.png");
       SDL_RenderCopy(renderer, fim, NULL, NULL);
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(fim);
       cont = 1;
       SDL_Delay(2000);
       reseta = 1;
-      telainicial(renderer);
+      telainicial(renderer);*/
+    	game->alice.Chaves = 0;
+    	telafim(renderer,game);
+    	cont = 1;
+    	reseta = 1;
     }
 
     chavinha = loadTextura("media/keyYellow.png");
@@ -837,14 +909,18 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
       if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
-        fim = loadTextura("media/fim_jogo.png");
+        /*fim = loadTextura("media/fim_jogo.png");
         SDL_RenderCopy(renderer, fim, NULL, NULL);
         SDL_RenderPresent(renderer);
         SDL_DestroyTexture(fim);
         cont = 1;
         SDL_Delay(2000);
         reseta = 1;
-        telainicial(renderer);
+        telainicial(renderer);*/
+        game->alice.Chaves = 0;
+        telafim(renderer, game);
+    	cont = 1;
+    	reseta = 1;
       }
     }
 
@@ -1077,17 +1153,17 @@ void colisao(GameState *game) {
 
 
   if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao das chaves
-    if (reseta != 1) {
-      game->alice.Chaves++;
+    //if (reseta == 0) {
+      game->alice.Chaves = 1;
       game->chaves.x = -50;
       game->chaves.y = -50;
-    }
-    else {
+      printf ("%d", game->alice.Chaves);
+    //}
+    /*else if (reseta == 1){
       game->alice.Chaves = 0;
-      game->alice.Chaves++;
       game->chaves.x = -50;
       game->chaves.y = -50;
-    }
+    }*/
   }
 
 
