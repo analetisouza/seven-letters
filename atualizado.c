@@ -17,7 +17,7 @@ typedef struct {
   float x, y;
   float dx, dy;
   short lives;
-  int pontos, Chaves;
+  int pontos, Chaves, Carta1;
   //char *name;
   int onPlat, morta;
 
@@ -40,9 +40,9 @@ typedef struct {
   float x, y;
 } MOEDA;
 
-/*typedef struct {
+typedef struct {
   float x, y;
-} BAU;*/
+} CARTA;
 
 typedef struct { //jogo
   float scrollX; //rolagem
@@ -50,14 +50,17 @@ typedef struct { //jogo
   Alice alice; //players
   PLAT plat[100];
   MOEDA moedas[100];
+  CARTA cartas[7];
   CHAVE chaves;
   INIMIGO inim;
+
  
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *inimFrames[4];
   SDL_Texture *plataforma;
   SDL_Texture *moeda;
   SDL_Texture *chave;
+  SDL_Texture *carta;
   SDL_Texture *label;
   int labelW, labelH;
 
@@ -139,8 +142,7 @@ int main (int argc, char *argv[]) {
     jogando = true;
     //nivel = 1;
     nivel1(renderer);
-
-}
+   }
 
   saida();
 
@@ -581,6 +583,7 @@ bool nivel1(SDL_Renderer *renderer) {
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
+  game.carta = loadTextura("media/carta.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
@@ -603,6 +606,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.plataforma);
   SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.chave);
+  SDL_DestroyTexture(game.carta);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.inimFrames[0]);
@@ -818,10 +822,13 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->moedas[25].y = 170;
 
   game->chaves.x = 14;
-  game->chaves.y = 350;
+  game->chaves.y = 355; //350
 
   game->inim.x = 1280;
   game->inim.y = 644;
+
+  game->cartas[0].x = 860;
+  game->cartas[0].y = 485; //480
 
 }
 
@@ -948,8 +955,13 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
 
-  SDL_Rect chaveRect = { game->scrollX + game->chaves.x, game->chaves.y, 100, 50}; //chave
+  SDL_Rect chaveRect = { game->scrollX + game->chaves.x, game->chaves.y, 75, 40}; //chave era 100 e 50
   SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
+
+  for (i = 0; i < 1; i++) {
+  	SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x, game->cartas[i].y, 50, 30}; //carta era 69 e 42
+  	SDL_RenderCopy(renderer, game->carta, NULL, &cartaRect);
+  }
 
   //inimigo arrumar
   SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 }; //colocar game->scrollX
@@ -1145,6 +1157,11 @@ void colisao(GameState *game) {
       //printf ("%d", game->alice.Chaves);
   }
 
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) {
+  	  game->alice.Carta1 = 1;
+      game->cartas[i].x = -50;
+      game->cartas[i].y = -50;
+  }
 
   for (i = 0; i < 51; i++) {
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
