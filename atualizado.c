@@ -64,7 +64,7 @@ typedef struct { //jogo
   SDL_Texture *label;
   int labelW, labelH;
 
-  TTF_Font *font;
+  TTF_Font *font, *font1;
 
   int time, mortes;
   int statusState;
@@ -98,6 +98,8 @@ void processo(GameState*);
 void colisao(GameState*);
 
 int collide2d(int, int, int, int, int, int, int, int);
+
+int distancia(int, int, int, int);
 
 void shutdown_status_lives(GameState*); //tirar?
 void shutdown_status_lives(GameState* game) {
@@ -580,6 +582,7 @@ bool nivel1(SDL_Renderer *renderer) {
 
   loadGame(&game);
   game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
+  game.font1 = TTF_OpenFont("media/TravelingTypewriter.ttf", 20);
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
@@ -612,6 +615,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.inimFrames[0]);
   SDL_DestroyTexture(game.inimFrames[1]); 
   TTF_CloseFont(game.font);
+  TTF_CloseFont(game.font1);
 
 
     return sucesso;
@@ -824,7 +828,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->chaves.x = 14;
   game->chaves.y = 355; //350
 
-  game->inim.x = 1280;
+  game->inim.x = 2515;
   game->inim.y = 644;
 
   game->cartas[0].x = 860;
@@ -842,6 +846,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
   SDL_Texture *chavinha = NULL;
+  SDL_Texture *cartinha = NULL;
   SDL_Texture *fim = NULL;
 
 
@@ -861,7 +866,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, barra, NULL, &barraRect);
 
     //caso queira inserir algum texto
-    char str[128] = "";
+    char str[50] = "";
     sprintf (str, "%d", (int)game->alice.pontos);
     SDL_Surface *tmp = TTF_RenderText_Blended(game->font, str, preto); 
     game->labelW = tmp->w;
@@ -869,7 +874,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     game->label = SDL_CreateTextureFromSurface(renderer, tmp);
     SDL_FreeSurface(tmp);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH};
+    SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH}; //960
     SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
 
     Nivel1 = loadTextura("media/nivel1.png");
@@ -880,6 +885,23 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     vida = loadTextura("media/coracao_vida.png");
     SDL_Rect vidaRect = {180, 10, 49, 39};
     SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+
+    cartinha = loadTextura("media/carta.png");
+    SDL_Rect cartinhaRect = {860, 10, 40, 30};
+    SDL_RenderCopy(renderer, cartinha, NULL, &cartinhaRect);
+
+    if (game->alice.Carta1 >= 0) {
+    	char str[10] = "";
+    	sprintf (str, "x%d", (int)game->alice.Carta1);
+    	SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
+    	game->labelW = tmp->w;
+    	game->labelH = tmp->h;
+    	game->label = SDL_CreateTextureFromSurface(renderer, tmp);
+    	SDL_FreeSurface(tmp);
+    	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    	SDL_Rect textRect = {900, 45-game->labelH, game->labelW, game->labelH}; 
+    	SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
+    }
 
     if (game->alice.lives == 3) {
       SDL_Rect vida2Rect = {245, 10, 49, 39};
@@ -895,6 +917,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 
     if (game->alice.lives == 0) {
     	game->alice.Chaves = 0;
+    	game->alice.Carta1 = 0;
     	telafim(renderer,game);
     	cont = 1;
     	reseta = 1;
@@ -903,11 +926,13 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     chavinha = loadTextura("media/keyYellow.png");
     SDL_Rect chavRect = {370, 7, 50, 50};
 
+
     //printf("%f\n", game->alice.y);
-    if (game->alice.Chaves == 1) {
+    if (game->alice.Chaves == 1 && game->alice.Carta1 == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
       if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
         game->alice.Chaves = 0;
+        game->alice.Carta1 = 0;
         telafim(renderer, game);
     	cont = 1;
     	reseta = 1;
@@ -929,6 +954,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
+    SDL_DestroyTexture(cartinha);
     SDL_DestroyTexture(chavinha);
     SDL_DestroyTexture(fim);
     if(game->label != NULL) {
@@ -1090,7 +1116,7 @@ void processo(GameState *game) {
 
   inim->x -= velX;
   if (inim->x + 3 < 0) {  //vai só pra esquerda
-    inim->x = LARG + 3;
+    inim->x = 2515; //respawn
   }
 
   game->scrollX = -game->alice.x + 598;
@@ -1187,7 +1213,7 @@ void colisao(GameState *game) {
     }
   }
 
-    if(ay+ah > py && ay<py+ph) {
+    if(ay+ah > py && ay < py+ph) {
       if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
         game->alice.x = px+pw;
         ax = pw+pw;
@@ -1207,4 +1233,8 @@ void colisao(GameState *game) {
 
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
+}
+
+int distancia(int x1, int y1, int x2, int y2) {
+	return (sqrt(pow((x1-x2), 2)+(pow((y1-y2), 2))));
 }
