@@ -70,7 +70,7 @@ typedef struct { //jogo
   TTF_Font *font, *font1;
 
   int musicChannel;
-  Mix_Chunk *bg;
+  Mix_Chunk *bg, *MENU, *passa;
 
   int time, mortes;
   int statusState;
@@ -85,9 +85,9 @@ void saida();
 
 SDL_Texture* loadTextura (const char *path); 
 
-bool telainicial(SDL_Renderer*);
+bool telainicial(SDL_Renderer*, GameState*);
 
-void telapause(SDL_Renderer*);
+void telapause(SDL_Renderer*, GameState*);
 
 bool nivel1 (SDL_Renderer*);
 
@@ -114,14 +114,6 @@ void shutdown_status_lives(GameState*); //tirar?
 
 void init_status_lives(GameState* game) {
 	SDL_Color white = {255, 255, 255, 255};
-	/*SDL_RenderClear(game->renderer);
-	SDL_RenderPresent(game->renderer);
-	game->font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
-	SDL_Surface *tmp2 = TTF_RenderText_Blended(game->font, "Words", white);
-	//game->label2W = tmp2->w;
-	//game->label2H = tmp2->h;
-	game->label2 = SDL_CreateTextureFromSurface(game->renderer, tmp2);
-	SDL_FreeSurface(tmp2);*/ //video
 	game->font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
 	char str[10] = "";
     sprintf (str, "x%d", (int)game->alice.lives);
@@ -131,7 +123,6 @@ void init_status_lives(GameState* game) {
     game->label2 = SDL_CreateTextureFromSurface(game->renderer, tmp2);
     SDL_FreeSurface(tmp2);
     TTF_CloseFont(game->font);
-    draw_status_lives(game);
 }
 
 void draw_status_lives(GameState* game) {
@@ -185,12 +176,18 @@ int main (int argc, char *argv[]) {
   }
   else {
     game.renderer = renderer;
-    if ( !telainicial(renderer) ) {
+    game.MENU = Mix_LoadWAV("media/IWish.ogg");
+    if (game.MENU != NULL) {
+      Mix_VolumeChunk(game.MENU, 10);
+        game.musicChannel = Mix_PlayChannel(-1, game.MENU, -1);
+    }
+    if ( !telainicial(renderer, &game) ) {
       saida();
       IMG_Quit();
       SDL_Quit();
       exit(1);
     }
+    Mix_FreeChunk(game.MENU);
 
     jogando = true;
     //nivel = 1;
@@ -290,7 +287,7 @@ SDL_Texture* loadTextura(const char *path) {
 }
 
 
-bool telainicial (SDL_Renderer *renderer) {
+bool telainicial (SDL_Renderer *renderer, GameState* game) {
   bool sucesso = true, apertou = false, gameloop = true;
   SDL_Event event;
 
@@ -378,7 +375,6 @@ bool telainicial (SDL_Renderer *renderer) {
   SDL_Texture* jogar3 = NULL;
   jogar3 = loadTextura("media/jogar2.png");
 
-
   while (gameloop == true) {
     while ( SDL_PollEvent (&event) ) {
       if (event.type == SDL_QUIT) {
@@ -430,8 +426,8 @@ bool telainicial (SDL_Renderer *renderer) {
             }
 
             else if (apertou == true && event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
-			  SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
-			  SDL_RenderPresent(renderer);
+			       SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
+			       SDL_RenderPresent(renderer);
               SDL_Delay(200); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
@@ -463,7 +459,7 @@ bool telainicial (SDL_Renderer *renderer) {
               SDL_RenderCopy(renderer, retornar2, NULL, &ret2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(200); 
-              telainicial(renderer);
+              telainicial(renderer, game);
               apertou = false; 
             }
             break;
@@ -485,11 +481,11 @@ bool telainicial (SDL_Renderer *renderer) {
     SDL_DestroyTexture(imgRanking);
     SDL_DestroyTexture(imgAjuda);
     SDL_DestroyTexture(jogar2);
-	SDL_DestroyTexture(cred2);
-	SDL_DestroyTexture(ranking2);
-	SDL_DestroyTexture(niveis2);
-	SDL_DestroyTexture(sair2);
-	SDL_DestroyTexture(retornar2);
+	  SDL_DestroyTexture(cred2);
+	  SDL_DestroyTexture(ranking2);
+	  SDL_DestroyTexture(niveis2);
+	  SDL_DestroyTexture(sair2);
+	  SDL_DestroyTexture(retornar2);
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
 
@@ -498,7 +494,7 @@ bool telainicial (SDL_Renderer *renderer) {
 }
 
 
-void telapause(SDL_Renderer *renderer) { //falta a opção de opções de jogo
+void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de opções de jogo
   bool gameloop = true;
   SDL_Event event;
   SDL_Texture *telaPause = NULL;
@@ -536,7 +532,7 @@ void telapause(SDL_Renderer *renderer) { //falta a opção de opções de jogo
     		  SDL_RenderPresent(renderer);
               cont = 1;
               SDL_Delay(800);
-              telainicial(renderer);
+              telainicial(renderer, game);
               gameloop = false;
             }
 
@@ -616,7 +612,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               cont = 1;
               game->alice.Chaves = 0;
               gameloop = false;
-              telainicial(renderer);
+              telainicial(renderer, game);
             }
           break;
        }
@@ -1108,7 +1104,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
         case SDL_MOUSEMOTION:
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT) {
-                telapause(renderer);
+                telapause(renderer, game);
             }
     }
     if (event.type == SDL_QUIT) {
@@ -1123,7 +1119,7 @@ bool eventos(SDL_Window *janela, GameState *game) {
           jogando = false;
           break;
         case SDLK_ESCAPE:
-          telapause(renderer);
+          telapause(renderer, game);
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
