@@ -1002,6 +1002,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.lives == 0) {
     	game->alice.Chaves = 0;
     	game->alice.Carta1 = 0;
+      Mix_HaltChannel(game->musicChannel);
     	telafim(renderer,game);
     	cont = 1;
     	reseta = 1;
@@ -1016,6 +1017,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
         game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
+        Mix_HaltChannel(game->musicChannel);
         telafim(renderer, game);
     	cont = 1;
     	reseta = 1;
@@ -1262,7 +1264,6 @@ void colisao(GameState *game) {
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
       game->alice.morta = 1;
-      Mix_HaltChannel(game->musicChannel);
       if (ncolisao == 0 && j == 0) {
         game->alice.morta = 0;
         ncolisao = 1;
