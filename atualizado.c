@@ -179,7 +179,7 @@ int main (int argc, char *argv[]) {
     game.MENU = Mix_LoadWAV("media/IWish.ogg");
     if (game.MENU != NULL) {
       Mix_VolumeChunk(game.MENU, 10);
-        game.musicChannel = Mix_PlayChannel(-1, game.MENU, -1);
+      game.musicChannel = Mix_PlayChannel(-1, game.MENU, -1);
     }
     if ( !telainicial(renderer, &game) ) {
       saida();
@@ -187,6 +187,7 @@ int main (int argc, char *argv[]) {
       SDL_Quit();
       exit(1);
     }
+    Mix_HaltChannel(game.musicChannel);
     Mix_FreeChunk(game.MENU);
 
     jogando = true;
@@ -370,6 +371,8 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
   retornar = loadTextura("media/retornar1.png");
   SDL_Rect retRect = {30, 600, 100, 100};
 
+  game->passa = Mix_LoadWAV("media/passa.ogg");
+
   SDL_RenderPresent(renderer);
 
   SDL_Texture* jogar3 = NULL;
@@ -387,7 +390,35 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
       else {
       switch (event.type) {
         case SDL_MOUSEMOTION: //colocar som
-        	//if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460) {
+        	 if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+           if (event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+           }
+
           case SDL_MOUSEBUTTONDOWN:
           	if (event.button.button == SDL_BUTTON_LEFT) {
             	apertou = true;
@@ -395,6 +426,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
             if (apertou == true && event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 SDL_RenderCopy(renderer, jogar2, NULL, &jogar2Rect);
                 SDL_RenderPresent(renderer);
+                Mix_HaltChannel(game->musicChannel);
                 SDL_Delay(200);
                 if(cont == 1) {
                   nivel1(renderer);
@@ -488,6 +520,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
 	  SDL_DestroyTexture(retornar2);
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
+    Mix_FreeChunk(game->passa);
 
   return sucesso; //tentar arrumar o erro do mouse apertar pressionando
 
@@ -657,7 +690,7 @@ bool nivel1(SDL_Renderer *renderer) {
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
   game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
   if (game.bg != NULL) {
-    Mix_VolumeChunk(game.bg, 5);
+    Mix_VolumeChunk(game.bg, 3);
   }
 
     while(jogando != false) {
