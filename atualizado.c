@@ -122,11 +122,11 @@ void init_status_lives(GameState* game) {
     game->label2H = tmp2->h;
     game->label2 = SDL_CreateTextureFromSurface(game->renderer, tmp2);
     SDL_FreeSurface(tmp2);
-    TTF_CloseFont(game->font);
+    //TTF_CloseFont(game->font);
 }
 
 void draw_status_lives(GameState* game) {
-	SDL_Texture *vida2 = NULL;//
+	/*SDL_Texture *vida2 = NULL;//
 	SDL_Renderer *renderer = game->renderer;
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -140,7 +140,7 @@ void draw_status_lives(GameState* game) {
   	SDL_RenderCopy(renderer, game->label2, NULL, &textRect);
   	SDL_RenderPresent(renderer);
 
-  	SDL_DestroyTexture(vida2);
+  	SDL_DestroyTexture(vida2);*/
 
 }
 
