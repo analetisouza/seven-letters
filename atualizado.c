@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -61,11 +62,15 @@ typedef struct { //jogo
   SDL_Texture *moeda;
   SDL_Texture *chave;
   SDL_Texture *carta;
+  SDL_Texture *fire;
   SDL_Texture *label;
   SDL_Texture *label2;
   int labelW, labelH, label2W, label2H;
 
   TTF_Font *font, *font1;
+
+  int musicChannel;
+  Mix_Chunk *bg;
 
   int time, mortes;
   int statusState;
@@ -126,6 +131,7 @@ void init_status_lives(GameState* game) {
     game->label2 = SDL_CreateTextureFromSurface(game->renderer, tmp2);
     SDL_FreeSurface(tmp2);
     TTF_CloseFont(game->font);
+    draw_status_lives(game);
 }
 
 void draw_status_lives(GameState* game) {
@@ -203,34 +209,47 @@ bool inicializador () {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) { //-1 dá problema
     printf("O programa não pode ser inicializado! SDL_ERROR: %s\n", SDL_GetError());
     sucesso = false;
+    exit(1);
   }
+  else {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+      printf("O programa não pode ser inicializado! SDL_ERROR: %s\n", SDL_GetError());
+      sucesso = false;
+      exit(1);
+    }
   else {
     //srandom((int)time(NULL)); para caso querer colocar algo surgindo aleatóriamente
     janela = SDL_CreateWindow("7 letters from my love", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LARG, ALT, SDL_WINDOW_SHOWN);
     if (janela == NULL) {
       printf("A janela não pode ser criada! SDL_ERROR: %s\n", SDL_GetError());
       sucesso = false;
+      exit(1);
     }
     else {
       renderer = SDL_CreateRenderer(janela, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
       if (renderer == NULL) {
         printf("O renderer não pode ser criado! SDL Error: %s\n", SDL_GetError() );
         sucesso = false;
+        exit(1);
       }
       else {
       	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         if ( TTF_Init() ) {
         	printf( "SDL_ttf não pode inicializar! SDL_ttf Error: %s\n", TTF_GetError() );
         	sucesso = false;
+          exit(1);
         }
+        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
         int imgFlags = IMG_INIT_PNG;
         if ( !(IMG_Init(imgFlags) & imgFlags) ) {
           printf( "SDL_image não pode inicializar! SDL_image Error: %s\n", IMG_GetError() );
           sucesso = false;
+          exit(1);
         }
       }
     }
   }
+}
 
   return sucesso;
 }
@@ -244,6 +263,7 @@ void saida () {
   janela = NULL;
   renderer = NULL;
 
+  Mix_CloseAudio();
   TTF_Quit();
   IMG_Quit();
   SDL_Quit();
@@ -632,12 +652,17 @@ bool nivel1(SDL_Renderer *renderer) {
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
+  game.fire = loadTextura("media/fire.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
   game.aliceFrames[3] = loadTextura("media/alice4.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
+  game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
+  if (game.bg != NULL) {
+    Mix_VolumeChunk(game.bg, 5);
+  }
 
     while(jogando != false) {
       SDL_RenderClear(renderer);
@@ -657,6 +682,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.carta);
+  SDL_DestroyTexture(game.fire);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -665,6 +691,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.inimFrames[1]); 
   TTF_CloseFont(game.font);
   TTF_CloseFont(game.font1);
+  Mix_FreeChunk(game.bg);
 
 
     return sucesso;
@@ -692,9 +719,9 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
 
   init_status_lives(game);
 
-  game->time = 0;
-  game->scrollX = 0; //arrumar
-
+  game->time =  0;
+  game->scrollX = 0; 
+  game->mortes = -1;
 
   //posição das plataformas 
   for (i = 0; i < 20; i++) { //do chão
@@ -1060,6 +1087,11 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_Rect rect = { game->alice.x + game->scrollX, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
+  if (game->alice.morta) {
+    SDL_Rect rect = { game->scrollX + game->alice.x- 26 +68/2, game->alice.y - 26 +118/2, 68, 118 };
+    SDL_RenderCopyEx(renderer, game->fire, NULL, &rect, 0, NULL, (game->time%20 < 10));
+  }
+
   SDL_DestroyTexture(placa);
  }
 
@@ -1160,16 +1192,33 @@ void processo(GameState *game) {
   if(game->time > 120) {
     shutdown_status_lives(game);
     game->statusState = STATUS_STATE_GAME;
+    game->musicChannel = Mix_PlayChannel(-1, game->bg, -1);
   }
 
   if (game->statusState == STATUS_STATE_GAME) { //
   //movimento da Alice
+  if (!game->alice.morta) {
   Alice *alice = &game->alice;
   alice->x += alice->dx;
   alice->y += alice->dy;
 
   alice->dy += Gravidade;
+  }
 
+  if (game->alice.morta && game->mortes < 0) {
+    game->mortes = 120;
+  }
+
+  if (game->mortes > 0) {
+    game->mortes--;
+    if (game->mortes < 0) {
+      init_status_lives(game);
+      //init_game_over(game);
+      //game->statusState = STATUS_STATE_GAMEOVER;
+    }
+  }
+
+  Alice *alice = &game->alice;
   if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
     if (game->time % 6 == 0) {
       if (alice->animFrame == 0) {
@@ -1203,16 +1252,17 @@ void processo(GameState *game) {
   if(game->alice.x > 2012 && game->alice.x < 2580) {
     game->scrollX = -2580 + (2*590);
   }
-
+}
  } //
 
-}
+//}
 
 void colisao(GameState *game) {
   int i = 0, j = 0;
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
       game->alice.morta = 1;
+      Mix_HaltChannel(game->musicChannel);
       if (ncolisao == 0 && j == 0) {
         game->alice.morta = 0;
         ncolisao = 1;
