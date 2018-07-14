@@ -1150,17 +1150,16 @@ void colisao(GameState *game) {
   }
 
 
-  if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao das chaves
+  if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao da chave
       game->alice.Chaves = 1;
       game->chaves.x = -50;
       game->chaves.y = -50;
-      //printf ("%d", game->alice.Chaves);
   }
 
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) {
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) { //carta 1;
   	  game->alice.Carta1 = 1;
-      game->cartas[i].x = -50;
-      game->cartas[i].y = -50;
+      game->cartas[0].x = -50;
+      game->cartas[0].y = -50;
   }
 
   for (i = 0; i < 51; i++) {
