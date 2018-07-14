@@ -309,6 +309,7 @@ bool telainicial (SDL_Renderer *renderer) {
   SDL_Texture* jogar3 = NULL;
   jogar3 = loadTextura("media/jogar2.png");
 
+
   while (gameloop == true) {
     while ( SDL_PollEvent (&event) ) {
       if (event.type == SDL_QUIT) {
@@ -329,11 +330,12 @@ bool telainicial (SDL_Renderer *renderer) {
             if (apertou == true && event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 SDL_RenderCopy(renderer, jogar2, NULL, &jogar2Rect);
                 SDL_RenderPresent(renderer);
-                SDL_Delay(300);
+                SDL_Delay(200);
                 if(cont == 1) {
                   nivel1(renderer);
                 }
                 gameloop = false;
+                nivel1(renderer);
                 apertou = false;
             }
             else if (apertou == true && event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
@@ -605,9 +607,6 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.inimFrames[0]);
   SDL_DestroyTexture(game.inimFrames[1]); 
-  if(game.label != NULL) {
-    SDL_DestroyTexture(game.label);
-  }
   TTF_CloseFont(game.font);
 
 
@@ -863,7 +862,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     game->label = SDL_CreateTextureFromSurface(renderer, tmp);
     SDL_FreeSurface(tmp);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect textRect = {965, 60-game->labelH, game->labelW, game->labelH};
+    SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH};
     SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
 
     Nivel1 = loadTextura("media/nivel1.png");
@@ -888,14 +887,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     }
 
     if (game->alice.lives == 0) {
-      /*fim = loadTextura("media/fim_jogo.png");
-      SDL_RenderCopy(renderer, fim, NULL, NULL);
-      SDL_RenderPresent(renderer);
-      SDL_DestroyTexture(fim);
-      cont = 1;
-      SDL_Delay(2000);
-      reseta = 1;
-      telainicial(renderer);*/
     	game->alice.Chaves = 0;
     	telafim(renderer,game);
     	cont = 1;
@@ -903,20 +894,12 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     }
 
     chavinha = loadTextura("media/keyYellow.png");
-    SDL_Rect chavRect = {370, 10, 50, 50};
+    SDL_Rect chavRect = {370, 7, 50, 50};
 
     //printf("%f\n", game->alice.y);
     if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
       if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
-        /*fim = loadTextura("media/fim_jogo.png");
-        SDL_RenderCopy(renderer, fim, NULL, NULL);
-        SDL_RenderPresent(renderer);
-        SDL_DestroyTexture(fim);
-        cont = 1;
-        SDL_Delay(2000);
-        reseta = 1;
-        telainicial(renderer);*/
         game->alice.Chaves = 0;
         telafim(renderer, game);
     	cont = 1;
@@ -941,6 +924,9 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(Nivel1);
     SDL_DestroyTexture(chavinha);
     SDL_DestroyTexture(fim);
+    if(game->label != NULL) {
+    	SDL_DestroyTexture(game->label);
+  	}
 
 }
 
@@ -1153,17 +1139,10 @@ void colisao(GameState *game) {
 
 
   if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao das chaves
-    //if (reseta == 0) {
       game->alice.Chaves = 1;
       game->chaves.x = -50;
       game->chaves.y = -50;
-      printf ("%d", game->alice.Chaves);
-    //}
-    /*else if (reseta == 1){
-      game->alice.Chaves = 0;
-      game->chaves.x = -50;
-      game->chaves.y = -50;
-    }*/
+      //printf ("%d", game->alice.Chaves);
   }
 
 
