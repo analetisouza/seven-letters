@@ -589,6 +589,8 @@ bool nivel1(SDL_Renderer *renderer) {
   game.carta = loadTextura("media/carta.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
+  game.aliceFrames[2] = loadTextura("media/alice3.png");
+  game.aliceFrames[3] = loadTextura("media/alice4.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
 
@@ -612,6 +614,8 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.carta);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
+  SDL_DestroyTexture(game.aliceFrames[2]);
+  SDL_DestroyTexture(game.aliceFrames[3]);
   SDL_DestroyTexture(game.inimFrames[0]);
   SDL_DestroyTexture(game.inimFrames[1]); 
   TTF_CloseFont(game.font);
@@ -926,11 +930,10 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     chavinha = loadTextura("media/keyYellow.png");
     SDL_Rect chavRect = {370, 7, 50, 50};
 
-
     //printf("%f\n", game->alice.y);
-    if (game->alice.Chaves == 1 && game->alice.Carta1 == 1) {
+    if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
-      if (game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
+      if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
         game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
         telafim(renderer, game);
@@ -1100,9 +1103,15 @@ void processo(GameState *game) {
   alice->dy += Gravidade;
 
   if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
-    if (game->time % 5 == 0) {
+    if (game->time % 6 == 0) {
       if (alice->animFrame == 0) {
         alice->animFrame = 1;
+      }
+      else if (alice->animFrame = 1) {
+      	alice->animFrame = 2;
+      }
+      else if (alice->animFrame = 2) {
+      	alice->animFrame = 3;
       }
       else {
         alice->animFrame = 0;
@@ -1195,7 +1204,7 @@ void colisao(GameState *game) {
   float pw = 128, ph = 29; //largura e altura da plat;
   float px = game->plat[i].x, py = game->plat[i].y; //posição da plat;
 
-  if (px < ax+aw/2 && ax+aw/2 < px+pw) {
+  if (px < ax+aw/2 && ax+aw/2 < px+pw) { //não bate a cabeça na plat
     if (ay < py+ph && ay > py && game->alice.dy < 0) {
         game->alice.y = py + ph;
         ay = py + ph; 
@@ -1204,7 +1213,7 @@ void colisao(GameState *game) {
     }
   }
 
-  if (px < ax+aw && ax < px+pw) {
+  if (px < ax+aw && ax < px+pw) { //não cai da plat
     if (ay+ah > py && ay < py && game->alice.dy > 0) {
       game->alice.y = py - ah;
       ay = py - ah;
@@ -1235,6 +1244,6 @@ int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
 
-int distancia(int x1, int y1, int x2, int y2) {
+/*int distancia(int x1, int y1, int x2, int y2) {
 	return (sqrt(pow((x1-x2), 2)+(pow((y1-y2), 2))));
-}
+}*/
