@@ -503,6 +503,10 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_RenderCopy(renderer, telaPause, NULL, NULL);
   SDL_RenderPresent(renderer);
 
+  SDL_Texture *op2 = NULL;
+  //SDL_Rect op2Rect = {552, 364, 175, 200};
+  op2 = loadTextura("media/opcoes.png");
+
   game->passa = Mix_LoadWAV("media/passa.ogg");
 
   while (gameloop == true) {
@@ -554,7 +558,9 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
               SDL_RenderCopy(renderer, pause2, NULL, &pause2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(500);
-              gameloop = false;
+              SDL_RenderCopy(renderer, op2, NULL, NULL);
+              SDL_RenderPresent(renderer);
+              //gameloop = false;
             }
           break;
        }
@@ -564,6 +570,7 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_DestroyTexture(telaPause);
   SDL_DestroyTexture(menu2);
   SDL_DestroyTexture(cont2);
+  SDL_DestroyTexture(op2);
   SDL_DestroyTexture(pause2);
   Mix_FreeChunk(game->passa);
   //Mix_FreeChunk(game->MENU);
@@ -1099,11 +1106,17 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
 
 bool eventos(SDL_Window *janela, GameState *game) {
   SDL_Event event;
+  game->passa = Mix_LoadWAV("media/passa.ogg");
+
   bool jogando = true;
   while(SDL_PollEvent(&event)) {
     //printf ("%d\n", event.motion.x);
     switch (event.type) {
         case SDL_MOUSEMOTION:
+          if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84) {
+            Mix_VolumeChunk(game->passa, 5);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 1105 && event.motion.x < 1170 && event.motion.y > 24 && event.motion.y < 84 && event.button.button == SDL_BUTTON_LEFT) {
                 telapause(renderer, game);
@@ -1182,7 +1195,6 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   return jogando;
-
 }
 
 void processo(GameState *game) {
