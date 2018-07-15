@@ -107,51 +107,8 @@ int collide2d(int, int, int, int, int, int, int, int);
 
 int distancia(int, int, int, int);
 
-void init_status_lives(GameState*);
-void draw_status_lives(GameState*);
-void shutdown_status_lives(GameState*); //tirar?
-
-
-void init_status_lives(GameState* game) {
-	SDL_Color white = {255, 255, 255, 255};
-	game->font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
-	char str[10] = "";
-    sprintf (str, "x%d", (int)game->alice.lives);
-    SDL_Surface *tmp2 = TTF_RenderText_Blended(game->font, str, white); //colcar menor
-    game->label2W = tmp2->w;
-    game->label2H = tmp2->h;
-    game->label2 = SDL_CreateTextureFromSurface(game->renderer, tmp2);
-    SDL_FreeSurface(tmp2);
-    //TTF_CloseFont(game->font);
-}
-
-void draw_status_lives(GameState* game) {
-	/*SDL_Texture *vida2 = NULL;//
-	SDL_Renderer *renderer = game->renderer;
-
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
-	vida2 = loadTextura("media/coracao_vida.png");
-    SDL_Rect vidaRect = {180, 10, 49, 39};
-    SDL_RenderCopy(renderer, vida2, NULL, &vidaRect);
-  	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  	SDL_Rect textRect = {320, 240-game->labelH, game->labelW, game->labelH};
-  	//SDL_Rect textRect = {320, 240-20, 400, 200};
-  	SDL_RenderCopy(renderer, game->label2, NULL, &textRect);
-  	SDL_RenderPresent(renderer);
-
-  	SDL_DestroyTexture(vida2);*/
-
-}
-
-void shutdown_status_lives(GameState* game) {
-  SDL_DestroyTexture(game->label2);
-  game->label2 = NULL;
-}
-
 SDL_Window* janela = NULL;
 SDL_Renderer* renderer = NULL;
-
 
 //Variáveis de controle
 int cont = 0, reseta = 0, ncolisao = 0;
@@ -159,9 +116,6 @@ int cont = 0, reseta = 0, ncolisao = 0;
 //Dimensões da janela
 const int LARG = 1280; 
 const int ALT = 720;
-
-//Imagens
-
 
 
 int main (int argc, char *argv[]) {
@@ -681,17 +635,18 @@ bool nivel1(SDL_Renderer *renderer) {
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
-  game.fire = loadTextura("media/fire.png");
+  //game.fire = loadTextura("media/fire.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
   game.aliceFrames[3] = loadTextura("media/alice4.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
-  game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
-  if (game.bg != NULL) {
-    Mix_VolumeChunk(game.bg, 3);
-  }
+  //game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
+  //if (game.bg != NULL) {
+    //Mix_VolumeChunk(game.bg, 3);
+    //game.musicChannel = Mix_PlayChannel(-1, game.bg, -1);
+  //}
 
     while(jogando != false) {
       SDL_RenderClear(renderer);
@@ -711,7 +666,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.carta);
-  SDL_DestroyTexture(game.fire);
+  //SDL_DestroyTexture(game.fire);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -720,7 +675,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.inimFrames[1]); 
   TTF_CloseFont(game.font);
   TTF_CloseFont(game.font1);
-  Mix_FreeChunk(game.bg);
+  //Mix_FreeChunk(game.bg);
 
 
     return sucesso;
@@ -746,7 +701,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->statusState = STATUS_STATE_LIVES;
   game->alice.Carta1 = 0;
 
-  init_status_lives(game);
 
   game->time =  0;
   game->scrollX = 0; 
@@ -958,10 +912,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *cartinha = NULL;
   SDL_Texture *fim = NULL;
 
-  if (game->statusState == STATUS_STATE_LIVES) { //
-   draw_status_lives(game); // 
- } // 
- else if (game->statusState == STATUS_STATE_GAME) { //
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -1075,18 +1025,12 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if(game->label != NULL) {
     	SDL_DestroyTexture(game->label);
   	}
-  }//
 
 }
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
-    SDL_Texture *placa = NULL;
 
- if (game->statusState == STATUS_STATE_LIVES) {
-   draw_status_lives(game);
- }
- else if (game->statusState == STATUS_STATE_GAME) {
     SDL_Texture *placa = NULL;
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 2050, 120, 70, 100 };
@@ -1124,7 +1068,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   }
 
   SDL_DestroyTexture(placa);
- }
 
 }
 
@@ -1220,36 +1163,15 @@ void processo(GameState *game) {
   //add time
   game->time++;
 
-  if(game->time > 120) {
-    shutdown_status_lives(game);
-    game->statusState = STATUS_STATE_GAME;
-    game->musicChannel = Mix_PlayChannel(-1, game->bg, -1);
-  }
-
-  if (game->statusState == STATUS_STATE_GAME) { //
   //movimento da Alice
-  if (!game->alice.morta) {
+  //if (!game->alice.morta) {
   Alice *alice = &game->alice;
   alice->x += alice->dx;
   alice->y += alice->dy;
 
   alice->dy += Gravidade;
-  }
 
-  if (game->alice.morta && game->mortes < 0) {
-    game->mortes = 120;
-  }
 
-  if (game->mortes > 0) {
-    game->mortes--;
-    if (game->mortes < 0) {
-      init_status_lives(game);
-      //init_game_over(game);
-      //game->statusState = STATUS_STATE_GAMEOVER;
-    }
-  }
-
-  Alice *alice = &game->alice;
   if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
     if (game->time % 6 == 0) {
       if (alice->animFrame == 0) {
@@ -1284,9 +1206,8 @@ void processo(GameState *game) {
     game->scrollX = -2580 + (2*590);
   }
 }
- } //
 
-//}
+
 
 void colisao(GameState *game) {
   int i = 0, j = 0;
@@ -1372,11 +1293,6 @@ void colisao(GameState *game) {
     }
   }
 
-  //float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
-  //float ax = game->alice.x, ay = game->alice.y; //posição da alice
-
-  //float pw = 128, ph = 29; //largura e altura da plat;
-  //float px = game->plat[i].x, py = game->plat[i].y; //posição da plat;
     if(ay+ah > py && ay < py+ph) { //direita
       if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
         game->alice.x = px+pw;
