@@ -223,10 +223,10 @@ bool inicializador () {
         exit(1);
       }
       else {
-      	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         if ( TTF_Init() ) {
-        	printf( "SDL_ttf não pode inicializar! SDL_ttf Error: %s\n", TTF_GetError() );
-        	sucesso = false;
+          printf( "SDL_ttf não pode inicializar! SDL_ttf Error: %s\n", TTF_GetError() );
+          sucesso = false;
           exit(1);
         }
         Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
@@ -382,7 +382,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
       else {
       switch (event.type) {
         case SDL_MOUSEMOTION: //colocar som
-        	 if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460) {
+           if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460) {
             Mix_VolumeChunk(game->passa, 8);
             game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
            }
@@ -444,8 +444,8 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
             }
 
             else if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
-			       SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
-			       SDL_RenderPresent(renderer);
+             SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
+             SDL_RenderPresent(renderer);
               SDL_Delay(200); 
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
@@ -455,7 +455,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
 
             else if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, sair2, NULL, &sair2Rect);
-    		      SDL_RenderPresent(renderer);
+              SDL_RenderPresent(renderer);
               SDL_Delay(200);               
               gameloop = false;
               sucesso = false;
@@ -495,11 +495,11 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
     SDL_DestroyTexture(imgRanking);
     SDL_DestroyTexture(imgAjuda);
     SDL_DestroyTexture(jogar2);
-	  SDL_DestroyTexture(cred2);
-	  SDL_DestroyTexture(ranking2);
-	  SDL_DestroyTexture(niveis2);
-	  SDL_DestroyTexture(sair2);
-	  SDL_DestroyTexture(retornar2);
+    SDL_DestroyTexture(cred2);
+    SDL_DestroyTexture(ranking2);
+    SDL_DestroyTexture(niveis2);
+    SDL_DestroyTexture(sair2);
+    SDL_DestroyTexture(retornar2);
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
     Mix_FreeChunk(game->passa);
@@ -536,9 +536,9 @@ void telapause(SDL_Renderer *renderer, GameState* game) {
 
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
-  	if (event.type == SDL_QUIT) {
-  		gameloop = false;
-  		saida();
+    if (event.type == SDL_QUIT) {
+      gameloop = false;
+      saida();
         exit(1);
     }
     else switch (event.type) {
@@ -561,7 +561,7 @@ void telapause(SDL_Renderer *renderer, GameState* game) {
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 372 && event.motion.x < 520 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, menu2, NULL, &menu2Rect);
-    		      SDL_RenderPresent(renderer);
+              SDL_RenderPresent(renderer);
               cont = 1;
               SDL_Delay(800);
               Mix_HaltChannel(game->musicChannel);
@@ -574,7 +574,7 @@ void telapause(SDL_Renderer *renderer, GameState* game) {
 
             if (event.motion.x > 565 && event.motion.x < 714 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, cont2, NULL, &cont2Rect);
-    	        SDL_RenderPresent(renderer);
+              SDL_RenderPresent(renderer);
               SDL_Delay(500);
               gameloop = false;
             }
@@ -854,103 +854,145 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
     game->plat[i].y = 675;
   }
 
-  game->plat[39].x = 2000;
-  game->plat[39].y = 220;
+  // Parte 1
 
-  game->plat[40].x = 0;
-  game->plat[40].y = 500;
+  game->plat[39].x = 0;
+  game->plat[39].y = 410;
 
-  game->plat[41].x = 128;
-  game->plat[41].y = 500;
+  game->plat[40].x = 128;
+  game->plat[40].y = 410;
 
-  game->plat[42].x = 256;
-  game->plat[42].y = 500;
+  game->plat[41].x = 256;
+  game->plat[41].y = 410;
 
-  game->plat[43].x = 470;
-  game->plat[43].y = 600;
+  game->plat[42].x = 384;
+  game->plat[42].y = 410;
 
-  game->plat[44].x = 520;
-  game->plat[44].y = 450;
+  game->plat[43].x = 649;
+  game->plat[43].y = 556;
 
-  game->plat[45].x = 648;
-  game->plat[45].y = 450;
+  game->plat[44].x = 777;
+  game->plat[44].y = 556;
 
-  game->plat[46].x = 620;
-  game->plat[46].y = 520;
+  game->plat[45].x = 896;
+  game->plat[45].y = 225;
 
-  game->plat[47].x = 748;
-  game->plat[47].y = 520;
+  game->plat[46].x = 1024;
+  game->plat[46].y = 225;
 
-  game->plat[48].x = 876;
-  game->plat[48].y = 520;
+  game->plat[47].x = 1152;
+  game->plat[47].y = 225;
 
-  // Plataformas saída
+  // Parte 2
 
-  game->plat[49].x = 2304;
-  game->plat[49].y = 200;
+  game->plat[48].x = 1455;
+  game->plat[48].y = 410;
 
-  game->plat[50].x = 2432;
-  game->plat[50].y = 200;
+  game->plat[49].x = 1583;
+  game->plat[49].y = 410;
 
-  //-----------------------
+  game->plat[50].x = 1711;
+  game->plat[50].y = 410;
 
-  game->plat[51].x = 256;
-  game->plat[51].y = 300;
+  game->plat[51].x = 1839;
+  game->plat[51].y = 310;
 
-  game->plat[52].x = 384;
-  game->plat[52].y = 300;
+  game->plat[52].x = 1967;
+  game->plat[52].y = 310;
 
-  game->plat[53].x = 512;
-  game->plat[53].y = 300;
+  game->plat[53].x = 2095;
+  game->plat[53].y = 210;
 
-  game->plat[54].x = 0;
-  game->plat[54].y = 400;
+  game->plat[54].x = 2223;
+  game->plat[54].y = 210;
 
-  game->plat[55].x = 128;
-  game->plat[55].y = 400;
+  game->plat[55].x = 2095;
+  game->plat[55].y = 589;
 
-  game->plat[56].x = 648;
-  game->plat[56].y = 250;
+  game->plat[56].x = 2223;
+  game->plat[56].y = 505;
 
-  game->plat[57].x = 776;
-  game->plat[57].y = 250;
+  game->plat[57].x = 2351;
+  game->plat[57].y = 505;
 
-  game->plat[58].x = 1032;
-  game->plat[58].y = 450;
+  // Parte 3
 
-  game->plat[59].x = 1160;
-  game->plat[59].y = 450;
+  game->plat[58].x = 2771;
+  game->plat[58].y = 230;
 
-  game->plat[60].x = 1288;
-  game->plat[60].y = 450;
+  game->plat[59].x = 2899;
+  game->plat[59].y = 230;
 
-  game->plat[61].x = 1416;
-  game->plat[61].y = 450;
+  game->plat[60].x = 3027;
+  game->plat[60].y = 230;
 
-  game->plat[62].x = 950;
-  game->plat[62].y = 220;
+  game->plat[61].x = 3155;
+  game->plat[61].y = 230;
 
-  game->plat[63].x = 1078;
-  game->plat[63].y = 220;
+  game->plat[62].x = 3283;
+  game->plat[62].y = 230;
 
-  game->plat[64].x = 1226;
-  game->plat[64].y = 290;
+  game->plat[63].x = 3411;
+  game->plat[63].y = 230;
 
-  game->plat[65].x = 1566;
-  game->plat[65].y = 350;
+  game->plat[64].x = 3539;
+  game->plat[64].y = 230;
 
-  game->plat[66].x = 1694;
-  game->plat[66].y = 350;
+  game->plat[65].x = 2643;
+  game->plat[65].y = 424;
 
-  game->plat[67].x = 1822;
-  game->plat[67].y = 350;
+  game->plat[66].x = 2771;
+  game->plat[66].y = 424;
 
-  game->plat[68].x = 1744;
-  game->plat[68].y = 220;
+  game->plat[67].x = 2889;
+  game->plat[67].y = 424;
 
-  game->plat[69].x = 1872;
-  game->plat[69].y = 220;
+  game->plat[68].x = 3460;
+  game->plat[68].y = 490;
 
+  game->plat[69].x = 3584;
+  game->plat[69].y = 490;
+
+  game->plat[70].x = 3712;
+  game->plat[70].y = 490;
+
+  // Parte 4
+
+  game->plat[71].x = 4064;
+  game->plat[71].y = 270;
+
+  game->plat[72].x = 4192;
+  game->plat[72].y = 270;
+
+  game->plat[73].x = 4320;
+  game->plat[73].y = 270;
+
+  game->plat[74].x = 4704;
+  game->plat[74].y = 270;
+
+  game->plat[75].x = 4832;
+  game->plat[75].y = 270;
+
+  game->plat[76].x = 4064;
+  game->plat[76].y = 440;
+
+  game->plat[77].x = 4192;
+  game->plat[77].y = 440;
+
+  game->plat[78].x = 4320;
+  game->plat[78].y = 440;
+
+  game->plat[79].x = 4448;
+  game->plat[79].y = 440;
+
+  game->plat[80].x = 4576;
+  game->plat[80].y = 440;
+
+  game->plat[81].x = 4704;
+  game->plat[81].y = 440;
+
+  game->plat[82].x = 4832;
+  game->plat[82].y = 440;
 
   //MOEDINHAS
   game->moedas[0].x = 540;
@@ -1110,16 +1152,16 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, cartinha, NULL, &cartinhaRect);
 
     if (game->alice.Carta1 >= 0) {
-    	char str[10] = "";
-    	sprintf (str, "x%d", (int)game->alice.Carta1);
-    	SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
-    	game->labelW = tmp->w;
-    	game->labelH = tmp->h;
-    	game->label = SDL_CreateTextureFromSurface(renderer, tmp);
-    	SDL_FreeSurface(tmp);
-    	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    	SDL_Rect textRect = {900, 45-game->labelH, game->labelW, game->labelH}; 
-    	SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
+      char str[10] = "";
+      sprintf (str, "x%d", (int)game->alice.Carta1);
+      SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
+      game->labelW = tmp->w;
+      game->labelH = tmp->h;
+      game->label = SDL_CreateTextureFromSurface(renderer, tmp);
+      SDL_FreeSurface(tmp);
+      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+      SDL_Rect textRect = {900, 45-game->labelH, game->labelW, game->labelH}; 
+      SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
     }
 
     if (game->alice.lives == 3) {
@@ -1137,12 +1179,12 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.lives == 0) {
       SDL_RenderCopy(renderer, vida4, NULL, &vidaRect);
       SDL_Delay(300);
-    	game->alice.Chaves = 0;
-    	game->alice.Carta1 = 0;
+      game->alice.Chaves = 0;
+      game->alice.Carta1 = 0;
       Mix_HaltChannel(game->musicChannel);
-    	telafim(renderer,game);
-    	cont = 1;
-    	reseta = 1;
+      telafim(renderer,game);
+      cont = 1;
+      reseta = 1;
     }
 
     chavinha = loadTextura("media/keyYellow.png");
@@ -1156,8 +1198,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         game->alice.Carta1 = 0;
         Mix_HaltChannel(game->musicChannel);
         telafim(renderer, game);
-    	cont = 1;
-    	reseta = 1;
+      cont = 1;
+      reseta = 1;
       }
     }
 
@@ -1170,7 +1212,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, pause, NULL, &pauseRect);
 
 
-  	SDL_DestroyTexture(porta);
+    SDL_DestroyTexture(porta);
     SDL_DestroyTexture(fundo);
     SDL_DestroyTexture(barra);
     SDL_DestroyTexture(vida);
@@ -1184,8 +1226,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(chavinha);
     SDL_DestroyTexture(fim);
     if(game->label != NULL) {
-    	SDL_DestroyTexture(game->label);
-  	}
+      SDL_DestroyTexture(game->label);
+    }
 
 }
 
@@ -1197,7 +1239,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
-  for (i = 0; i < 70; i++) { //quantidades de plataformas que existirão //71
+  for (i = 0; i < 83; i++) { //quantidades de plataformas que existirão //71
     SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
@@ -1211,8 +1253,8 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   for (i = 0; i < 1; i++) {
-  	SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
-  	SDL_RenderCopy(renderer, game->carta, NULL, &cartaRect);
+    SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
+    SDL_RenderCopy(renderer, game->carta, NULL, &cartaRect);
   }
 
   //inimigo arrumar
@@ -1339,10 +1381,10 @@ void processo(GameState *game) {
         alice->animFrame = 1;
       }
       else if (alice->animFrame = 1) {
-      	alice->animFrame = 2;
+        alice->animFrame = 2;
       }
       else if (alice->animFrame = 2) {
-      	alice->animFrame = 3;
+        alice->animFrame = 3;
       }
       else {
         alice->animFrame = 0;
@@ -1422,7 +1464,7 @@ void colisao(GameState *game) {
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) { //carta 1;
-  	  game->alice.Carta1 = 1;
+      game->alice.Carta1 = 1;
       game->cartas[0].x = -50;
       game->cartas[0].y = -50;
   }
