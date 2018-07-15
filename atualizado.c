@@ -705,6 +705,13 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
               game->alice.Chaves = 0;
+              game->alice.Carta1 = 0;
+              game->alice.Carta2 = 0;
+              game->alice.Carta3 = 0;
+              game->alice.Carta4 = 0;
+              game->alice.Carta5 = 0;
+              game->alice.Carta6 = 0;
+              game->alice.Carta7 = 0;
               nivel1(renderer);
               gameloop = false;
             } 
@@ -714,6 +721,13 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_Delay(300);
               cont = 1;
               game->alice.Chaves = 0;
+              game->alice.Carta1 = 0;
+              game->alice.Carta2 = 0;
+              game->alice.Carta3 = 0;
+              game->alice.Carta4 = 0;
+              game->alice.Carta5 = 0;
+              game->alice.Carta6 = 0;
+              game->alice.Carta7 = 0;
               gameloop = false;
               game->MENU = Mix_LoadWAV("media/IWish.ogg");
               Mix_VolumeChunk(game->MENU, 10);
@@ -845,6 +859,13 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->alice.pontos = 0;
   game->statusState = STATUS_STATE_LIVES;
   game->alice.Carta1 = 0;
+  game->alice.Carta2 = 0;
+  game->alice.Carta3 = 0;
+  game->alice.Carta4 = 0;
+  game->alice.Carta5 = 0;
+  game->alice.Carta6 = 0;
+  game->alice.Carta7 = 0;
+
 
   game->recordista = 0;
   game->contador_recordista = 0;
@@ -1223,7 +1244,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 
     if (game->alice.Carta1 >= 0) {
       char str[10] = "";
-      sprintf (str, "x%d", (int)game->alice.Carta1);
+      int totalchaves = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
+      sprintf (str, "x%d", totalchaves);
       SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
       game->labelW = tmp->w;
       game->labelH = tmp->h;
@@ -1266,6 +1288,12 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) { //fazer colisao
         game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
+        game->alice.Carta2 = 0;
+        game->alice.Carta3 = 0;
+        game->alice.Carta4 = 0;
+        game->alice.Carta5 = 0;
+        game->alice.Carta6 = 0;
+        game->alice.Carta7 = 0;
         Mix_HaltChannel(game->musicChannel);
         telafim(renderer, game);
       cont = 1;
@@ -1369,8 +1397,8 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->portaverde, NULL, &verdeRect);
   }
 
-  //inimigo arrumar
-  SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; //colocar game->scrollX
+  //inimigo
+  SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; 
   SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
 
   //Alice
