@@ -18,7 +18,7 @@ typedef struct {
   float x, y;
   float dx, dy;
   short lives;
-  int pontos, Chaves, Carta1;
+  int pontos, Chaves, Carta1, Carta2, Carta3, Carta4, Carta5, Carta6, Carta7;
   int onPlat;
 
   int animFrame, facingLeft, slowingDown;
@@ -690,7 +690,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
   SDL_RenderPresent(renderer);
 
   le_arquivo(game->recorde);
-  if(game->alice.pontos > game->recorde[9].pontos) {
+  if(game->alice.pontos > game->recorde[4].pontos) {
     game->recordista = 1;
   }
 
@@ -1561,7 +1561,7 @@ void colisao(GameState *game) {
     }
 
   for (i = 0; i < 26; i++) { //colisao das moedas
-    if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
+    if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { //colisao das moedas
       game->alice.pontos = game->alice.pontos + 100;
       game->moedas[i].x = -30;
       game->moedas[i].y = -30;
@@ -1580,6 +1580,43 @@ void colisao(GameState *game) {
       game->cartas[0].x = -50;
       game->cartas[0].y = -50;
   }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[1].x, game->cartas[1].y, 68, 118, 50, 30)) { //carta 2;
+      game->alice.Carta2 = 1;
+      game->cartas[1].x = -50;
+      game->cartas[1].y = -50;
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[2].x, game->cartas[2].y, 68, 118, 50, 30)) { //carta 3;
+      game->alice.Carta3 = 1;
+      game->cartas[2].x = -50;
+      game->cartas[2].y = -50;
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[3].x, game->cartas[3].y, 68, 118, 50, 30)) { //carta 4;
+      game->alice.Carta4 = 1;
+      game->cartas[3].x = -50;
+      game->cartas[3].y = -50;
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[4].x, game->cartas[4].y, 68, 118, 50, 30)) { //carta 5;
+      game->alice.Carta5 = 1;
+      game->cartas[4].x = -50;
+      game->cartas[4].y = -50;
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[5].x, game->cartas[5].y, 68, 118, 50, 30)) { //carta 6;
+      game->alice.Carta6 = 1;
+      game->cartas[5].x = -50;
+      game->cartas[5].y = -50;
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->cartas[6].x, game->cartas[6].y, 68, 118, 50, 30)) { //carta 7;
+      game->alice.Carta7 = 1;
+      game->cartas[6].x = -50;
+      game->cartas[6].y = -50;
+  }
+
 
   for (i = 0; i < 70; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
