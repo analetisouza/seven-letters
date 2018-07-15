@@ -44,6 +44,10 @@ typedef struct {
   float x, y;
 } CARTA;
 
+typedef struct {
+  float x, y;
+} PORTA;
+
 typedef struct { //struct para pontos do record
   char nome[11];
   char ponto[11];
@@ -58,18 +62,26 @@ typedef struct { //jogo
   MOEDA moedas[100];
   CARTA cartas[7];
   CHAVE chaves;
+  PORTA portas[50];
   INIMIGO inim;
 
   PONTUACAO recorde[10];
     int recordista;
     int contador_recordista;
-    char nome_recordista[4]; 
+    char nome_recordista[5]; 
 
- 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *inimFrames[4];
   SDL_Texture *plataforma;
   SDL_Texture *moeda;
+  SDL_Texture *portamarrom;
+  SDL_Texture *portaazul;
+  SDL_Texture *portaazuldark;
+  SDL_Texture *portaverde;
+  SDL_Texture *portaverdeagua;
+  SDL_Texture *portaamarela;
+  SDL_Texture *portarosa;
+  SDL_Texture *portaroxa;
   SDL_Texture *chave;
   SDL_Texture *carta;
   SDL_Texture *fire;
@@ -709,16 +721,28 @@ bool nivel1(SDL_Renderer *renderer) {
   loadGame(&game);
   game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
   game.font1 = TTF_OpenFont("media/TravelingTypewriter.ttf", 20);
+
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
+
+  game.portamarrom = loadTextura("media/porta1.png");
+  game.portaazul = loadTextura("media/porta7.png");
+  game.portaazuldark = loadTextura("media/porta2.png");
+  game.portaverde = loadTextura("media/porta5.png");
+  game.portaverdeagua = loadTextura("media/porta6.png");
+  game.portaamarela = loadTextura("media/porta4.png");
+  game.portarosa = loadTextura("media/porta8.png");
+  game.portaroxa = loadTextura("media/porta3.png");
+
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
   game.aliceFrames[3] = loadTextura("media/alice4.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
+
   game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
   if (game.bg != NULL) {
     Mix_VolumeChunk(game.bg, 3);
@@ -743,6 +767,14 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.carta);
+  SDL_DestroyTexture(game.portaroxa);
+  SDL_DestroyTexture(game.portarosa);
+  SDL_DestroyTexture(game.portaamarela);
+  SDL_DestroyTexture(game.portaverdeagua);
+  SDL_DestroyTexture(game.portaverde);
+  SDL_DestroyTexture(game.portaazuldark);
+  SDL_DestroyTexture(game.portaazul);
+  SDL_DestroyTexture(game.portamarrom);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -776,6 +808,11 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->statusState = STATUS_STATE_LIVES;
   game->alice.Carta1 = 0;
 
+  game->recordista = 0;
+  game->contador_recordista = 0;
+  for(i = 0; i < 5; i++) {
+     game->nome_recordista[i] = '\0';
+  }
 
   game->time =  0;
   game->scrollX = 0; 
@@ -963,12 +1000,19 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->moedas[25].x = 770;
   game->moedas[25].y = 170;
 
+  //portas
+  game->portas[0].x = 770;
+  game->portas[0].y = 170;
+
+  //chave
   game->chaves.x = 14;
   game->chaves.y = 355; //350
 
+  //inimigo
   game->inim.x = 2515;
   game->inim.y = 644;
 
+  //cartas
   game->cartas[0].x = 860;
   game->cartas[0].y = 485; //480
 
