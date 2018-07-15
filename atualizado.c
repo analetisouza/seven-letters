@@ -131,11 +131,25 @@ int collide2d(int, int, int, int, int, int, int, int);
 
 int distancia(int, int, int, int);
 
+void le_arquivo(PONTUACAO*);
+
+void escreve_arquivo(PONTUACAO*, char*, int);
+
+void ordena_recorder(PONTUACAO*);
+
+
 SDL_Window* janela = NULL;
 SDL_Renderer* renderer = NULL;
 
 //Variáveis de controle
 int cont = 0, reseta = 0, ncolisao = 0;
+
+    int now = 0;
+    int ex = 0;
+    int periodeFps = 8; // 33ms  fps = 30 img/s
+    int dt = 0;
+    int i;
+    float delta_s = 0;
 
 //Dimensões da janela
 const int LARG = 1280; 
@@ -754,15 +768,23 @@ bool nivel1(SDL_Renderer *renderer) {
   }
 
     while(jogando != false) {
-      SDL_RenderClear(renderer);
-      RenderNivel(renderer, &game);
-      RenderObjetos(renderer, &game);
-      jogando = eventos(janela, &game);
-      processo(&game);
-      colisao(&game);
-      SDL_RenderPresent(renderer);
-      SDL_Delay(1/60);
-
+      now = SDL_GetTicks();
+      dt = now - ex;
+      if(dt > periodeFps) {
+        delta_s = dt/1000.0;
+        SDL_RenderClear(renderer);
+        RenderNivel(renderer, &game);
+        RenderObjetos(renderer, &game);
+        eventos(janela, &game);
+        processo(&game);
+        colisao(&game);
+        SDL_RenderPresent(renderer);
+        ex=now;
+      }
+      else {
+        SDL_Delay(periodeFps - delta_s);
+        //printf ("delay: %f\n", periodeFps - delta_s); // não tá entrando
+      }
     }
 
     SDL_Delay(500);
@@ -1306,7 +1328,7 @@ void processo(GameState *game) {
 
 
   if (alice->dx != 0 && alice->onPlat && !alice->slowingDown) {
-    if (game->time % 6 == 0) {
+    if (game->time % 5 == 0) {
       if (alice->animFrame == 0) {
         alice->animFrame = 1;
       }
@@ -1446,6 +1468,64 @@ int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
 
-/*int distancia(int x1, int y1, int x2, int y2) {
-	return (sqrt(pow((x1-x2), 2)+(pow((y1-y2), 2))));
-}*/
+void le_arquivo(PONTUACAO* pontuacao) {
+    int i = 0;
+    FILE* f = fopen("scores.txt", "r");
+    if(f == NULL) {
+        f = fopen("scores.txt","w");
+        if(f == NULL) {
+            perror("scores.txt: \n");
+            exit(1);
+        }
+        for(i=0;i<10;i++) {
+            pontuacao[i].nome[0]='.';
+            pontuacao[i].nome[1]='.';
+            pontuacao[i].nome[2]='.';
+            pontuacao[i].nome[3]='\0';
+            pontuacao[i].pontos=0;
+
+            fprintf(f,"%s %d",pontuacao[i].nome,pontuacao[i].pontos);
+            fprintf(f,"\n");
+        }
+    }
+    else {
+        while(!feof(f)) {
+            fscanf(f,"%s %d",pontuacao[i].nome,&pontuacao[i].pontos);
+            fgetc(f);
+            i++;
+        }
+    }
+    fclose(f);
+}
+void escreve_arquivo(PONTUACAO* pontuacao,char* nome,int pontos) {
+    int i = 0, aux = 10;
+    FILE* f = fopen("scores.txt", "w");
+    if(f == NULL) {
+        perror("scores.txt: \n");
+        exit(1);
+    }
+    strcpy(pontuacao[9].nome,nome);
+    pontuacao[9].pontos=pontos;
+    ordena_recorder(pontuacao);
+    while(aux){
+        fprintf(f,"%s %d",pontuacao[i].nome,pontuacao[i].pontos);
+        fprintf(f,"\n");
+        i++;
+        aux--;
+    }
+    fclose(f);
+}
+void ordena_recorder(PONTUACAO* pontuacao) {
+    int tam = 10,i;
+    PONTUACAO swap;
+    while(tam != 0) {
+        for(i = 0; i < 9; i++) {
+            if(pontuacao[i].pontos < pontuacao[i+1].pontos) {
+                swap = pontuacao[i];
+                pontuacao[i] = pontuacao[i+1];
+                pontuacao[i+1]=swap;
+            }
+        }
+        tam--;
+    }
+}
