@@ -485,7 +485,6 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   bool gameloop = true;
   SDL_Event event;
   SDL_Texture *telaPause = NULL;
-  //SDL_Texture *menuPause = NULL;
 
   SDL_Texture *menu2 = NULL;
   SDL_Rect menu2Rect = {356, 365, 175, 200};
@@ -635,7 +634,6 @@ bool nivel1(SDL_Renderer *renderer) {
   game.moeda = loadTextura("media/moeda.png");
   game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
-  //game.fire = loadTextura("media/fire.png");
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
@@ -666,7 +664,6 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.moeda);
   SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.carta);
-  //SDL_DestroyTexture(game.fire);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -687,12 +684,11 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   //posição da alice;
   game->label = NULL;
 
-  game->alice.x = 30;
+  game->alice.x = 4900;
   game->alice.y = 500;
   game->alice.dx = 0;
   game->alice.dy = 0;
   game->alice.onPlat = 0;
-  //game->alice.morta = 0;
   game->alice.animFrame = 0;
   game->alice.facingLeft = 0; //0 pq o boneco tá virado pra direita
   game->alice.slowingDown = 0;
@@ -704,110 +700,109 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
 
   game->time =  0;
   game->scrollX = 0; 
-  game->mortes = -1;
 
   //posição das plataformas 
-  for (i = 0; i < 20; i++) { //do chão
+  for (i = 0; i < 39; i++) { //do chão
     game->plat[i].x = 0+(128*i);
     game->plat[i].y = 675;
   }
 
-  game->plat[20].x = 0;
-  game->plat[20].y = 500;
+  game->plat[40].x = 0;
+  game->plat[40].y = 500;
 
-  game->plat[21].x = 128;
-  game->plat[21].y = 500;
+  game->plat[41].x = 128;
+  game->plat[41].y = 500;
 
-  game->plat[22].x = 256;
-  game->plat[22].y = 500;
+  game->plat[42].x = 256;
+  game->plat[42].y = 500;
 
-  game->plat[23].x = 470;
-  game->plat[23].y = 600;
+  game->plat[43].x = 470;
+  game->plat[43].y = 600;
 
-  game->plat[24].x = 520;
-  game->plat[24].y = 450;
+  game->plat[44].x = 520;
+  game->plat[44].y = 450;
 
-  game->plat[25].x = 648;
-  game->plat[25].y = 450;
+  game->plat[45].x = 648;
+  game->plat[45].y = 450;
 
-  game->plat[26].x = 620;
-  game->plat[26].y = 520;
+  game->plat[46].x = 620;
+  game->plat[46].y = 520;
 
-  game->plat[27].x = 748;
-  game->plat[27].y = 520;
+  game->plat[47].x = 748;
+  game->plat[47].y = 520;
 
-  game->plat[28].x = 876;
-  game->plat[28].y = 520;
+  game->plat[48].x = 876;
+  game->plat[48].y = 520;
 
   // Plataformas saída
 
-  game->plat[29].x = 2304;
-  game->plat[29].y = 200;
+  game->plat[49].x = 2304;
+  game->plat[49].y = 200;
 
-  game->plat[30].x = 2432;
-  game->plat[30].y = 200;
+  game->plat[50].x = 2432;
+  game->plat[50].y = 200;
 
   //-----------------------
 
-  game->plat[31].x = 256;
-  game->plat[31].y = 300;
+  game->plat[51].x = 256;
+  game->plat[51].y = 300;
 
-  game->plat[32].x = 384;
-  game->plat[32].y = 300;
+  game->plat[52].x = 384;
+  game->plat[52].y = 300;
 
-  game->plat[33].x = 512;
-  game->plat[33].y = 300;
+  game->plat[53].x = 512;
+  game->plat[53].y = 300;
 
-  game->plat[34].x = 0;
-  game->plat[34].y = 400;
+  game->plat[54].x = 0;
+  game->plat[54].y = 400;
 
-  game->plat[35].x = 128;
-  game->plat[35].y = 400;
+  game->plat[55].x = 128;
+  game->plat[55].y = 400;
 
-  game->plat[36].x = 648;
-  game->plat[36].y = 250;
+  game->plat[56].x = 648;
+  game->plat[56].y = 250;
 
-  game->plat[37].x = 776;
-  game->plat[37].y = 250;
+  game->plat[57].x = 776;
+  game->plat[57].y = 250;
 
-  game->plat[38].x = 1032;
-  game->plat[38].y = 450;
+  game->plat[58].x = 1032;
+  game->plat[58].y = 450;
 
-  game->plat[39].x = 1160;
-  game->plat[39].y = 450;
+  game->plat[59].x = 1160;
+  game->plat[59].y = 450;
 
-  game->plat[40].x = 1288;
-  game->plat[40].y = 450;
+  game->plat[60].x = 1288;
+  game->plat[60].y = 450;
 
-  game->plat[41].x = 1416;
-  game->plat[41].y = 450;
+  game->plat[61].x = 1416;
+  game->plat[61].y = 450;
 
-  game->plat[42].x = 950;
-  game->plat[42].y = 220;
+  game->plat[62].x = 950;
+  game->plat[62].y = 220;
 
-  game->plat[43].x = 1078;
-  game->plat[43].y = 220;
+  game->plat[63].x = 1078;
+  game->plat[63].y = 220;
 
-  game->plat[44].x = 1226;
-  game->plat[44].y = 290;
+  game->plat[64].x = 1226;
+  game->plat[64].y = 290;
 
-  game->plat[45].x = 1566;
-  game->plat[45].y = 350;
+  game->plat[65].x = 1566;
+  game->plat[65].y = 350;
 
-  game->plat[46].x = 1694;
-  game->plat[46].y = 350;
+  game->plat[66].x = 1694;
+  game->plat[66].y = 350;
 
-  game->plat[47].x = 1822;
-  game->plat[47].y = 350;
+  game->plat[67].x = 1822;
+  game->plat[67].y = 350;
 
-  game->plat[48].x = 1744;
-  game->plat[48].y = 220;
+  game->plat[68].x = 1744;
+  game->plat[68].y = 220;
 
-  game->plat[49].x = 1872;
-  game->plat[49].y = 220;
+  game->plat[69].x = 1872;
+  game->plat[69].y = 220;
 
-  game->plat[50].x = 2000;
-  game->plat[50].y = 220;
+  game->plat[70].x = 2000;
+  game->plat[70].y = 220;
 
   //MOEDINHAS
   game->moedas[0].x = 540;
@@ -919,8 +914,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 
-    fundo = loadTextura("media/mapa.png");
-    SDL_Rect fundoRect = {game->scrollX + 0, 0, 2560+155, 720};
+    fundo = loadTextura("media/mapa_extendido.png");
+    SDL_Rect fundoRect = {game->scrollX + 0, 0, 5120, 720}; //larg+155
     SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
 
     porta = loadTextura("media/porta.png");
@@ -1047,7 +1042,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect placRect = { game->scrollX + 2050, 120, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
-  for (i = 0; i < 51; i++) { //quantidades de plataformas que existirão
+  for (i = 0; i < 70; i++) { //quantidades de plataformas que existirão //71
     SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
@@ -1073,10 +1068,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_Rect rect = { game->alice.x + game->scrollX, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
-  /*if (game->alice.morta) {
-    SDL_Rect rect = { game->scrollX + game->alice.x- 26 +68/2, game->alice.y - 26 +118/2, 68, 118 };
-    SDL_RenderCopyEx(renderer, game->fire, NULL, &rect, 0, NULL, (game->time%20 < 10));
-  }*/
 
   SDL_DestroyTexture(placa);
 
@@ -1137,8 +1128,8 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 68 + 6) > 2560) {
-      game->alice.x = 2560 - 68;
+    if ((game->alice.x + 68 + 6) > 5120) { //
+      game->alice.x = 5120 - 68; //
     }
     else {
       game->alice.x += 7;
@@ -1174,8 +1165,6 @@ void processo(GameState *game) {
   //add time
   game->time++;
 
-  //movimento da Alice
-  //if (!game->alice.morta) {
   Alice *alice = &game->alice;
   alice->x += alice->dx;
   alice->y += alice->dy;
@@ -1206,15 +1195,15 @@ void processo(GameState *game) {
 
   inim->x -= velX;
   if (inim->x + 3 < 0) {  //vai só pra esquerda
-    inim->x = 2515; //respawn
+    inim->x = 1280; //respawn
   }
 
   game->scrollX = -game->alice.x + 598;
   if(game->scrollX > 0) {
     game->scrollX = 0;
   }
-  if(game->alice.x > 2012 && game->alice.x < 2580) {
-    game->scrollX = -2580 + (2*590);
+  if(game->alice.x > 4427 && game->alice.x < 5140) { //2012 2580
+    game->scrollX = -5140 + (2*658);
   }
 }
 
@@ -1224,9 +1213,7 @@ void colisao(GameState *game) {
   int i = 0, j = 0;
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
-      //game->alice.morta = 1;
       if (ncolisao == 0 && j == 0) {
-        //game->alice.morta = 0;
         ncolisao = 1;
         game->alice.x += 5;
       }
@@ -1279,7 +1266,7 @@ void colisao(GameState *game) {
       game->cartas[0].y = -50;
   }
 
-  for (i = 0; i < 51; i++) {
+  for (i = 0; i < 70; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
@@ -1307,14 +1294,14 @@ void colisao(GameState *game) {
     if(ay+ah > py && ay < py+ph) { //direita
       if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
         game->alice.x = px+pw;
-        //ax = pw+pw-10;
+        ax = pw+pw-10;
 
         game->alice.dx = 0;
       }
 
       else if(ax+aw > px && ax < px && game->alice.dx > 0) {
         game->alice.x = px-aw;
-        //ax = px-aw;
+        ax = px-aw;
         
         game->alice.dx = 0;
       }
