@@ -1151,8 +1151,8 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->verde[1].y = 307;
 
   //chave
-  game->chaves.x = 14;
-  game->chaves.y = 355; //350
+  game->chaves.x = 370;
+  game->chaves.y = 340; //350
 
   //inimigo
   game->inim.x = 2515;
