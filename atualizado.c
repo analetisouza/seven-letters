@@ -146,7 +146,7 @@ int cont = 0, reseta = 0, ncolisao = 0;
 
     int now = 0;
     int ex = 0;
-    int periodeFps = 8; // 33ms  fps = 30 img/s
+    int periodeFps = 16; // 33ms  fps = 30 img/s
     int dt = 0;
     int i;
     float delta_s = 0;
@@ -682,6 +682,11 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
 
   SDL_RenderPresent(renderer);
 
+  le_arquivo(game->recorde);
+  if(game->alice.pontos > game->recorde[9].pontos) {
+    game->recordista = 1;
+  }
+
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
     //printf ("%d\n", event.motion.y);
@@ -707,7 +712,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               Mix_VolumeChunk(game->MENU, 10);
               game->musicChannel = Mix_PlayChannel(-1, game->MENU, -1);
               telainicial(renderer, game);
-              gameloop = false;
+              //gameloop = false;
             }
           break;
        }
@@ -771,7 +776,7 @@ bool nivel1(SDL_Renderer *renderer) {
       now = SDL_GetTicks();
       dt = now - ex;
       if(dt > periodeFps) {
-        delta_s = dt/1000.0;
+        delta_s = dt/1000.0f;
         SDL_RenderClear(renderer);
         RenderNivel(renderer, &game);
         RenderObjetos(renderer, &game);
@@ -1065,11 +1070,11 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderClear(renderer);
 
     fundo = loadTextura("media/mapa_extendido.png");
-    SDL_Rect fundoRect = {game->scrollX + 0, 0, 5120, 720}; //larg+155
+    SDL_Rect fundoRect = {game->scrollX + delta_s + 0, 0, 5120, 720}; //larg+155
     SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
 
     porta = loadTextura("media/porta.png");
-    SDL_Rect portRect = { game->scrollX + 2432, 67, 113, 133};
+    SDL_Rect portRect = { game->scrollX + delta_s + 2432, 67, 113, 133};
     SDL_RenderCopy(renderer, porta, NULL, &portRect);
 
     barra = loadTextura("media/base_barra.png");
@@ -1189,29 +1194,29 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
 
     SDL_Texture *placa = NULL;
     placa = loadTextura("media/signRight.png");
-    SDL_Rect placRect = { game->scrollX + 2050, 120, 70, 100 };
+    SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
   for (i = 0; i < 70; i++) { //quantidades de plataformas que existirão //71
-    SDL_Rect platRect = { game->scrollX + game->plat[i].x, game->plat[i].y, 128, 30 };
+    SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
 
   for (i = 0; i < 26; i++) { //quantidades de moedas que existirão
-    SDL_Rect moedaRect = { game->scrollX + game->moedas[i].x, game->moedas[i].y, 30, 30 };
+    SDL_Rect moedaRect = { game->scrollX + game->moedas[i].x + delta_s, game->moedas[i].y, 30, 30 };
     SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
 
-  SDL_Rect chaveRect = { game->scrollX + game->chaves.x, game->chaves.y, 75, 40}; //chave era 100 e 50
+  SDL_Rect chaveRect = { game->scrollX + game->chaves.x + delta_s, game->chaves.y, 75, 40}; //chave era 100 e 50
   SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   for (i = 0; i < 1; i++) {
-  	SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x, game->cartas[i].y, 50, 30}; //carta era 69 e 42
+  	SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
   	SDL_RenderCopy(renderer, game->carta, NULL, &cartaRect);
   }
 
   //inimigo arrumar
-  SDL_Rect inimRect = { game->scrollX + game->inim.x, game->inim.y, 50, 28 }; //colocar game->scrollX
+  SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; //colocar game->scrollX
   SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
 
   //Alice
@@ -1257,21 +1262,22 @@ bool eventos(SDL_Window *janela, GameState *game) {
           break;
         case SDLK_SPACE:
           if (game->alice.onPlat == 1) { //só se tiver no chão
-            game->alice.dy = -25;
+            game->alice.dy = -25 - delta_s;
             game->alice.onPlat = 0;
           }
           break;
       }
     }
   }
+
   
 const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   if(state[SDL_SCANCODE_LEFT]) {
-    if (game->alice.x - 6 < 0) {
+    if (game->alice.x - 10 < 0) {
       game->alice.x = 0;
     }
     else {
-      game->alice.x -= 6;
+      game->alice.x -= 10 - delta_s;
     }
 
     game->alice.dx -= 0.5; //aceleração
@@ -1284,11 +1290,11 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 68 + 6) > 4975) { //
+    if ((game->alice.x + 68 + 10) > 4975) { //
       game->alice.x = 4975 - 68; //
     }
     else {
-      game->alice.x += 6;
+      game->alice.x += 10 + delta_s;
     }
 
     game->alice.dx += 0.5; //aceleração
@@ -1497,7 +1503,7 @@ void le_arquivo(PONTUACAO* pontuacao) {
     }
     fclose(f);
 }
-void escreve_arquivo(PONTUACAO* pontuacao,char* nome,int pontos) {
+void escreve_arquivo(PONTUACAO* pontuacao, char* nome, int pontos) {
     int i = 0, aux = 10;
     FILE* f = fopen("scores.txt", "w");
     if(f == NULL) {
