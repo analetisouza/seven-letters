@@ -62,7 +62,14 @@ typedef struct { //jogo
   MOEDA moedas[100];
   CARTA cartas[7];
   CHAVE chaves;
-  PORTA portas[50];
+  PORTA marrom[2];
+  PORTA verdeagua[2];
+  PORTA roxa[2];
+  PORTA amarela[2];
+  PORTA laranja[2];
+  PORTA azul[2];
+  PORTA rosa[2];
+  PORTA verde[2];
   INIMIGO inim;
 
   PONTUACAO recorde[10];
@@ -76,7 +83,7 @@ typedef struct { //jogo
   SDL_Texture *moeda;
   SDL_Texture *portamarrom;
   SDL_Texture *portaazul;
-  SDL_Texture *portaazuldark;
+  SDL_Texture *portalaranja;
   SDL_Texture *portaverde;
   SDL_Texture *portaverdeagua;
   SDL_Texture *portaamarela;
@@ -752,12 +759,12 @@ bool nivel1(SDL_Renderer *renderer) {
 
   game.portamarrom = loadTextura("media/porta1.png");
   game.portaazul = loadTextura("media/porta7.png");
-  game.portaazuldark = loadTextura("media/porta2.png");
+  game.portaroxa = loadTextura("media/porta2.png");
   game.portaverde = loadTextura("media/porta5.png");
   game.portaverdeagua = loadTextura("media/porta6.png");
   game.portaamarela = loadTextura("media/porta4.png");
-  game.portarosa = loadTextura("media/porta8.png");
-  game.portaroxa = loadTextura("media/porta3.png");
+  game.portalaranja = loadTextura("media/porta8.png");
+  game.portarosa = loadTextura("media/porta3.png");
 
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
@@ -803,7 +810,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.portaamarela);
   SDL_DestroyTexture(game.portaverdeagua);
   SDL_DestroyTexture(game.portaverde);
-  SDL_DestroyTexture(game.portaazuldark);
+  SDL_DestroyTexture(game.portalaranja);
   SDL_DestroyTexture(game.portaazul);
   SDL_DestroyTexture(game.portamarrom);
   SDL_DestroyTexture(game.aliceFrames[0]);
@@ -1074,8 +1081,53 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->moedas[25].y = 170;
 
   //portas
-  game->portas[0].x = 770;
-  game->portas[0].y = 170;
+  game->marrom[0].x = 45;
+  game->marrom[0].y = 279;
+
+  game->marrom[1].x = 329;
+  game->marrom[1].y = 537;
+
+  game->verdeagua[0].x = 777;
+  game->verdeagua[0].y = 426;
+
+  game->verdeagua[1].x = 2117;
+  game->verdeagua[1].y = 80;
+
+  game->roxa[0].x = 960;
+  game->roxa[0].y = 92;
+
+  game->roxa[1].x = 4832;
+  game->roxa[1].y = 538;
+
+  game->amarela[0].x = 1647;
+  game->amarela[0].y = 279;
+
+  game->amarela[1].x = 2832;
+  game->amarela[1].y = 97;
+
+  game->laranja[0].x = 1839;
+  game->laranja[0].y = 537;
+
+  game->laranja[1].x = 2676;
+  game->laranja[1].y = 293;
+
+  game->azul[0].x = 2351;
+  game->azul[0].y = 375;
+
+  game->azul[1].x = 4776;
+  game->azul[1].y = 137;
+
+  game->rosa[0].x = 3510;
+  game->rosa[0].y = 357;
+
+  game->rosa[1].x = 3712;
+  game->rosa[1].y = 537;
+
+  game->verde[0].x = 4277;
+  game->verde[0].y = 137;
+
+  game->verde[1].x = 4128;
+  game->verde[1].y = 307;
 
   //chave
   game->chaves.x = 14;
@@ -1086,8 +1138,26 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->inim.y = 644;
 
   //cartas
-  game->cartas[0].x = 860;
-  game->cartas[0].y = 485; //480
+  game->cartas[0].x = 285;
+  game->cartas[0].y = 340; 
+
+  game->cartas[1].x = 1131;
+  game->cartas[1].y = 155; 
+
+  game->cartas[2].x = 1938;
+  game->cartas[2].y = 240; 
+
+  game->cartas[3].x = 2876;
+  game->cartas[3].y = 354; 
+
+  game->cartas[4].x = 3543;
+  game->cartas[4].y = 600;   
+
+  game->cartas[5].x = 4150;
+  game->cartas[5].y = 200; 
+
+  game->cartas[6].x = 4827;
+  game->cartas[6].y = 370; 
 
 }
 
@@ -1239,7 +1309,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);
 
-  for (i = 0; i < 83; i++) { //quantidades de plataformas que existirão //71
+  for (i = 0; i < 83; i++) { //quantidades de plataformas que existirão 
     SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
@@ -1252,9 +1322,51 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_Rect chaveRect = { game->scrollX + game->chaves.x + delta_s, game->chaves.y, 75, 40}; //chave era 100 e 50
   SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
-  for (i = 0; i < 1; i++) {
+  for (i = 0; i < 7; i++) {
     SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
     SDL_RenderCopy(renderer, game->carta, NULL, &cartaRect);
+  }
+
+  // Portas
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect marromRect = { game->scrollX + game->marrom[i].x + delta_s, game->marrom[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portamarrom, NULL, &marromRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect verdeaguaRect = { game->scrollX + game->verdeagua[i].x + delta_s, game->verdeagua[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portaverdeagua, NULL, &verdeaguaRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect roxaRect = { game->scrollX + game->roxa[i].x + delta_s, game->roxa[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portaroxa, NULL, &roxaRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect amarelaRect = { game->scrollX + game->amarela[i].x + delta_s, game->amarela[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portaamarela, NULL, &amarelaRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect laranjaRect = { game->scrollX + game->laranja[i].x + delta_s, game->laranja[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portalaranja, NULL, &laranjaRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect azulRect = { game->scrollX + game->azul[i].x + delta_s, game->azul[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portaazul, NULL, &azulRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect rosaRect = { game->scrollX + game->rosa[i].x + delta_s, game->rosa[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portarosa, NULL, &rosaRect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect verdeRect = { game->scrollX + game->verde[i].x + delta_s, game->verde[i].y, 113, 133};
+    SDL_RenderCopy(renderer, game->portaverde, NULL, &verdeRect);
   }
 
   //inimigo arrumar
