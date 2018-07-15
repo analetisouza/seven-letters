@@ -684,7 +684,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   //posição da alice;
   game->label = NULL;
 
-  game->alice.x = 4900;
+  game->alice.x = 30;
   game->alice.y = 500;
   game->alice.dx = 0;
   game->alice.dy = 0;
@@ -706,6 +706,9 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
     game->plat[i].x = 0+(128*i);
     game->plat[i].y = 675;
   }
+
+  game->plat[39].x = 2000;
+  game->plat[39].y = 220;
 
   game->plat[40].x = 0;
   game->plat[40].y = 500;
@@ -801,8 +804,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->plat[69].x = 1872;
   game->plat[69].y = 220;
 
-  game->plat[70].x = 2000;
-  game->plat[70].y = 220;
 
   //MOEDINHAS
   game->moedas[0].x = 540;
@@ -1132,7 +1133,7 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
       game->alice.x = 4975 - 68; //
     }
     else {
-      game->alice.x += 7;
+      game->alice.x += 6;
     }
 
     game->alice.dx += 0.5; //aceleração
