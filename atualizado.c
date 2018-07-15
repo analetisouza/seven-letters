@@ -1276,7 +1276,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect nivel1Rect = {560, 35, 153, 41};
     SDL_RenderCopy(renderer, Nivel1, NULL, &nivel1Rect);
 
-    //if (alice.vida == 1)
     vida = loadTextura("media/vida1.png");
     vida2 = loadTextura("media/vida2.png");
     vida3 = loadTextura("media/vida3.png");
@@ -1288,11 +1287,11 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect cartinhaRect = {860, 10, 40, 30};
     SDL_RenderCopy(renderer, cartinha, NULL, &cartinhaRect);
 
-    
 
     if (game->alice.Carta1 >= 0) {
       char str[10] = "";
-      sprintf (str, "x%d", (int)game->alice.Carta1);
+      int totalchaves = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
+      sprintf (str, "x%d", totalchaves);
       SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
       game->labelW = tmp->w;
       game->labelH = tmp->h;
@@ -1375,10 +1374,10 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
 
-    SDL_Texture *placa = NULL;
+    /*SDL_Texture *placa = NULL;
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
-    SDL_RenderCopy(renderer, placa, NULL, &placRect);
+    SDL_RenderCopy(renderer, placa, NULL, &placRect);*/
 
   for (i = 0; i < 83; i++) { //quantidades de plataformas que existirão 
     SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
@@ -1470,7 +1469,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
 
-  SDL_DestroyTexture(placa);
+  //SDL_DestroyTexture(placa);
 
 }
 
@@ -1709,7 +1708,7 @@ void colisao(GameState *game) {
       game->cartas[6].y = -50;
   }
 
-  for (i = 0; i < 70; i++) { //71
+  for (i = 0; i < 83; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
@@ -1818,7 +1817,7 @@ void ordena_recorder(PONTUACAO* pontuacao) {
     }
 }
 
--/*void dispose_recordes(GameState* game, Paisagem* Pintro)
+/*void dispose_recordes(GameState* game, Paisagem* Pintro)
 -{
 -    SDL_FreeSurface(Pintro->paisagem);
 -    if(Pintro->menu[0]!=NULL)
