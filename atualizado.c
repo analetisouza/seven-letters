@@ -19,7 +19,6 @@ typedef struct {
   float dx, dy;
   short lives;
   int pontos, Chaves, Carta1;
-  //char *name;
   int onPlat;
 
   int animFrame, facingLeft, slowingDown;
@@ -45,6 +44,12 @@ typedef struct {
   float x, y;
 } CARTA;
 
+typedef struct { //struct para pontos do record
+  char nome[11];
+  char ponto[11];
+  int pontos;
+} PONTUACAO;
+
 typedef struct { //jogo
   float scrollX; //rolagem
 
@@ -54,6 +59,11 @@ typedef struct { //jogo
   CARTA cartas[7];
   CHAVE chaves;
   INIMIGO inim;
+
+  PONTUACAO recorde[10];
+    int recordista;
+    int contador_recordista;
+    char nome_recordista[4]; 
 
  
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
