@@ -475,6 +475,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
     Mix_FreeChunk(game->passa);
+    Mix_FreeChunk(game->MENU);
 
   return sucesso; //tentar arrumar o erro do mouse apertar pressionando
 
@@ -498,10 +499,11 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_Rect pause2Rect = {746, 364, 175, 200};
   pause2 = loadTextura("media/opcoes_pausa3.png");
 
-
   telaPause = loadTextura("media/menu_pausa.png");
   SDL_RenderCopy(renderer, telaPause, NULL, NULL);
   SDL_RenderPresent(renderer);
+
+  game->passa = Mix_LoadWAV("media/passa.ogg");
 
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
@@ -512,19 +514,38 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
     }
     else switch (event.type) {
         case SDL_MOUSEMOTION:
+          if (event.motion.x > 372 && event.motion.x < 520 && event.motion.y > 372 && event.motion.y < 552) {
+            Mix_VolumeChunk(game->passa, 5);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
+
+          if (event.motion.x > 565 && event.motion.x < 714 && event.motion.y > 372 && event.motion.y < 552) {
+            Mix_VolumeChunk(game->passa, 5);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
+
+          if (event.motion.x > 780 && event.motion.x < 889 && event.motion.y > 372 && event.motion.y < 552) {
+            Mix_VolumeChunk(game->passa, 5);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
+
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 372 && event.motion.x < 520 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, menu2, NULL, &menu2Rect);
-    		  SDL_RenderPresent(renderer);
+    		      SDL_RenderPresent(renderer);
               cont = 1;
               SDL_Delay(800);
+              Mix_HaltChannel(game->musicChannel);
+              game->MENU = Mix_LoadWAV("media/IWish.ogg");
+              Mix_VolumeChunk(game->MENU, 10);
+              game->musicChannel = Mix_PlayChannel(-1, game->MENU, -1);
               telainicial(renderer, game);
               gameloop = false;
             }
 
             if (event.motion.x > 565 && event.motion.x < 714 && event.motion.y > 372 && event.motion.y < 552 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, cont2, NULL, &cont2Rect);
-    	      SDL_RenderPresent(renderer);
+    	        SDL_RenderPresent(renderer);
               SDL_Delay(500);
               gameloop = false;
             }
@@ -544,6 +565,8 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_DestroyTexture(menu2);
   SDL_DestroyTexture(cont2);
   SDL_DestroyTexture(pause2);
+  Mix_FreeChunk(game->passa);
+  //Mix_FreeChunk(game->MENU);
 
 }
 
@@ -1208,7 +1231,6 @@ void processo(GameState *game) {
     game->scrollX = -5140 + (2*658);
   }
 }
-
 
 
 void colisao(GameState *game) {
