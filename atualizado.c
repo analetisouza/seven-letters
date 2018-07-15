@@ -1646,7 +1646,7 @@ void colisao(GameState *game) {
   }
 
 
-  for (i = 0; i < 70; i++) { //71
+  for (i = 0; i < 83; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
@@ -1754,3 +1754,194 @@ void ordena_recorder(PONTUACAO* pontuacao) {
         tam--;
     }
 }
+/*void dispose_recordes(GameState* game, Paisagem* Pintro)
+{
+    SDL_FreeSurface(Pintro->paisagem);
+    if(Pintro->menu[0]!=NULL)
+    {
+        SDL_FreeSurface(Pintro->menu[0]);
+        Pintro->menu[0]=NULL;
+    }
+    Pintro->paisagem=NULL;
+}
+void dispose_novo_recorde(Motor* Pmotor, Paisagem* Pintro)
+{
+    SDL_FreeSurface(Pintro->paisagem);
+
+    Pintro->paisagem=NULL;
+
+    //TTF_CloseFont(Pmotor->fonte);
+
+    cria_intro(Pmotor,Pintro);
+}
+void desenha_texto(char *texto, Motor* Pmotor,int x, int y,SDL_Color cor)
+{
+    SDL_Surface* tmp;
+
+    tmp = TTF_RenderText_Blended(Pmotor->fonte,texto,cor);
+
+    SDL_Rect tela_rect = {x, y, 0, 0};
+
+    SDL_BlitSurface(tmp,NULL,Pmotor->tela,&tela_rect);
+
+    SDL_FreeSurface(tmp);
+    
+    //SDL_Flip(Pmotor->tela);
+}
+void cria_recordes(Motor* Pmotor,Paisagem* Pintro)
+{
+    le_arquivo(Pmotor->recorde);
+    dispose_intro(Pintro);
+    Pmotor->rodando=2;
+
+    const SDL_VideoInfo *pinfo = NULL;
+    pinfo = SDL_GetVideoInfo();
+
+    int bpp=pinfo->vfmt->BitsPerPixel,i=0;
+
+    //tela
+    Pmotor->tela = NULL;
+    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
+    SDL_WM_SetCaption("recordes",NULL);
+
+    Pintro->rect_paisagem.x=0;
+    Pintro->rect_paisagem.y=0;
+    Pintro->rect_paisagem.w=LARGURA;
+    Pintro->rect_paisagem.h=ALTURA;
+
+    //paisagem
+    Pintro->paisagem = NULL;
+    SDL_Surface *tmp=NULL;
+    tmp = IMG_Load("./imagens/recordes.png");
+
+    Pintro->paisagem = SDL_DisplayFormat(tmp);
+
+    SDL_FreeSurface(tmp);
+    tmp = NULL;
+
+    
+    //voltar
+    tmp = IMG_Load("./imagens/buttonback.png");
+
+    Pintro->rect_menu[0].x=LARGURA-138;
+    Pintro->rect_menu[0].y=ALTURA-120;
+    Pintro->rect_menu[0].w=138;
+    Pintro->rect_menu[0].h=120;
+
+    Pmotor -> backSprite.y = 0;
+    Pmotor -> backSprite.h = 120;
+    Pmotor -> backSprite.x = 0;
+    Pmotor -> backSprite.w = 139;
+
+    
+
+    Pintro->menu[0] = SDL_DisplayFormat(tmp);
+    SDL_FreeSurface(tmp);
+    tmp = NULL;
+    //
+
+    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
+
+    SDL_BlitSurface(Pintro->menu[0],&Pmotor->backSprite,Pmotor->tela,&Pintro->rect_menu[0]);
+
+    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",30);
+
+    SDL_Color cor = {255,255,255};
+    SDL_Color cor2 = {255,255,200};
+
+    for(i=0;i<10;i++)
+    {
+        sprintf(Pmotor->recorde[i].pontu,"%d",Pmotor->recorde[i].pontos); 
+        desenha_texto(Pmotor->recorde[i].nome,Pmotor,680,90+(48*i),cor);
+        desenha_texto(Pmotor->recorde[i].pontu,Pmotor,770,90+(48*i),cor2);
+    }
+
+    SDL_Flip(Pmotor->tela);
+
+    Mix_HaltMusic();
+    Mix_PlayMusic(Pmotor->musica_recordes,-1);
+
+    TTF_CloseFont(Pmotor->fonte);
+}
+
+void cria_novo_recorde(Motor* Pmotor,Paisagem* Pintro)
+{
+    dispose_intro(Pintro);
+    const SDL_VideoInfo *pinfo = NULL;
+    SDL_Surface* tmp = NULL;
+    pinfo = SDL_GetVideoInfo();
+
+    Pmotor->rodando=8;
+
+    int bpp = pinfo->vfmt->BitsPerPixel;
+
+    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",100);
+
+    //tela
+    Pmotor->tela = NULL;
+    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
+    SDL_WM_SetCaption("recorde",NULL);
+    
+    Pintro->rect_paisagem.x=0;
+    Pintro->rect_paisagem.y=0;
+    Pintro->rect_paisagem.w=LARGURA;
+    Pintro->rect_paisagem.h=ALTURA;
+    
+    //paisagem
+    Pintro->paisagem = NULL;
+    tmp = IMG_Load("./imagens/nome.png");
+
+    Pintro->paisagem = SDL_DisplayFormat(tmp);
+
+    SDL_FreeSurface(tmp);
+    tmp = NULL;
+   
+    Mix_HaltMusic();
+    Mix_PlayMusic(Pmotor->musica_intro,-1);
+}
+
+{
+    dispose_fase(Pmotor,Pintro);
+
+    le_arquivo(Pmotor->recorde);
+
+    if(Pmotor->pontos > Pmotor->recorde[9].pontos)
+    {
+        Pmotor->recordista=1;
+    }
+
+    const SDL_VideoInfo *pinfo = NULL;
+    SDL_Surface* tmp = NULL;
+    pinfo = SDL_GetVideoInfo();
+
+    Pmotor->rodando=6;
+
+    int bpp = pinfo->vfmt->BitsPerPixel,i;
+
+    //tela
+    Pmotor->tela = NULL;
+    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
+    SDL_WM_SetCaption("vitoria",NULL);
+    
+    Pintro->rect_paisagem.x=0;
+    Pintro->rect_paisagem.y=0;
+    Pintro->rect_paisagem.w=LARGURA;
+    Pintro->rect_paisagem.h=ALTURA;
+    
+    //paisagem
+    Pintro->paisagem = NULL;
+    tmp = IMG_Load("./imagens/win.png");
+
+    Pintro->paisagem = SDL_DisplayFormat(tmp);
+
+    SDL_FreeSurface(tmp);
+    tmp = NULL;
+
+    //paisagem na tela
+    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
+    
+    //flip
+    SDL_Flip(Pmotor->tela);
+
+    Mix_HaltMusic();
+    Mix_PlayMusic(Pmotor->musica_vitoria,-1);*/
