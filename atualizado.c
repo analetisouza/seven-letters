@@ -18,7 +18,7 @@ typedef struct {
   float x, y;
   float dx, dy;
   short lives;
-  int pontos, Chaves, Carta1, Carta2, Carta3, Carta4, Carta5, Carta6, Carta7;
+  int pontos, Chaves, Carta1;
   int onPlat;
 
   int animFrame, facingLeft, slowingDown;
@@ -48,6 +48,10 @@ typedef struct {
   float x, y;
 } PORTA;
 
+typedef struct {
+  float x, y;
+} PAREDE;
+
 typedef struct { //struct para pontos do record
   char nome[11];
   char ponto[11];
@@ -70,6 +74,9 @@ typedef struct { //jogo
   PORTA azul[2];
   PORTA rosa[2];
   PORTA verde[2];
+  PAREDE parede1[5];
+  PAREDE parede2[5];
+  PAREDE parede3[5];
   INIMIGO inim;
 
   PONTUACAO recorde[10];
@@ -89,6 +96,9 @@ typedef struct { //jogo
   SDL_Texture *portaamarela;
   SDL_Texture *portarosa;
   SDL_Texture *portaroxa;
+  SDL_Texture *muro1;
+  SDL_Texture *muro2;
+  SDL_Texture *muro3;
   SDL_Texture *chave;
   SDL_Texture *carta;
   SDL_Texture *fire;
@@ -123,6 +133,8 @@ void opcoesvolume(SDL_Renderer*, GameState*);
 bool nivel1 (SDL_Renderer*);
 
 void loadGame(GameState*);
+
+void RenderFundo(SDL_Renderer*, GameState*);
 
 void RenderNivel(SDL_Renderer*, GameState*);
 
@@ -690,7 +702,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
   SDL_RenderPresent(renderer);
 
   le_arquivo(game->recorde);
-  if(game->alice.pontos > game->recorde[4].pontos) {
+  if(game->alice.pontos > game->recorde[9].pontos) {
     game->recordista = 1;
   }
 
@@ -705,13 +717,6 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
               game->alice.Chaves = 0;
-              game->alice.Carta1 = 0;
-              game->alice.Carta2 = 0;
-              game->alice.Carta3 = 0;
-              game->alice.Carta4 = 0;
-              game->alice.Carta5 = 0;
-              game->alice.Carta6 = 0;
-              game->alice.Carta7 = 0;
               nivel1(renderer);
               gameloop = false;
             } 
@@ -721,13 +726,6 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_Delay(300);
               cont = 1;
               game->alice.Chaves = 0;
-              game->alice.Carta1 = 0;
-              game->alice.Carta2 = 0;
-              game->alice.Carta3 = 0;
-              game->alice.Carta4 = 0;
-              game->alice.Carta5 = 0;
-              game->alice.Carta6 = 0;
-              game->alice.Carta7 = 0;
               gameloop = false;
               game->MENU = Mix_LoadWAV("media/IWish.ogg");
               Mix_VolumeChunk(game->MENU, 10);
@@ -780,6 +778,10 @@ bool nivel1(SDL_Renderer *renderer) {
   game.portalaranja = loadTextura("media/porta8.png");
   game.portarosa = loadTextura("media/porta3.png");
 
+  game.muro1 = loadTextura("media/muro1.png");
+  game.muro2 = loadTextura("media/muro2.png");
+  game.muro3 = loadTextura("media/muro3.png");  
+
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
@@ -799,8 +801,9 @@ bool nivel1(SDL_Renderer *renderer) {
       if(dt > periodeFps) {
         delta_s = dt/1000.0f;
         SDL_RenderClear(renderer);
-        RenderNivel(renderer, &game);
+        RenderFundo(renderer, &game);
         RenderObjetos(renderer, &game);
+        RenderNivel(renderer, &game);
         eventos(janela, &game);
         processo(&game);
         colisao(&game);
@@ -827,6 +830,9 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.portalaranja);
   SDL_DestroyTexture(game.portaazul);
   SDL_DestroyTexture(game.portamarrom);
+  SDL_DestroyTexture(game.muro1);
+  SDL_DestroyTexture(game.muro2);
+  SDL_DestroyTexture(game.muro3);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -859,13 +865,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->alice.pontos = 0;
   game->statusState = STATUS_STATE_LIVES;
   game->alice.Carta1 = 0;
-  game->alice.Carta2 = 0;
-  game->alice.Carta3 = 0;
-  game->alice.Carta4 = 0;
-  game->alice.Carta5 = 0;
-  game->alice.Carta6 = 0;
-  game->alice.Carta7 = 0;
-
 
   game->recordista = 0;
   game->contador_recordista = 0;
@@ -1151,8 +1150,8 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->verde[1].y = 307;
 
   //chave
-  game->chaves.x = 370;
-  game->chaves.y = 340; //350
+  game->chaves.x = 14;
+  game->chaves.y = 355; //350
 
   //inimigo
   game->inim.x = 2515;
@@ -1180,12 +1179,50 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->cartas[6].x = 4827;
   game->cartas[6].y = 370; 
 
+  // Paredes
+
+  game->parede1[0].x = 2315;
+  game->parede1[0].y = 72;
+
+  game->parede1[1].x = 2771;
+  game->parede1[1].y = 92;
+
+  game->parede1[2].x = 2607;
+  game->parede1[2].y = 208;
+
+  game->parede1[3].x = 4062;
+  game->parede1[3].y = 302;
+
+  game->parede1[4].x = 4412;
+  game->parede1[4].y = 132;
+
+
+  game->parede2[0].x = 476;
+  game->parede2[0].y = 441;
+
+  game->parede2[1].x = 3460;
+  game->parede2[1].y = 260;
+
+
+  game->parede3[0].x = 2607;
+  game->parede3[0].y = 346;
+
+}
+
+void RenderFundo(SDL_Renderer *renderer, GameState *game) {
+
+  SDL_Texture *fundo = NULL;
+
+  fundo = loadTextura("media/mapa_extendido.png");
+  SDL_Rect fundoRect = {game->scrollX + delta_s + 0, 0, 5120, 720}; //larg+155
+  SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
+
+  SDL_DestroyTexture(fundo);
+
 }
 
 void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Color preto = {0, 0, 0, 0};
-  SDL_Texture *porta = NULL;
-  SDL_Texture *fundo = NULL;
   SDL_Texture *barra = NULL;
   SDL_Texture *vida = NULL;
   SDL_Texture *vida2 = NULL;
@@ -1198,17 +1235,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *cartinha = NULL;
   SDL_Texture *fim = NULL;
 
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderClear(renderer);
-
-    fundo = loadTextura("media/mapa_extendido.png");
-    SDL_Rect fundoRect = {game->scrollX + delta_s + 0, 0, 5120, 720}; //larg+155
-    SDL_RenderCopy(renderer, fundo, NULL, &fundoRect);
-
-    porta = loadTextura("media/porta.png");
-    SDL_Rect portRect = { game->scrollX + delta_s + 2432, 67, 113, 133};
-    SDL_RenderCopy(renderer, porta, NULL, &portRect);
+    //SDL_RenderClear(renderer);
 
     barra = loadTextura("media/base_barra.png");
     SDL_Rect barraRect = {0, 0, 1280, 109};
@@ -1222,7 +1249,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     game->labelH = tmp->h;
     game->label = SDL_CreateTextureFromSurface(renderer, tmp);
     SDL_FreeSurface(tmp);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH}; //960
     SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
 
@@ -1242,19 +1268,19 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect cartinhaRect = {860, 10, 40, 30};
     SDL_RenderCopy(renderer, cartinha, NULL, &cartinhaRect);
 
+    
+
     if (game->alice.Carta1 >= 0) {
       char str[10] = "";
-      int totalchaves = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
-      sprintf (str, "x%d", totalchaves);
+      sprintf (str, "x%d", (int)game->alice.Carta1);
       SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
       game->labelW = tmp->w;
       game->labelH = tmp->h;
       game->label = SDL_CreateTextureFromSurface(renderer, tmp);
       SDL_FreeSurface(tmp);
-      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
       SDL_Rect textRect = {900, 45-game->labelH, game->labelW, game->labelH}; 
       SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
-    }
+    } 
 
     if (game->alice.lives == 3) {
       SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
@@ -1288,12 +1314,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) { //fazer colisao
         game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
-        game->alice.Carta2 = 0;
-        game->alice.Carta3 = 0;
-        game->alice.Carta4 = 0;
-        game->alice.Carta5 = 0;
-        game->alice.Carta6 = 0;
-        game->alice.Carta7 = 0;
         Mix_HaltChannel(game->musicChannel);
         telafim(renderer, game);
       cont = 1;
@@ -1309,9 +1329,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
     SDL_RenderCopy(renderer, pause, NULL, &pauseRect);
 
-
-    SDL_DestroyTexture(porta);
-    SDL_DestroyTexture(fundo);
     SDL_DestroyTexture(barra);
     SDL_DestroyTexture(vida);
     SDL_DestroyTexture(vida2);
@@ -1327,7 +1344,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       SDL_DestroyTexture(game->label);
     }
 
-}
+} 
 
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
@@ -1397,8 +1414,25 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->portaverde, NULL, &verdeRect);
   }
 
-  //inimigo
-  SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; 
+  // Paredes
+
+  for (i = 0; i < 5; i++) {
+    SDL_Rect muro1Rect = { game->scrollX + game->parede1[i].x + delta_s, game->parede1[i].y, 36, 138};
+    SDL_RenderCopy(renderer, game->muro1, NULL, &muro1Rect);
+  }
+
+  for (i = 0; i < 2; i++) {
+    SDL_Rect muro2Rect = { game->scrollX + game->parede2[i].x + delta_s, game->parede2[i].y, 36, 230};
+    SDL_RenderCopy(renderer, game->muro2, NULL, &muro2Rect);
+  }
+
+  for (i = 0; i < 1; i++) {
+    SDL_Rect muro3Rect = { game->scrollX + game->parede3[i].x + delta_s, game->parede3[i].y, 36, 322};
+    SDL_RenderCopy(renderer, game->muro3, NULL, &muro3Rect);
+  }
+
+  //inimigo arrumar
+  SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; //colocar game->scrollX
   SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
 
   //Alice
@@ -1589,7 +1623,7 @@ void colisao(GameState *game) {
     }
 
   for (i = 0; i < 26; i++) { //colisao das moedas
-    if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { //colisao das moedas
+    if (collide2d(game->alice.x, game->alice.y, game->moedas[i].x, game->moedas[i].y, 68, 118, 30, 30)) { 
       game->alice.pontos = game->alice.pontos + 100;
       game->moedas[i].x = -30;
       game->moedas[i].y = -30;
@@ -1609,44 +1643,7 @@ void colisao(GameState *game) {
       game->cartas[0].y = -50;
   }
 
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[1].x, game->cartas[1].y, 68, 118, 50, 30)) { //carta 2;
-      game->alice.Carta2 = 1;
-      game->cartas[1].x = -50;
-      game->cartas[1].y = -50;
-  }
-
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[2].x, game->cartas[2].y, 68, 118, 50, 30)) { //carta 3;
-      game->alice.Carta3 = 1;
-      game->cartas[2].x = -50;
-      game->cartas[2].y = -50;
-  }
-
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[3].x, game->cartas[3].y, 68, 118, 50, 30)) { //carta 4;
-      game->alice.Carta4 = 1;
-      game->cartas[3].x = -50;
-      game->cartas[3].y = -50;
-  }
-
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[4].x, game->cartas[4].y, 68, 118, 50, 30)) { //carta 5;
-      game->alice.Carta5 = 1;
-      game->cartas[4].x = -50;
-      game->cartas[4].y = -50;
-  }
-
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[5].x, game->cartas[5].y, 68, 118, 50, 30)) { //carta 6;
-      game->alice.Carta6 = 1;
-      game->cartas[5].x = -50;
-      game->cartas[5].y = -50;
-  }
-
-  if (collide2d(game->alice.x, game->alice.y, game->cartas[6].x, game->cartas[6].y, 68, 118, 50, 30)) { //carta 7;
-      game->alice.Carta7 = 1;
-      game->cartas[6].x = -50;
-      game->cartas[6].y = -50;
-  }
-
-
-  for (i = 0; i < 83; i++) { //71
+  for (i = 0; i < 70; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
@@ -1754,194 +1751,3 @@ void ordena_recorder(PONTUACAO* pontuacao) {
         tam--;
     }
 }
-/*void dispose_recordes(GameState* game, Paisagem* Pintro)
-{
-    SDL_FreeSurface(Pintro->paisagem);
-    if(Pintro->menu[0]!=NULL)
-    {
-        SDL_FreeSurface(Pintro->menu[0]);
-        Pintro->menu[0]=NULL;
-    }
-    Pintro->paisagem=NULL;
-}
-void dispose_novo_recorde(Motor* Pmotor, Paisagem* Pintro)
-{
-    SDL_FreeSurface(Pintro->paisagem);
-
-    Pintro->paisagem=NULL;
-
-    //TTF_CloseFont(Pmotor->fonte);
-
-    cria_intro(Pmotor,Pintro);
-}
-void desenha_texto(char *texto, Motor* Pmotor,int x, int y,SDL_Color cor)
-{
-    SDL_Surface* tmp;
-
-    tmp = TTF_RenderText_Blended(Pmotor->fonte,texto,cor);
-
-    SDL_Rect tela_rect = {x, y, 0, 0};
-
-    SDL_BlitSurface(tmp,NULL,Pmotor->tela,&tela_rect);
-
-    SDL_FreeSurface(tmp);
-    
-    //SDL_Flip(Pmotor->tela);
-}
-void cria_recordes(Motor* Pmotor,Paisagem* Pintro)
-{
-    le_arquivo(Pmotor->recorde);
-    dispose_intro(Pintro);
-    Pmotor->rodando=2;
-
-    const SDL_VideoInfo *pinfo = NULL;
-    pinfo = SDL_GetVideoInfo();
-
-    int bpp=pinfo->vfmt->BitsPerPixel,i=0;
-
-    //tela
-    Pmotor->tela = NULL;
-    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
-    SDL_WM_SetCaption("recordes",NULL);
-
-    Pintro->rect_paisagem.x=0;
-    Pintro->rect_paisagem.y=0;
-    Pintro->rect_paisagem.w=LARGURA;
-    Pintro->rect_paisagem.h=ALTURA;
-
-    //paisagem
-    Pintro->paisagem = NULL;
-    SDL_Surface *tmp=NULL;
-    tmp = IMG_Load("./imagens/recordes.png");
-
-    Pintro->paisagem = SDL_DisplayFormat(tmp);
-
-    SDL_FreeSurface(tmp);
-    tmp = NULL;
-
-    
-    //voltar
-    tmp = IMG_Load("./imagens/buttonback.png");
-
-    Pintro->rect_menu[0].x=LARGURA-138;
-    Pintro->rect_menu[0].y=ALTURA-120;
-    Pintro->rect_menu[0].w=138;
-    Pintro->rect_menu[0].h=120;
-
-    Pmotor -> backSprite.y = 0;
-    Pmotor -> backSprite.h = 120;
-    Pmotor -> backSprite.x = 0;
-    Pmotor -> backSprite.w = 139;
-
-    
-
-    Pintro->menu[0] = SDL_DisplayFormat(tmp);
-    SDL_FreeSurface(tmp);
-    tmp = NULL;
-    //
-
-    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
-
-    SDL_BlitSurface(Pintro->menu[0],&Pmotor->backSprite,Pmotor->tela,&Pintro->rect_menu[0]);
-
-    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",30);
-
-    SDL_Color cor = {255,255,255};
-    SDL_Color cor2 = {255,255,200};
-
-    for(i=0;i<10;i++)
-    {
-        sprintf(Pmotor->recorde[i].pontu,"%d",Pmotor->recorde[i].pontos); 
-        desenha_texto(Pmotor->recorde[i].nome,Pmotor,680,90+(48*i),cor);
-        desenha_texto(Pmotor->recorde[i].pontu,Pmotor,770,90+(48*i),cor2);
-    }
-
-    SDL_Flip(Pmotor->tela);
-
-    Mix_HaltMusic();
-    Mix_PlayMusic(Pmotor->musica_recordes,-1);
-
-    TTF_CloseFont(Pmotor->fonte);
-}
-
-void cria_novo_recorde(Motor* Pmotor,Paisagem* Pintro)
-{
-    dispose_intro(Pintro);
-    const SDL_VideoInfo *pinfo = NULL;
-    SDL_Surface* tmp = NULL;
-    pinfo = SDL_GetVideoInfo();
-
-    Pmotor->rodando=8;
-
-    int bpp = pinfo->vfmt->BitsPerPixel;
-
-    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",100);
-
-    //tela
-    Pmotor->tela = NULL;
-    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
-    SDL_WM_SetCaption("recorde",NULL);
-    
-    Pintro->rect_paisagem.x=0;
-    Pintro->rect_paisagem.y=0;
-    Pintro->rect_paisagem.w=LARGURA;
-    Pintro->rect_paisagem.h=ALTURA;
-    
-    //paisagem
-    Pintro->paisagem = NULL;
-    tmp = IMG_Load("./imagens/nome.png");
-
-    Pintro->paisagem = SDL_DisplayFormat(tmp);
-
-    SDL_FreeSurface(tmp);
-    tmp = NULL;
-   
-    Mix_HaltMusic();
-    Mix_PlayMusic(Pmotor->musica_intro,-1);
-}
-
-{
-    dispose_fase(Pmotor,Pintro);
-
-    le_arquivo(Pmotor->recorde);
-
-    if(Pmotor->pontos > Pmotor->recorde[9].pontos)
-    {
-        Pmotor->recordista=1;
-    }
-
-    const SDL_VideoInfo *pinfo = NULL;
-    SDL_Surface* tmp = NULL;
-    pinfo = SDL_GetVideoInfo();
-
-    Pmotor->rodando=6;
-
-    int bpp = pinfo->vfmt->BitsPerPixel,i;
-
-    //tela
-    Pmotor->tela = NULL;
-    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
-    SDL_WM_SetCaption("vitoria",NULL);
-    
-    Pintro->rect_paisagem.x=0;
-    Pintro->rect_paisagem.y=0;
-    Pintro->rect_paisagem.w=LARGURA;
-    Pintro->rect_paisagem.h=ALTURA;
-    
-    //paisagem
-    Pintro->paisagem = NULL;
-    tmp = IMG_Load("./imagens/win.png");
-
-    Pintro->paisagem = SDL_DisplayFormat(tmp);
-
-    SDL_FreeSurface(tmp);
-    tmp = NULL;
-
-    //paisagem na tela
-    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
-    
-    //flip
-    SDL_Flip(Pmotor->tela);
-
-    Mix_HaltMusic();
-    Mix_PlayMusic(Pmotor->musica_vitoria,-1);*/
