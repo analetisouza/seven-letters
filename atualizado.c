@@ -1128,8 +1128,8 @@ const Uint8 *state = SDL_GetKeyboardState(NULL); //arrumar
   }
 
   else if(state[SDL_SCANCODE_RIGHT]) {
-    if ((game->alice.x + 68 + 6) > 5120) { //
-      game->alice.x = 5120 - 68; //
+    if ((game->alice.x + 68 + 6) > 4975) { //
+      game->alice.x = 4975 - 68; //
     }
     else {
       game->alice.x += 7;
@@ -1198,6 +1198,7 @@ void processo(GameState *game) {
     inim->x = 1280; //respawn
   }
 
+  //scrollX
   game->scrollX = -game->alice.x + 598;
   if(game->scrollX > 0) {
     game->scrollX = 0;
