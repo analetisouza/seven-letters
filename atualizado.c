@@ -1717,7 +1717,7 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;  
   }
 
-  if (collide2d(game->alice.x, game->alice.y, game->marrom[1].x+game->marrom[1].x/4, game->marrom[1].y, 68, 118, 113, 133)) { 
+  if (collide2d(game->alice.x, game->alice.y, game->marrom[1].x+game->marrom[1].x/4, game->marrom[1].y, 68, 118, 20, 133)) { 
       game->alice.x = game->marrom[0].x + 110;
       game->alice.y = game->marrom[0].y;
       Alice *alice = &game->alice;
@@ -1727,7 +1727,7 @@ void colisao(GameState *game) {
   }
 
   //teleporte verdeagua
-  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[0].x + game->verdeagua[1].x/4, game->verdeagua[0].y, 68, 118, 113, 133)) { 
+  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[0].x + game->verdeagua[0].x/8, game->verdeagua[0].y, 68, 118, 10, 133)) { 
       game->alice.x = game->verdeagua[1].x - 90;
       game->alice.y = game->verdeagua[1].y + 3;
       Alice *alice = &game->alice;
@@ -1736,14 +1736,33 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;  
   }
   
-  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[1].x - game->verdeagua[1].x/4, game->verdeagua[1].y, 68, 118, 113, 133)) { 
-      game->alice.x = game->verdeagua[0].x + 110;
+  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[1].x + game->verdeagua[1].x/22, game->verdeagua[1].y, 68, 118, 60, 133)) { 
+      game->alice.x = game->verdeagua[0].x - 110;
       game->alice.y = game->verdeagua[0].y;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
       alice->y += alice->dy;
       alice->dy += Gravidade;
   }
+
+  //teleporte amarelo
+  /*if (collide2d(game->alice.x, game->alice.y, game->amarela[0].x + 60, game->amarela[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verdeagua[1].x - 90;
+      game->alice.y = game->verdeagua[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->amarela[1].x - game->amarela[1].x/4, game->amarela[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verdeagua[0].x + 110;
+      game->alice.y = game->verdeagua[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }*/
 
 
 
