@@ -20,7 +20,7 @@ typedef struct {
   short lives;
   int pontos, Chaves, Carta1;
   //char *name;
-  int onPlat, morta;
+  int onPlat;
 
   int animFrame, facingLeft, slowingDown;
 } Alice;
@@ -642,11 +642,11 @@ bool nivel1(SDL_Renderer *renderer) {
   game.aliceFrames[3] = loadTextura("media/alice4.png");
   game.inimFrames[0] = loadTextura("media/slimeWalk1.png");
   game.inimFrames[1] = loadTextura("media/slimeWalk2.png");
-  //game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
-  //if (game.bg != NULL) {
-    //Mix_VolumeChunk(game.bg, 3);
-    //game.musicChannel = Mix_PlayChannel(-1, game.bg, -1);
-  //}
+  game.bg = Mix_LoadWAV("media/bensound-pianomoment.ogg");
+  if (game.bg != NULL) {
+    Mix_VolumeChunk(game.bg, 3);
+    game.musicChannel = Mix_PlayChannel(-1, game.bg, -1);
+  }
 
     while(jogando != false) {
       SDL_RenderClear(renderer);
@@ -675,7 +675,7 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.inimFrames[1]); 
   TTF_CloseFont(game.font);
   TTF_CloseFont(game.font1);
-  //Mix_FreeChunk(game.bg);
+  Mix_FreeChunk(game.bg);
 
 
     return sucesso;
@@ -692,7 +692,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->alice.dx = 0;
   game->alice.dy = 0;
   game->alice.onPlat = 0;
-  game->alice.morta = 0;
+  //game->alice.morta = 0;
   game->alice.animFrame = 0;
   game->alice.facingLeft = 0; //0 pq o boneco tá virado pra direita
   game->alice.slowingDown = 0;
@@ -905,6 +905,9 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *fundo = NULL;
   SDL_Texture *barra = NULL;
   SDL_Texture *vida = NULL;
+  SDL_Texture *vida2 = NULL;
+  SDL_Texture *vida3 = NULL;
+  SDL_Texture *vida4 = NULL;
   SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
@@ -945,9 +948,12 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, Nivel1, NULL, &nivel1Rect);
 
     //if (alice.vida == 1)
-    vida = loadTextura("media/coracao_vida.png");
-    SDL_Rect vidaRect = {180, 10, 49, 39};
-    SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
+    vida = loadTextura("media/vida1.png");
+    vida2 = loadTextura("media/vida2.png");
+    vida3 = loadTextura("media/vida3.png");
+    vida4 = loadTextura("media/vida4.png");
+
+    SDL_Rect vidaRect = {180, 10, 173, 39};
 
     cartinha = loadTextura("media/carta.png");
     SDL_Rect cartinhaRect = {860, 10, 40, 30};
@@ -967,18 +973,20 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     }
 
     if (game->alice.lives == 3) {
-      SDL_Rect vida2Rect = {245, 10, 49, 39};
-      SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
-      SDL_Rect vida3Rect = {310, 10, 49, 39};
-      SDL_RenderCopy(renderer, vida, NULL, &vida3Rect);
+      SDL_RenderCopy(renderer, vida, NULL, &vidaRect);
     }
 
     if (game->alice.lives == 2) {
-      SDL_Rect vida2Rect = {245, 10, 49, 39};
-      SDL_RenderCopy(renderer, vida, NULL, &vida2Rect);
+      SDL_RenderCopy(renderer, vida2, NULL, &vidaRect);
+    }
+
+    if (game->alice.lives == 1) {
+      SDL_RenderCopy(renderer, vida3, NULL, &vidaRect);
     }
 
     if (game->alice.lives == 0) {
+      SDL_RenderCopy(renderer, vida4, NULL, &vidaRect);
+      SDL_Delay(300);
     	game->alice.Chaves = 0;
     	game->alice.Carta1 = 0;
       Mix_HaltChannel(game->musicChannel);
@@ -1016,6 +1024,9 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(fundo);
     SDL_DestroyTexture(barra);
     SDL_DestroyTexture(vida);
+    SDL_DestroyTexture(vida2);
+    SDL_DestroyTexture(vida3);
+    SDL_DestroyTexture(vida4);
     SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
@@ -1062,10 +1073,10 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_Rect rect = { game->alice.x + game->scrollX, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
 
-  if (game->alice.morta) {
+  /*if (game->alice.morta) {
     SDL_Rect rect = { game->scrollX + game->alice.x- 26 +68/2, game->alice.y - 26 +118/2, 68, 118 };
     SDL_RenderCopyEx(renderer, game->fire, NULL, &rect, 0, NULL, (game->time%20 < 10));
-  }
+  }*/
 
   SDL_DestroyTexture(placa);
 
@@ -1213,9 +1224,9 @@ void colisao(GameState *game) {
   int i = 0, j = 0;
 
   if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
-      game->alice.morta = 1;
+      //game->alice.morta = 1;
       if (ncolisao == 0 && j == 0) {
-        game->alice.morta = 0;
+        //game->alice.morta = 0;
         ncolisao = 1;
         game->alice.x += 5;
       }
