@@ -1659,7 +1659,6 @@ void colisao(GameState *game) {
     }
   }
 
-
   if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao da chave
       game->alice.Chaves = 1;
       game->chaves.x = -50;
@@ -1708,6 +1707,46 @@ void colisao(GameState *game) {
       game->cartas[6].y = -50;
   }
 
+  //teleporte marrom
+  if (collide2d(game->alice.x, game->alice.y, game->marrom[0].x - game->marrom[1].x/4, game->marrom[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->marrom[1].x - 90;
+      game->alice.y = game->marrom[1].y+3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+
+  if (collide2d(game->alice.x, game->alice.y, game->marrom[1].x+game->marrom[1].x/4, game->marrom[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->marrom[0].x + 110;
+      game->alice.y = game->marrom[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
+
+  //teleporte verdeagua
+  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[0].x + game->verdeagua[1].x/4, game->verdeagua[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verdeagua[1].x - 90;
+      game->alice.y = game->verdeagua[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->verdeagua[1].x - game->verdeagua[1].x/4, game->verdeagua[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verdeagua[0].x + 110;
+      game->alice.y = game->verdeagua[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
+
+
+
   for (i = 0; i < 83; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
@@ -1749,10 +1788,46 @@ void colisao(GameState *game) {
       }
     }
   }
-}
+
+  //distancia dos muros
+  for (i = 0; i < 5; i++) {
+    if(distancia(game->alice.x, game->alice.y, game->parede1[i].x, game->parede1[i].y) <= 5) {
+      if ((game->alice.x + 68 + 10) > game->parede1[i].y) { //
+        game->alice.x = game->parede1[i].y - 68; //
+    }
+    
+    float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
+    float ax = game->alice.x, ay = game->alice.y; //posição da alice  
+    float pw = 36, ph = 138; //largura e altura da plat;
+    float px = game->parede1[i].x, py = game->parede1[i].y; //posição da plat;
+
+      //game->alice.x -= 5;
+    if(ay+ah > py && ay < py+ph) { //direita
+      if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
+        game->alice.x = px+pw;
+        ax = pw+pw-10;
+
+        game->alice.dx = 0;
+      }
+
+      else if(ax+aw > px && ax < px && game->alice.dx > 0) {
+        game->alice.x = px-aw;
+        ax = px-aw;
+        
+        game->alice.dx = 0;
+      }
+    }
+    }
+  }
+    //if(collide2d(game->alice.x, game->alice.y, game->parede1[i].x, game->parede1[i].y, 68, 118, 36, 138))
+  }
 
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
+}
+
+int distancia (int x1, int y1, int x2, int y2) {
+  return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
 }
 
 void le_arquivo(PONTUACAO* pontuacao) {
