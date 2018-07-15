@@ -689,7 +689,11 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               cont = 1;
               game->alice.Chaves = 0;
               gameloop = false;
+              game->MENU = Mix_LoadWAV("media/IWish.ogg");
+              Mix_VolumeChunk(game->MENU, 10);
+              game->musicChannel = Mix_PlayChannel(-1, game->MENU, -1);
               telainicial(renderer, game);
+              gameloop = false;
             }
           break;
        }
@@ -1120,7 +1124,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     //printf("%f\n", game->alice.y);
     if (game->alice.Chaves == 1) {
       SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
-      if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) {
+      if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) { //fazer colisao
         game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
         Mix_HaltChannel(game->musicChannel);
