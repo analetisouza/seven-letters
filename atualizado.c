@@ -89,6 +89,8 @@ bool telainicial(SDL_Renderer*, GameState*);
 
 void telapause(SDL_Renderer*, GameState*);
 
+void opcoesvolume(SDL_Renderer*, GameState*); 
+
 bool nivel1 (SDL_Renderer*);
 
 void loadGame(GameState*);
@@ -243,7 +245,7 @@ SDL_Texture* loadTextura(const char *path) {
 
 
 bool telainicial (SDL_Renderer *renderer, GameState* game) {
-  bool sucesso = true, apertou = false, gameloop = true;
+  bool sucesso = true, gameloop = true;
   SDL_Event event;
 
   SDL_Texture* background = NULL;
@@ -374,10 +376,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
            }
 
           case SDL_MOUSEBUTTONDOWN:
-          	if (event.button.button == SDL_BUTTON_LEFT) {
-            	apertou = true;
-          	}
-            if (apertou == true && event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
+            if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
                 SDL_RenderCopy(renderer, jogar2, NULL, &jogar2Rect);
                 SDL_RenderPresent(renderer);
                 Mix_HaltChannel(game->musicChannel);
@@ -387,9 +386,8 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
                 }
                 gameloop = false;
                 nivel1(renderer);
-                apertou = false;
             }
-            else if (apertou == true && event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, niveis2, NULL, &niveis2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(200);
@@ -397,10 +395,9 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              apertou = false;
             }
 
-            else if (apertou == true && event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (event.motion.x > 304 && event.motion.x < 613 && event.motion.y > 571 && event.motion.y < 660 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, cred2, NULL, &cred2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(200);
@@ -408,10 +405,9 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
               SDL_RenderCopy(renderer, imgCreditos, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              apertou = false;
             }
 
-            else if (apertou == true && event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
 			       SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
 			       SDL_RenderPresent(renderer);
               SDL_Delay(200); 
@@ -419,34 +415,30 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
               SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              apertou = false; 
             }
 
-            else if (apertou == true && event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, sair2, NULL, &sair2Rect);
-    		  SDL_RenderPresent(renderer);
+    		      SDL_RenderPresent(renderer);
               SDL_Delay(200);               
               gameloop = false;
               sucesso = false;
-              apertou = false; 
               exit(1);
             }
 
-            else if (apertou == true && event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695 && event.button.button == SDL_BUTTON_LEFT) {
+            else if (event.motion.x > 1158 && event.motion.x < 1245 && event.motion.y > 611 && event.motion.y < 695 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_Delay(200);
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgAjuda, NULL, NULL);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
-              apertou = false; 
             }
 
-            else if(apertou == true && event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
+            else if(event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
               SDL_RenderCopy(renderer, retornar2, NULL, &ret2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(200); 
               telainicial(renderer, game);
-              apertou = false; 
             }
             break;
         }
@@ -482,7 +474,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
 }
 
 
-void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de opções de jogo
+void telapause(SDL_Renderer *renderer, GameState* game) {
   bool gameloop = true;
   SDL_Event event;
   SDL_Texture *telaPause = NULL;
@@ -503,9 +495,6 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_RenderCopy(renderer, telaPause, NULL, NULL);
   SDL_RenderPresent(renderer);
 
-  SDL_Texture *op2 = NULL;
-  //SDL_Rect op2Rect = {552, 364, 175, 200};
-  op2 = loadTextura("media/opcoes.png");
 
   game->passa = Mix_LoadWAV("media/passa.ogg");
 
@@ -558,9 +547,8 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
               SDL_RenderCopy(renderer, pause2, NULL, &pause2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(500);
-              SDL_RenderCopy(renderer, op2, NULL, NULL);
-              SDL_RenderPresent(renderer);
-              //gameloop = false;
+              opcoesvolume(renderer, game);
+              gameloop = false;
             }
           break;
        }
@@ -570,13 +558,64 @@ void telapause(SDL_Renderer *renderer, GameState* game) { //falta a opção de o
   SDL_DestroyTexture(telaPause);
   SDL_DestroyTexture(menu2);
   SDL_DestroyTexture(cont2);
-  SDL_DestroyTexture(op2);
   SDL_DestroyTexture(pause2);
   Mix_FreeChunk(game->passa);
   //Mix_FreeChunk(game->MENU);
 
 }
 
+void opcoesvolume(SDL_Renderer *renderer, GameState* game) { //alterar volumes (estudar)
+  SDL_Texture *op2 = NULL;
+  bool gameloop = true;
+  SDL_Event event;
+
+  SDL_Texture *retornar2 = NULL;
+  SDL_Rect ret2Rect = {30, 600, 100, 100};
+  retornar2 = loadTextura("media/retornar2.png");
+
+  op2 = loadTextura("media/opcoes.png");
+  SDL_RenderCopy(renderer, op2, NULL, NULL);
+
+  SDL_Texture *retornar = NULL;
+  retornar = loadTextura("media/retornar1.png");
+  SDL_Rect retRect = {30, 600, 100, 100};
+  SDL_RenderCopy(renderer, retornar, NULL, &retRect);
+
+  SDL_RenderPresent(renderer);
+
+  game->passa = Mix_LoadWAV("media/passa.ogg");
+
+  while (gameloop == true) {
+    while(SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT) {
+        gameloop = false;
+        saida();
+        exit(1);
+      }
+      else switch (event.type) {
+        case SDL_MOUSEMOTION:
+          if(event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694) {
+            Mix_VolumeChunk(game->passa, 5);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
+          case SDL_MOUSEBUTTONDOWN:
+          if(event.motion.x > 40 && event.motion.x < 120 && event.motion.y > 608 && event.motion.y < 694 && event.button.button == SDL_BUTTON_LEFT) { //botao retornar
+              SDL_RenderCopy(renderer, retornar2, NULL, &ret2Rect);
+              SDL_RenderPresent(renderer);
+              SDL_Delay(200); 
+              gameloop = false;
+          }
+        break;
+      }
+    }
+  }
+
+  SDL_DestroyTexture(op2);
+  SDL_DestroyTexture(retornar);
+  SDL_DestroyTexture(retornar2);
+  //Mix_FreeChunk(game->passa);
+
+}
 
 void telafim (SDL_Renderer *renderer, GameState *game) {
   int num = 0;
