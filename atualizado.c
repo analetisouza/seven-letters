@@ -64,6 +64,7 @@ typedef struct { //jogo
   PORTA rosa[2];
   PORTA verde[2];
   INIMIGO inim;
+  INIMIGO inim2;
 
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
@@ -1211,11 +1212,17 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->time =  0;
   game->scrollX = 0; 
 
-  //inimigo
+  //inimigo 1
   game->inim.x = 400;
   game->inim.y = 644;
   game->inim.animFrame = 0;
   game->inim.facingLeft = 1;
+
+    //inimigo 2
+  game->inim2.x = 3800;
+  game->inim2.y = 644;
+  game->inim2.animFrame = 0;
+  game->inim2.facingLeft = 1;
 
   //posição das plataformas 
   for (i = 0; i < 39; i++) { //do chão
@@ -1361,83 +1368,83 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->plat[81].y = 440;
 
   //MOEDINHAS
-  game->moedas[0].x = 540;
-  game->moedas[0].y = 560;
+  game->moedas[0].x = 180;
+  game->moedas[0].y = 300;//
 
-  game->moedas[1].x = 140;
-  game->moedas[1].y = 300;
+  game->moedas[1].x = 220;
+  game->moedas[1].y = 300;//
 
-  game->moedas[2].x = 180;
-  game->moedas[2].y = 300;
+  game->moedas[2].x = 430;
+  game->moedas[2].y = 300;//
 
-  game->moedas[3].x = 430;
-  game->moedas[3].y = 230;
+  game->moedas[3].x = 700;
+  game->moedas[3].y = 470;//
 
-  game->moedas[4].x = 640;
-  game->moedas[4].y = 370;
+  game->moedas[4].x = 660;
+  game->moedas[4].y = 470;//
 
-  game->moedas[5].x = 600;
-  game->moedas[5].y = 370;
+  game->moedas[5].x = 740;
+  game->moedas[5].y = 470;//
 
-  game->moedas[6].x = 680;
-  game->moedas[6].y = 370;
+  game->moedas[6].x = 3138;
+  game->moedas[6].y = 130;//
 
-  game->moedas[7].x = 920;
-  game->moedas[7].y = 450;
+  game->moedas[7].x = 3178;
+  game->moedas[7].y = 130;//
 
-  game->moedas[8].x = 880;
-  game->moedas[8].y = 450;
+  game->moedas[8].x = 3218;
+  game->moedas[8].y = 130;//
 
-  game->moedas[9].x = 840;
-  game->moedas[9].y = 450;
+  game->moedas[9].x = 3258;
+  game->moedas[9].y = 130;//
 
-  game->moedas[10].x = 1120;
-  game->moedas[10].y = 370;
+  game->moedas[10].x = 3298;
+  game->moedas[10].y = 130;//
 
-  game->moedas[11].x = 1160;
-  game->moedas[11].y = 370;
+  game->moedas[11].x = 3338;
+  game->moedas[11].y = 130;//
 
-  game->moedas[12].x = 1200;
-  game->moedas[12].y = 370;
+  game->moedas[12].x = 1480;
+  game->moedas[12].y = 600;//
 
-  game->moedas[13].x = 1240;
-  game->moedas[13].y = 370;
+  game->moedas[13].x = 1520;
+  game->moedas[13].y = 600;//
 
-  game->moedas[14].x = 1280;
-  game->moedas[14].y = 370;
+  game->moedas[14].x = 1600;
+  game->moedas[14].y = 600;//
 
-  game->moedas[15].x = 1320;
-  game->moedas[15].y = 370;
+  game->moedas[15].x = 1560;
+  game->moedas[15].y = 600;//
 
-  game->moedas[16].x = 320;
-  game->moedas[16].y = 450;
+  game->moedas[16].x = 1640;
+  game->moedas[16].y = 600;//
 
-  game->moedas[17].x = 320;
-  game->moedas[17].y = 450;
+  game->moedas[17].x = 1220;
+  game->moedas[17].y = 160;//
 
-  game->moedas[18].x = 1600;
-  game->moedas[18].y = 270;
+  game->moedas[18].x = 390;
+  game->moedas[18].y = 300;//
 
-  game->moedas[19].x = 1560;
-  game->moedas[19].y = 270;
+  game->moedas[19].x = 470;
+  game->moedas[19].y = 300;//
 
-  game->moedas[20].x = 1640;
-  game->moedas[20].y = 270;
+  game->moedas[20].x = 4400;
+  game->moedas[20].y = 360;//
 
-  game->moedas[21].x = 1280;
-  game->moedas[21].y = 230;
+  game->moedas[21].x = 4440;
+  game->moedas[21].y = 360;//
 
-  game->moedas[22].x = 390;
-  game->moedas[22].y = 230;
+  game->moedas[22].x = 4480;
+  game->moedas[22].y = 360;//
 
-  game->moedas[23].x = 470;
-  game->moedas[23].y = 230;
+  game->moedas[23].x = 4520;
+  game->moedas[23].y = 360;//
 
-  game->moedas[24].x = 730;
-  game->moedas[24].y = 170;
+  game->moedas[24].x = 4560;
+  game->moedas[24].y = 360;//
 
-  game->moedas[25].x = 770;
-  game->moedas[25].y = 170;
+  game->moedas[25].x = 4600;
+  game->moedas[25].y = 360;//
 
   //portas
   game->marrom[0].x = 45;
@@ -1706,6 +1713,9 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; //colocar game->scrollX
   SDL_RenderCopyEx(renderer, game->inimFrames[game->inim.animFrame], NULL, &inimRect, 0, NULL, (game->inim.facingLeft == 0));
 
+  SDL_Rect inim2Rect = { game->scrollX + game->inim2.x + delta_s, game->inim2.y, 50, 28 }; //colocar game->scrollX
+  SDL_RenderCopyEx(renderer, game->inimFrames[game->inim2.animFrame], NULL, &inim2Rect, 0, NULL, (game->inim2.facingLeft == 0));
+
   //Alice
   SDL_Rect rect = { game->alice.x + game->scrollX, game->alice.y, 68, 118 };
   SDL_RenderCopyEx(renderer, game->aliceFrames[game->alice.animFrame], NULL, &rect, 0, NULL, (game->alice.facingLeft == 1));
@@ -1838,9 +1848,12 @@ void processo(GameState *game) {
   }
 
 
-  //movimento do inimigo
-  int velX = 5; 
+  //movimento do inimigo 1
+  int velX = 8; 
+  int vel2X = 8;
   INIMIGO *inim = &game->inim;
+  INIMIGO *inim2 = &game->inim2;
+
 if (game->time % 8 == 0) {
       if (inim->animFrame == 0) {
         inim->animFrame = 1;
@@ -1850,9 +1863,20 @@ if (game->time % 8 == 0) {
       }
     }
 
+if (game->time % 8 == 0) {
+      if (inim2->animFrame == 0) {
+        inim2->animFrame = 1;
+      }
+      else if (inim2->animFrame = 1) {
+        inim2->animFrame = 0;
+      }
+    }
+
   if(virada > 0) {
     game->inim.facingLeft = 0;
       game->inim.x += velX;
+    game->inim2.facingLeft = 0;
+      game->inim2.x += vel2X;
       virada += 1;
       if(virada == 150) {
           virada = -10;
@@ -1861,11 +1885,43 @@ if (game->time % 8 == 0) {
   else {
     game->inim.facingLeft = 1;
     game->inim.x -= velX;
+    game->inim2.facingLeft = 1;
+    game->inim2.x -= vel2X;
     virada -= 1;
     if(virada == -150) {
       virada = 10;
     }
   }
+
+
+  /*int vel2X = 3; 
+  INIMIGO *inim2 = &game->inim2;
+if (game->time % 8 == 0) {
+      if (inim2->animFrame == 0) {
+        inim2->animFrame = 1;
+      }
+      else if (inim2->animFrame = 1) {
+        inim2->animFrame = 0;
+      }
+    }
+
+  if(virada > 0) {
+    game->inim2.facingLeft = 0;
+      game->inim2.x += vel2X;
+      virada += 1;
+      if(virada == 40) {
+          virada = -10;
+      }
+  }
+  else {
+    game->inim2.facingLeft = 1;
+    game->inim2.x -= vel2X;
+    virada -= 1;
+    if(virada == -40) {
+      virada = 10;
+    }
+  }*/
+
 
 
 
@@ -1884,6 +1940,13 @@ void colisao(GameState *game) {
   int i = 0, j = 0;
 
   if (collide2d(game->alice.x-10, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
+      SDL_Delay(100);
+      game->alice.x = 30;
+      game->alice.y = 500;
+      game->alice.lives--;
+    }
+
+    if (collide2d(game->alice.x-10, game->alice.y, game->inim2.x, game->inim2.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
       SDL_Delay(100);
       game->alice.x = 30;
       game->alice.y = 500;
