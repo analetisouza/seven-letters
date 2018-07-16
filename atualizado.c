@@ -28,11 +28,8 @@ typedef struct {
 
 typedef struct {
   float x, y;
+  int animFrame, facingLeft;
 } INIMIGO;
-
-/*typedef struct {
-  float x, y;
-} CHAVE;*/
 
 typedef struct {
   float x, y;
@@ -58,7 +55,6 @@ typedef struct { //jogo
   PLAT plat[100];
   MOEDA moedas[100];
   CARTA cartas[7];
-  //CHAVE chaves;
   PORTA marrom[2];
   PORTA verdeagua[2];
   PORTA roxa[2];
@@ -68,6 +64,7 @@ typedef struct { //jogo
   PORTA rosa[2];
   PORTA verde[2];
   INIMIGO inim;
+
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *inimFrames[4];
@@ -81,9 +78,7 @@ typedef struct { //jogo
   SDL_Texture *portaamarela;
   SDL_Texture *portarosa;
   SDL_Texture *portaroxa;
-  //SDL_Texture *chave;
   SDL_Texture *carta;
-  //SDL_Texture *fire;
   SDL_Texture *label;
   SDL_Texture *label2;
   int labelW, labelH, label2W, label2H;
@@ -93,7 +88,7 @@ typedef struct { //jogo
   int musicChannel;
   Mix_Chunk *bg, *MENU, *passa;
 
-  int time, mortes;
+  int time;
   int statusState;
 
   SDL_Renderer *renderer;
@@ -1188,15 +1183,11 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->time =  0;
   game->scrollX = 0; 
 
-  //chave
-  //game->chaves.x = 370;
-  //game->chaves.y = 340; //350
-
   //inimigo
-  game->inim.x = 500;
+  game->inim.x = 400;
   game->inim.y = 644;
-  //game->stars[i].phase = 2*3.14*(random()%360)/360.0f;
-
+  game->inim.animFrame = 0;
+  game->inim.facingLeft = 1;
 
   //posição das plataformas 
   for (i = 0; i < 39; i++) { //do chão
@@ -1514,14 +1505,10 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *vida2 = NULL;
   SDL_Texture *vida3 = NULL;
   SDL_Texture *vida4 = NULL;
-  //SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
-  //SDL_Texture *chavinha = NULL;
   SDL_Texture *cartinha = NULL;
   SDL_Texture *fim = NULL;
-
-    //SDL_RenderClear(renderer);
 
     barra = loadTextura("media/base_barra.png");
     SDL_Rect barraRect = {0, 0, 1280, 109};
@@ -1535,7 +1522,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     game->labelH = tmp->h;
     game->label = SDL_CreateTextureFromSurface(renderer, tmp);
     SDL_FreeSurface(tmp);
-    SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH}; //960
+    SDL_Rect textRect = {960, 60-game->labelH, game->labelW, game->labelH}; 
     SDL_RenderCopy(renderer, game->label, NULL, &textRect); 
 
     Nivel1 = loadTextura("media/nivel1.png");
@@ -1558,7 +1545,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       char str[10] = "";
       int totalcartas = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
       sprintf (str, "x%d", totalcartas);
-      SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
+      SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); 
       game->labelW = tmp->w;
       game->labelH = tmp->h;
       game->label = SDL_CreateTextureFromSurface(renderer, tmp);
@@ -1611,8 +1598,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         cont = 1;
         reseta = 1;
   }
-    //chavinha = loadTextura("media/keyYellow.png");
-    //SDL_Rect chavRect = {370, 7, 50, 50};
 
     pause = loadTextura("media/botao_pausa.png");
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
@@ -1623,11 +1608,9 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(vida2);
     SDL_DestroyTexture(vida3);
     SDL_DestroyTexture(vida4);
-    //SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
     SDL_DestroyTexture(cartinha);
-    //SDL_DestroyTexture(chavinha);
     SDL_DestroyTexture(fim);
     if(game->label != NULL) {
       SDL_DestroyTexture(game->label);
@@ -1638,10 +1621,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   int i;
 
-    /*SDL_Texture *placa = NULL;
-    placa = loadTextura("media/signRight.png");
-    SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
-    SDL_RenderCopy(renderer, placa, NULL, &placRect);*/
 
   for (i = 0; i < 82; i++) { //quantidades de plataformas que existirão 
     SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
@@ -1652,9 +1631,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect moedaRect = { game->scrollX + game->moedas[i].x + delta_s, game->moedas[i].y, 30, 30 };
     SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
-
-  //SDL_Rect chaveRect = { game->scrollX + game->chaves.x + delta_s, game->chaves.y, 75, 40}; //chave era 100 e 50
-  //SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   for (i = 0; i < 7; i++) {
     SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
@@ -1699,13 +1675,8 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   }
 
 
-  //inimigo
-  //SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 };
-
-  //inimigo arrumar
-
   SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 }; //colocar game->scrollX
-  SDL_RenderCopyEx(renderer, game->inimFrames[0], NULL, &inimRect, 0, NULL, 0);
+  SDL_RenderCopyEx(renderer, game->inimFrames[game->inim.animFrame], NULL, &inimRect, 0, NULL, (game->inim.facingLeft == 0));
 
   //Alice
   SDL_Rect rect = { game->alice.x + game->scrollX, game->alice.y, 68, 118 };
@@ -1840,20 +1811,30 @@ void processo(GameState *game) {
 
 
   //movimento do inimigo
-  int velX = 10; 
+  int velX = 5; 
   INIMIGO *inim = &game->inim;
+if (game->time % 8 == 0) {
+      if (inim->animFrame == 0) {
+        inim->animFrame = 1;
+      }
+      else if (inim->animFrame = 1) {
+        inim->animFrame = 0;
+      }
+    }
 
   if(virada > 0) {
+    game->inim.facingLeft = 0;
       game->inim.x += velX;
       virada += 1;
-      if(virada == 20) {
+      if(virada == 150) {
           virada = -10;
       }
   }
   else {
+    game->inim.facingLeft = 1;
     game->inim.x -= velX;
     virada -= 1;
-    if(virada == -20) {
+    if(virada == -150) {
       virada = 10;
     }
   }
