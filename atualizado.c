@@ -1863,14 +1863,31 @@ void processo(GameState *game) {
     }*/
 
   //movimento do inimigo
-  int velX = 10; //**
+  int virada = 1;
+  int velX = 10; 
   INIMIGO *inim = &game->inim;
 
-  inim->x -= velX;
+  if(virada > 0) {
+      inim->x += velX;
+      virada += 10;
+      if(virada == 200) {
+          virada = -1;
+      }
+  }
+  else {
+    inim->x -= velX;
+    virada -= 10;
+    if(virada == -200) {
+      virada = 1;
+    }
+  }
+
+
+  /*inim->x -= velX;
   if (inim->x + 3 == 0) {  //vai só pra esquerda
     //game->inim.x = game->inim.baseX + sinf(game->stars[i].phase + game->time*0.06f)*75;
     inim->x = 1280; //respawn
-  }
+  }*/
 
   //scrollX
   game->scrollX = -game->alice.x + 598;
