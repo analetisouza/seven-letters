@@ -150,14 +150,11 @@ int collide2d(int, int, int, int, int, int, int, int);
 
 int distancia(int, int, int, int);
 
-void le_arquivo(PONTUACAO*);
+void recebe_string (char*, char*);
 
-void escreve_arquivo(PONTUACAO*, char*, int);
+void digitarecorde(GameState*, SDL_Renderer*);
 
-void ordena_recorder(PONTUACAO*);
-
-void recorde(GameState*, SDL_Renderer*);
-void digitarecorde(GameState *, SDL_Renderer *);
+void Ranking(GameState*, SDL_Renderer*);
 
 const int LARG = 1280; 
 const int ALT = 720;
@@ -186,7 +183,6 @@ void digitarecorde(GameState *game, SDL_Renderer *renderer) {
 
   SDL_RenderCopy(renderer, texture, NULL, &dstrect);
   SDL_RenderPresent(renderer);
-
 
   char text[10] = "";
   int tam = 0;
@@ -231,14 +227,273 @@ void digitarecorde(GameState *game, SDL_Renderer *renderer) {
   SDL_FreeSurface(surface);
   TTF_CloseFont(game->font);
   SDL_StopTextInput();
-  game->MENU = Mix_LoadWAV("media/IWish.ogg");
-  if (game->MENU != NULL) {
-    Mix_VolumeChunk(game->MENU, 10);
-    game->musicChannel = Mix_PlayChannel(-1, game->MENU, -1);
-  }
-  telainicial(renderer, game);
+  telafim(renderer,game);
+
 
   }
+
+void recebe_string (char *str, char *str1) {
+    int i;
+
+    for(i = 0; str[i] != '\0'; i++) {
+       str1[i] = str[i];
+    }
+    str1[i] = '\0';
+
+}
+
+void Ranking(GameState *game, SDL_Renderer *renderer) {
+  SDL_Event event;
+  SDL_Color preto = {0, 0, 0, 0};
+  FILE *p_arquivo;
+  char *nome_arquivo = "ranking.txt";
+  p_arquivo = fopen(nome_arquivo, "r");
+
+  int render = 1;
+  game->font = TTF_OpenFont("media/TravelingTypewriter.ttf", 55);
+  game->font1 = TTF_OpenFont("media/TravelingTypewriter.ttf", 40);
+
+  SDL_WaitEventTimeout(&event, 10);
+
+  if(event.type == SDL_QUIT) {
+    exit(1);
+  }
+  //fazer um botão que faça o
+
+  char NOME[10];
+  char PONTUACAO[10];
+
+  int pontuacao[10];
+  int n = 0;
+
+  while( fscanf(p_arquivo, "%s %s\n", NOME, PONTUACAO) != EOF ) {
+    pontuacao[n] = atoi(PONTUACAO);
+    n++;
+  }
+
+  int i, j;
+  int swap;
+
+  for (i = 0 ; i < ( n - 1 ); i++) {
+      for(j = 0 ; j < n - i - 1; j++) {
+          if(pontuacao[j] < pontuacao[j+1]) {
+            swap = pontuacao[j];
+            pontuacao[j] = pontuacao[j+1];
+            pontuacao[j+1] = swap;
+          }
+      }
+  }
+
+  rewind(p_arquivo);
+
+  char NOME1 [10]; //1° lugar
+  char PONTUACAO1 [10];
+  char NOME2 [10]; //2° lugar
+  char PONTUACAO2 [10];
+  char NOME3 [10]; //3° lugar
+  char PONTUACAO3 [10];
+  char NOME4 [10]; //4° lugar
+  char PONTUACAO4 [10];
+  char NOME5 [10]; //5° lugar
+  char PONTUACAO5 [10];
+
+  while( fscanf(p_arquivo, "%s %s\n", NOME, PONTUACAO) != EOF ) {
+    if(pontuacao[0] == atoi(PONTUACAO)) {
+      recebe_string(NOME, NOME1);
+      recebe_string(PONTUACAO, PONTUACAO1);
+    }
+
+    if(pontuacao[1] == atoi(PONTUACAO)) {
+      recebe_string(NOME, NOME2);
+      recebe_string(PONTUACAO, PONTUACAO2);
+    }
+
+    if(pontuacao[2] == atoi(PONTUACAO)) {
+      recebe_string(NOME, NOME3);
+      recebe_string(PONTUACAO, PONTUACAO3);
+    }
+
+    if(pontuacao[3] == atoi(PONTUACAO)) {
+      recebe_string(NOME, NOME4);
+      recebe_string(PONTUACAO, PONTUACAO4);
+    }
+
+    if(pontuacao[4] == atoi(PONTUACAO)) {
+      recebe_string(NOME, NOME5);
+      recebe_string(PONTUACAO, PONTUACAO5);
+    }
+  }
+
+  SDL_Texture *imgRanking = NULL;
+  imgRanking = loadTextura("media/ranking.png");
+
+  SDL_Texture *retornar = NULL;
+  retornar = loadTextura("media/retornar1.png");
+  SDL_Rect retRect = {30, 600, 100, 100};
+
+  if(render == 1) {
+    SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
+    SDL_RenderCopy(renderer, retornar, NULL, &retRect);
+
+    char str[5] = "";
+    sprintf (str, "1.");
+    SDL_Surface * surfacenum1 = TTF_RenderText_Solid(game->font1, str, preto);
+    game->labelW = surfacenum1->w;
+    game->labelH = surfacenum1->h;
+    SDL_Rect dstrect11 = { (LARG-400)/2 - 55, (ALT-150)/2 - 5, game->labelW, game->labelH };
+    SDL_Texture * texturenum1 = SDL_CreateTextureFromSurface(renderer, surfacenum1);
+    SDL_RenderCopy(renderer, texturenum1, NULL, &dstrect11);
+
+    SDL_Surface * surface1 = TTF_RenderText_Solid(game->font, NOME1, preto);
+    game->labelW = surface1->w;
+    game->labelH = surface1->h;
+    SDL_Rect dstrect1 = { (LARG-400)/2, (ALT-150)/2 - 20, game->labelW, game->labelH };
+    SDL_Texture * texture1 = SDL_CreateTextureFromSurface(renderer, surface1);
+    SDL_RenderCopy(renderer, texture1, NULL, &dstrect1);
+
+    SDL_Surface * surface1P = TTF_RenderText_Solid(game->font, PONTUACAO1, preto);
+    game->labelW = surface1P->w;
+    game->labelH = surface1P->h;
+    SDL_Rect dstrect1P = { (LARG-400)/2 + 300, (ALT-150)/2 - 20, game->labelW, game->labelH };
+    SDL_Texture * texture1P = SDL_CreateTextureFromSurface(renderer, surface1P);
+    SDL_RenderCopy(renderer, texture1P, NULL, &dstrect1P);
+
+
+    sprintf (str, "2.");
+    SDL_Surface * surfacenum2 = TTF_RenderText_Solid(game->font1, str, preto);
+    game->labelW = surfacenum2->w;
+    game->labelH = surfacenum2->h;
+    SDL_Rect dstrect22 = { (LARG-400)/2 - 55, (ALT-150)/2 + 75, game->labelW, game->labelH };
+    SDL_Texture * texturenum2 = SDL_CreateTextureFromSurface(renderer, surfacenum2);
+    SDL_RenderCopy(renderer, texturenum2, NULL, &dstrect22);
+
+    SDL_Surface * surface2 = TTF_RenderText_Solid(game->font, NOME2, preto);
+    game->labelW = surface2->w;
+    game->labelH = surface2->h;
+    SDL_Rect dstrect2 = { (LARG-400)/2, (ALT-150)/2 + 60, game->labelW, game->labelH };
+    SDL_Texture * texture2 = SDL_CreateTextureFromSurface(renderer, surface2);
+    SDL_RenderCopy(renderer, texture2, NULL, &dstrect2);
+
+    SDL_Surface * surface2P = TTF_RenderText_Solid(game->font, PONTUACAO2, preto);
+    game->labelW = surface2P->w;
+    game->labelH = surface2P->h;
+    SDL_Rect dstrect2P = { (LARG-400)/2+ 300, (ALT-150)/2 + 60, game->labelW, game->labelH };
+    SDL_Texture * texture2P = SDL_CreateTextureFromSurface(renderer, surface2P);
+    SDL_RenderCopy(renderer, texture2P, NULL, &dstrect2P);
+
+  
+    sprintf (str, "3.");
+    SDL_Surface * surfacenum3 = TTF_RenderText_Solid(game->font1, str, preto);
+    game->labelW = surfacenum3->w;
+    game->labelH = surfacenum3->h;
+    SDL_Rect dstrect33 = { (LARG-400)/2 - 55, (ALT-150)/2 + 155, game->labelW, game->labelH };
+    SDL_Texture * texturenum3 = SDL_CreateTextureFromSurface(renderer, surfacenum3);
+    SDL_RenderCopy(renderer, texturenum3, NULL, &dstrect33);
+
+    SDL_Surface * surface3 = TTF_RenderText_Solid(game->font, NOME3, preto);
+    game->labelW = surface3->w;
+    game->labelH = surface3->h;
+    SDL_Rect dstrect3 = { (LARG-400)/2, (ALT-150)/2 + 140, game->labelW, game->labelH };
+    SDL_Texture * texture3 = SDL_CreateTextureFromSurface(renderer, surface3);
+    SDL_RenderCopy(renderer, texture3, NULL, &dstrect3);
+
+    SDL_Surface * surface3P = TTF_RenderText_Solid(game->font, PONTUACAO3, preto);
+    game->labelW = surface3P->w;
+    game->labelH = surface3P->h;
+    SDL_Rect dstrect3P = { (LARG-400)/2+ 300, (ALT-150)/2 + 140, game->labelW, game->labelH };
+    SDL_Texture * texture3P = SDL_CreateTextureFromSurface(renderer, surface3P);
+    SDL_RenderCopy(renderer, texture3P, NULL, &dstrect3P);
+
+
+    sprintf (str, "4.");
+    SDL_Surface * surfacenum4 = TTF_RenderText_Solid(game->font1, str, preto);
+    game->labelW = surfacenum4->w;
+    game->labelH = surfacenum4->h;
+    SDL_Rect dstrect44 = { (LARG-400)/2 - 55, (ALT-150)/2 + 235, game->labelW, game->labelH };
+    SDL_Texture * texturenum4 = SDL_CreateTextureFromSurface(renderer, surfacenum4);
+    SDL_RenderCopy(renderer, texturenum4, NULL, &dstrect44);
+
+    SDL_Surface * surface4 = TTF_RenderText_Solid(game->font, NOME4, preto);
+    game->labelW = surface4->w;
+    game->labelH = surface4->h;
+    SDL_Rect dstrect4 = { (LARG-400)/2, (ALT-150)/2 + 220, game->labelW, game->labelH };
+    SDL_Texture * texture4 = SDL_CreateTextureFromSurface(renderer, surface4);
+    SDL_RenderCopy(renderer, texture4, NULL, &dstrect4);
+
+    SDL_Surface * surface4P = TTF_RenderText_Solid(game->font, PONTUACAO4, preto);
+    game->labelW = surface4P->w;
+    game->labelH = surface4P->h;
+    SDL_Rect dstrect4P = { (LARG-400)/2+ 300, (ALT-150)/2 + 220, game->labelW, game->labelH };
+    SDL_Texture * texture4P = SDL_CreateTextureFromSurface(renderer, surface4P);
+    SDL_RenderCopy(renderer, texture4P, NULL, &dstrect4P);
+
+  
+    sprintf (str, "5.");
+    SDL_Surface * surfacenum5 = TTF_RenderText_Solid(game->font1, str, preto);
+    game->labelW = surfacenum5->w;
+    game->labelH = surfacenum5->h;
+    SDL_Rect dstrect55 = { (LARG-400)/2 - 55, (ALT-150)/2 + 315, game->labelW, game->labelH };
+    SDL_Texture * texturenum5 = SDL_CreateTextureFromSurface(renderer, surfacenum5);
+    SDL_RenderCopy(renderer, texturenum5, NULL, &dstrect55);
+
+    SDL_Surface * surface5 = TTF_RenderText_Solid(game->font, NOME5, preto);
+    game->labelW = surface5->w;
+    game->labelH = surface5->h;
+    SDL_Rect dstrect5 = { (LARG-400)/2, (ALT-150)/2 + 300, game->labelW, game->labelH };
+    SDL_Texture * texture5 = SDL_CreateTextureFromSurface(renderer, surface5);
+    SDL_RenderCopy(renderer, texture5, NULL, &dstrect5);
+
+    SDL_Surface * surface5P = TTF_RenderText_Solid(game->font, PONTUACAO5, preto);
+    game->labelW = surface5P->w;
+    game->labelH = surface5P->h;
+    SDL_Rect dstrect5P = { (LARG-400)/2+ 300, (ALT-150)/2 + 300, game->labelW, game->labelH };
+    SDL_Texture * texture5P = SDL_CreateTextureFromSurface(renderer, surface5P);
+    SDL_RenderCopy(renderer, texture5P, NULL, &dstrect5P);
+
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000);
+
+  SDL_FreeSurface(surface1);
+  SDL_FreeSurface(surface2);
+  SDL_FreeSurface(surface3);
+  SDL_FreeSurface(surface4);
+  SDL_FreeSurface(surface5);
+  SDL_FreeSurface(surface1P);
+  SDL_FreeSurface(surface2P);
+  SDL_FreeSurface(surface3P);
+  SDL_FreeSurface(surface4P);
+  SDL_FreeSurface(surface5P);
+  SDL_FreeSurface(surfacenum1);
+  SDL_FreeSurface(surfacenum2);
+  SDL_FreeSurface(surfacenum3);
+  SDL_FreeSurface(surfacenum4);
+  SDL_FreeSurface(surfacenum5);
+  SDL_DestroyTexture(texture1);
+  SDL_DestroyTexture(texture2);
+  SDL_DestroyTexture(texture3);
+  SDL_DestroyTexture(texture4);
+  SDL_DestroyTexture(texture5);
+  SDL_DestroyTexture(texture1P);
+  SDL_DestroyTexture(texture2P);
+  SDL_DestroyTexture(texture3P);
+  SDL_DestroyTexture(texture4P);
+  SDL_DestroyTexture(texture5P);
+  SDL_DestroyTexture(texturenum1);
+  SDL_DestroyTexture(texturenum2);
+  SDL_DestroyTexture(texturenum3);
+  SDL_DestroyTexture(texturenum4);
+  SDL_DestroyTexture(texturenum5);
+  SDL_DestroyTexture(imgRanking);
+  SDL_DestroyTexture(retornar);
+
+    render = 0;
+  }
+
+  fclose(p_arquivo);
+  TTF_CloseFont(game->font);
+  TTF_CloseFont(game->font1);
+
+}
 
 SDL_Window* janela = NULL;
 SDL_Renderer* renderer = NULL;
@@ -398,9 +653,6 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
   SDL_Texture *imgCreditos = NULL;
   imgCreditos = loadTextura("media/creditos_teste.png"); 
 
-  SDL_Texture *imgRanking = NULL;
-  imgRanking = loadTextura("media/ranking.png"); 
-
   SDL_Texture *imgAjuda = NULL;
   imgAjuda = loadTextura("media/instrucoes.png"); 
 
@@ -543,13 +795,11 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
             }
 
             else if (event.motion.x > 686 && event.motion.x < 1000 && event.motion.y > 380 && event.motion.y < 459 && event.button.button == SDL_BUTTON_LEFT) {
-             SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
-             SDL_RenderPresent(renderer);
+              SDL_RenderCopy(renderer, ranking2, NULL, &ran2Rect);
+              SDL_RenderPresent(renderer);
               SDL_Delay(200); 
               SDL_RenderClear(renderer);
-              SDL_RenderCopy(renderer, imgRanking, NULL, NULL);
-              SDL_RenderCopy(renderer, retornar, NULL, &retRect);
-              SDL_RenderPresent(renderer);
+              Ranking(game, renderer);
             }
 
             else if (event.motion.x > 676 && event.motion.x < 992 && event.motion.y > 475 && event.motion.y < 537 && event.button.button == SDL_BUTTON_LEFT) {
@@ -591,7 +841,6 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
     SDL_DestroyTexture(ajuda);
     SDL_DestroyTexture(imgNiveis);
     SDL_DestroyTexture(imgCreditos);
-    SDL_DestroyTexture(imgRanking);
     SDL_DestroyTexture(imgAjuda);
     SDL_DestroyTexture(jogar2);
     SDL_DestroyTexture(cred2);
@@ -604,8 +853,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
     Mix_FreeChunk(game->passa);
     Mix_FreeChunk(game->MENU);
 
-  return sucesso; //tentar arrumar o erro do mouse apertar pressionando
-
+  return sucesso; 
 }
 
 
@@ -780,8 +1028,6 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
   SDL_RenderCopy(renderer, Menu, NULL, &menuuRect);
 
   SDL_RenderPresent(renderer);
-
-  digitarecorde(game, renderer);
 
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
@@ -1396,7 +1642,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       game->alice.Chaves = 0;
       game->alice.Carta1 = 0;
       Mix_HaltChannel(game->musicChannel);
-      telafim(renderer,game);
+      digitarecorde(game, renderer);
+      //telafim(renderer,game);
       cont = 1;
       reseta = 1;
     }
@@ -1417,7 +1664,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         game->alice.Carta6 = 0;
         game->alice.Carta7 = 0;
         Mix_HaltChannel(game->musicChannel);
-        telafim(renderer, game);
+        digitarecorde(game, renderer);
+        //telafim(renderer, game);
       cont = 1;
       reseta = 1;
       }
@@ -1897,66 +2145,4 @@ int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2
 
 int distancia (int x1, int y1, int x2, int y2) {
   return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
-}
-
-void le_arquivo(PONTUACAO* pontuacao) {
-    int i = 0;
-    FILE* f = fopen("scores.txt", "r");
-    if(f == NULL) {
-        f = fopen("scores.txt","w");
-        if(f == NULL) {
-            perror("scores.txt: \n");
-            exit(1);
-        }
-        for(i=0;i<10;i++) {
-            pontuacao[i].nome[0]='.';
-            pontuacao[i].nome[1]='.';
-            pontuacao[i].nome[2]='.';
-            pontuacao[i].nome[3]='\0';
-            pontuacao[i].pontos=0;
-
-            fprintf(f,"%s %d",pontuacao[i].nome,pontuacao[i].pontos);
-            fprintf(f,"\n");
-        }
-    }
-    else {
-        while(!feof(f)) {
-            fscanf(f,"%s %d",pontuacao[i].nome,&pontuacao[i].pontos);
-            fgetc(f);
-            i++;
-        }
-    }
-    fclose(f);
-}
-void escreve_arquivo(PONTUACAO* pontuacao, char* nome, int pontos) {
-    int i = 0, aux = 10;
-    FILE* f = fopen("scores.txt", "w");
-    if(f == NULL) {
-        perror("scores.txt: \n");
-        exit(1);
-    }
-    strcpy(pontuacao[9].nome,nome);
-    pontuacao[9].pontos=pontos;
-    ordena_recorder(pontuacao);
-    while(aux){
-        fprintf(f,"%s %d",pontuacao[i].nome,pontuacao[i].pontos);
-        fprintf(f,"\n");
-        i++;
-        aux--;
-    }
-    fclose(f);
-}
-void ordena_recorder(PONTUACAO* pontuacao) {
-    int tam = 10,i;
-    PONTUACAO swap;
-    while(tam != 0) {
-        for(i = 0; i < 9; i++) {
-            if(pontuacao[i].pontos < pontuacao[i+1].pontos) {
-                swap = pontuacao[i];
-                pontuacao[i] = pontuacao[i+1];
-                pontuacao[i+1]=swap;
-            }
-        }
-        tam--;
-    }
 }
