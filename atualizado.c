@@ -1482,14 +1482,14 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->cartas[3].x = 2876;
   game->cartas[3].y = 354; 
 
-  game->cartas[4].x = 3543;
+  game->cartas[4].x = 4000;
   game->cartas[4].y = 600;   
 
-  game->cartas[5].x = 4150;
+  game->cartas[5].x = 4650;
   game->cartas[5].y = 200; 
 
   game->cartas[6].x = 4827;
-  game->cartas[6].y = 370; 
+  game->cartas[6].y = 370;  
 
 
 }
@@ -1685,11 +1685,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
   for (i = 0; i < 2; i++) {
     SDL_Rect laranjaRect = { game->scrollX + game->laranja[i].x + delta_s, game->laranja[i].y, 113, 133};
     SDL_RenderCopy(renderer, game->portalaranja, NULL, &laranjaRect);
-  }
-
-  for (i = 0; i < 2; i++) {
-    SDL_Rect azulRect = { game->scrollX + game->azul[i].x + delta_s, game->azul[i].y, 113, 133};
-    SDL_RenderCopy(renderer, game->portaazul, NULL, &azulRect);
   }
 
   for (i = 0; i < 2; i++) {
@@ -2135,8 +2130,4 @@ void colisao(GameState *game) {
 
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
-}
-
-int distancia (int x1, int y1, int x2, int y2) {
-  return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
 }
