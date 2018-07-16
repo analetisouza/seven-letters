@@ -156,6 +156,89 @@ void escreve_arquivo(PONTUACAO*, char*, int);
 
 void ordena_recorder(PONTUACAO*);
 
+void recorde(GameState*, SDL_Renderer*);
+void digitarecorde(GameState *, SDL_Renderer *);
+
+const int LARG = 1280; 
+const int ALT = 720;
+
+void digitarecorde(GameState *game, SDL_Renderer *renderer) {
+  game->font = TTF_OpenFont("media/TravelingTypewriter.ttf", 40);
+  SDL_Color branco = {255, 255, 255, 255};
+  SDL_Event event;
+  int recorde;
+
+  SDL_RenderClear(renderer);
+
+  SDL_StartTextInput();
+
+  FILE *p_arquivo;
+  char *nome_arquivo = "ranking.txt";
+  p_arquivo = fopen(nome_arquivo, "a");
+
+  char *texto = "Digite seu nome:";
+
+  SDL_Surface * surface = TTF_RenderText_Solid(game->font, texto, branco); 
+  game->labelW = surface->w;
+  game->labelH = surface->h;
+  SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_Rect dstrect = { (LARG-400)/2, (ALT-150)/2 -100, game->labelW, game->labelH};
+
+  SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+  SDL_RenderPresent(renderer);
+
+
+  char text[10] = "";
+  int tam = 0;
+  int done = 1;
+
+  while(done) {
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+    SDL_WaitEvent(&event);
+
+    if(event.type == SDL_QUIT) {
+      recorde = 0;
+      exit(1);
+      break;
+    }
+    else if(event.type == SDL_TEXTINPUT) {
+      strcat(text, event.text.text);
+      tam++;
+    }
+
+      SDL_Surface * surfaceInput = TTF_RenderText_Solid(game->font, text, branco);
+      SDL_Texture * textureInput = SDL_CreateTextureFromSurface(renderer, surfaceInput);
+      SDL_Rect dstrectInput = { (LARG-(tam+1)*50)/2+50, (ALT-150)/2 + 50, (tam+1)*20, 50 };
+      SDL_RenderCopy(renderer, textureInput, NULL, &dstrectInput);
+
+      SDL_RenderPresent(renderer);
+
+      if(tam == 6) {
+        SDL_Delay(500);
+        recorde = 0;
+        SDL_FreeSurface(surfaceInput);
+        SDL_DestroyTexture(textureInput);
+        break;
+      }
+  }
+
+  fprintf(p_arquivo, "%s %d\n", text, game->alice.pontos);
+
+  fclose(p_arquivo);
+  SDL_DestroyTexture(texture);
+  SDL_FreeSurface(surface);
+  TTF_CloseFont(game->font);
+  SDL_StopTextInput();
+  game->MENU = Mix_LoadWAV("media/IWish.ogg");
+  if (game->MENU != NULL) {
+    Mix_VolumeChunk(game->MENU, 10);
+    game->musicChannel = Mix_PlayChannel(-1, game->MENU, -1);
+  }
+  telainicial(renderer, game);
+
+  }
 
 SDL_Window* janela = NULL;
 SDL_Renderer* renderer = NULL;
@@ -170,9 +253,6 @@ int cont = 0, reseta = 0, ncolisao = 0;
     int i;
     float delta_s = 0;
 
-//Dimensões da janela
-const int LARG = 1280; 
-const int ALT = 720;
 
 
 int main (int argc, char *argv[]) {
@@ -701,10 +781,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
 
   SDL_RenderPresent(renderer);
 
-  le_arquivo(game->recorde);
-  if(game->alice.pontos > game->recorde[4].pontos) {
-    game->recordista = 1;
-  }
+  digitarecorde(game, renderer);
 
   while (gameloop == true) {
   while(SDL_PollEvent(&event)) {
@@ -1618,37 +1695,11 @@ void processo(GameState *game) {
 void colisao(GameState *game) {
   int i = 0, j = 0;
 
-  if (collide2d(game->alice.x, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
-      if (ncolisao == 0 && j == 0) {
-        ncolisao = 1;
-        game->alice.x += 5;
-      }
-      if (ncolisao == 1) {
-        j = 1;
-      }
-      game->time % 24 == 0;
-      if (game->time % 24 == 0 && ncolisao == 1 && j == 1) {
-        ncolisao = 2;
-        game->alice.x += 5;
-      }
-      game->time % 25 == 0;
-      if (ncolisao == 2) {
-        j = 2;
-      }
-      game->time % 10 == 0;
-      if (game->time % 10 == 0 && ncolisao == 2 && j == 2) {
-        ncolisao = 3;
-        game->alice.x += 5;
-      }
-        if (ncolisao == 1) {
-          game->alice.lives = 2;
-        }
-        if (ncolisao == 2) {
-          game->alice.lives = 1;
-        }
-        if (ncolisao == 3) {
-          game->alice.lives = 0;
-        }
+  if (collide2d(game->alice.x-10, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
+      SDL_Delay(100);
+      game->alice.x = 30;
+      game->alice.y = 500;
+      game->alice.lives--;
     }
 
   for (i = 0; i < 26; i++) { //colisao das moedas
@@ -1745,25 +1796,24 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;
   }
 
-  //teleporte amarelo
-  /*if (collide2d(game->alice.x, game->alice.y, game->amarela[0].x + 60, game->amarela[0].y, 68, 118, 113, 133)) { 
-      game->alice.x = game->verdeagua[1].x - 90;
-      game->alice.y = game->verdeagua[1].y + 3;
+    //teleporte amarelo
+  if (collide2d(game->alice.x, game->alice.y, game->amarela[0].x - game->amarela[0].x/4, game->amarela[0].y, 68, 118, 20, 133)) { 
+      game->alice.x = game->amarela[1].x - 20;
+      game->alice.y = game->amarela[1].y + 3;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
       alice->y += alice->dy;
       alice->dy += Gravidade;  
   }
   
-  if (collide2d(game->alice.x, game->alice.y, game->amarela[1].x - game->amarela[1].x/4, game->amarela[1].y, 68, 118, 113, 133)) { 
-      game->alice.x = game->verdeagua[0].x + 110;
-      game->alice.y = game->verdeagua[0].y;
+  if (collide2d(game->alice.x, game->alice.y, game->amarela[1].x - game->amarela[1].x/4, game->amarela[1].y, 68, 118, 20, 133)) { 
+      game->alice.x = game->amarela[0].x - 110;
+      game->alice.y = game->amarela[0].y;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
       alice->y += alice->dy;
       alice->dy += Gravidade;
-  }*/
-
+  }
 
 
   for (i = 0; i < 83; i++) { //71
@@ -1910,195 +1960,3 @@ void ordena_recorder(PONTUACAO* pontuacao) {
         tam--;
     }
 }
-
-/*void dispose_recordes(GameState* game, Paisagem* Pintro)
--{
--    SDL_FreeSurface(Pintro->paisagem);
--    if(Pintro->menu[0]!=NULL)
--    {
--        SDL_FreeSurface(Pintro->menu[0]);
--        Pintro->menu[0]=NULL;
--    }
--    Pintro->paisagem=NULL;
--}
--void dispose_novo_recorde(Motor* Pmotor, Paisagem* Pintro)
--{
--    SDL_FreeSurface(Pintro->paisagem);
--
--    Pintro->paisagem=NULL;
--
--    //TTF_CloseFont(Pmotor->fonte);
--
--    cria_intro(Pmotor,Pintro);
--}
--void desenha_texto(char *texto, Motor* Pmotor,int x, int y,SDL_Color cor)
--{
--    SDL_Surface* tmp;
--
--    tmp = TTF_RenderText_Blended(Pmotor->fonte,texto,cor);
--
--    SDL_Rect tela_rect = {x, y, 0, 0};
--
--    SDL_BlitSurface(tmp,NULL,Pmotor->tela,&tela_rect);
--
--    SDL_FreeSurface(tmp);
--    
--    //SDL_Flip(Pmotor->tela);
--}
--void cria_recordes(Motor* Pmotor,Paisagem* Pintro)
--{
--    le_arquivo(Pmotor->recorde);
--    dispose_intro(Pintro);
--    Pmotor->rodando=2;
--
--    const SDL_VideoInfo *pinfo = NULL;
--    pinfo = SDL_GetVideoInfo();
--
--    int bpp=pinfo->vfmt->BitsPerPixel,i=0;
--
--    //tela
--    Pmotor->tela = NULL;
--    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
--    SDL_WM_SetCaption("recordes",NULL);
--
--    Pintro->rect_paisagem.x=0;
--    Pintro->rect_paisagem.y=0;
--    Pintro->rect_paisagem.w=LARGURA;
--    Pintro->rect_paisagem.h=ALTURA;
--
--    //paisagem
--    Pintro->paisagem = NULL;
--    SDL_Surface *tmp=NULL;
--    tmp = IMG_Load("./imagens/recordes.png");
--
--    Pintro->paisagem = SDL_DisplayFormat(tmp);
--
--    SDL_FreeSurface(tmp);
--    tmp = NULL;
--
--    
--    //voltar
--    tmp = IMG_Load("./imagens/buttonback.png");
--
--    Pintro->rect_menu[0].x=LARGURA-138;
--    Pintro->rect_menu[0].y=ALTURA-120;
--    Pintro->rect_menu[0].w=138;
--    Pintro->rect_menu[0].h=120;
--
--    Pmotor -> backSprite.y = 0;
--    Pmotor -> backSprite.h = 120;
--    Pmotor -> backSprite.x = 0;
--    Pmotor -> backSprite.w = 139;
--
--    
--
--    Pintro->menu[0] = SDL_DisplayFormat(tmp);
--    SDL_FreeSurface(tmp);
--    tmp = NULL;
--    //
--
--    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
--
--    SDL_BlitSurface(Pintro->menu[0],&Pmotor->backSprite,Pmotor->tela,&Pintro->rect_menu[0]);
--
--    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",30);
--
--    SDL_Color cor = {255,255,255};
--    SDL_Color cor2 = {255,255,200};
--
--    for(i=0;i<10;i++)
--    {
--        sprintf(Pmotor->recorde[i].pontu,"%d",Pmotor->recorde[i].pontos); 
--        desenha_texto(Pmotor->recorde[i].nome,Pmotor,680,90+(48*i),cor);
--        desenha_texto(Pmotor->recorde[i].pontu,Pmotor,770,90+(48*i),cor2);
--    }
--
--    SDL_Flip(Pmotor->tela);
--
--    Mix_HaltMusic();
--    Mix_PlayMusic(Pmotor->musica_recordes,-1);
--
--    TTF_CloseFont(Pmotor->fonte);
--}
--
--void cria_novo_recorde(Motor* Pmotor,Paisagem* Pintro)
--{
--    dispose_intro(Pintro);
--    const SDL_VideoInfo *pinfo = NULL;
--    SDL_Surface* tmp = NULL;
--    pinfo = SDL_GetVideoInfo();
--
--    Pmotor->rodando=8;
--
--    int bpp = pinfo->vfmt->BitsPerPixel;
--
--    Pmotor->fonte = TTF_OpenFont("./fontes/ARCADEPI.ttf",100);
--
--    //tela
--    Pmotor->tela = NULL;
--    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
--    SDL_WM_SetCaption("recorde",NULL);
--    
--    Pintro->rect_paisagem.x=0;
--    Pintro->rect_paisagem.y=0;
--    Pintro->rect_paisagem.w=LARGURA;
--    Pintro->rect_paisagem.h=ALTURA;
--    
--    //paisagem
--    Pintro->paisagem = NULL;
--    tmp = IMG_Load("./imagens/nome.png");
--
--    Pintro->paisagem = SDL_DisplayFormat(tmp);
--
--    SDL_FreeSurface(tmp);
--    tmp = NULL;
--   
--    Mix_HaltMusic();
--    Mix_PlayMusic(Pmotor->musica_intro,-1);
--}
--
--{
--    dispose_fase(Pmotor,Pintro);
--
--    le_arquivo(Pmotor->recorde);
--
--    if(Pmotor->pontos > Pmotor->recorde[9].pontos)
--    {
--        Pmotor->recordista=1;
--    }
--
--    const SDL_VideoInfo *pinfo = NULL;
--    SDL_Surface* tmp = NULL;
--    pinfo = SDL_GetVideoInfo();
--
--    Pmotor->rodando=6;
--
--    int bpp = pinfo->vfmt->BitsPerPixel,i;
--
--    //tela
--    Pmotor->tela = NULL;
--    Pmotor->tela=SDL_SetVideoMode(LARGURA,ALTURA,bpp,SDL_HWSURFACE);
--    SDL_WM_SetCaption("vitoria",NULL);
--    
--    Pintro->rect_paisagem.x=0;
--    Pintro->rect_paisagem.y=0;
--    Pintro->rect_paisagem.w=LARGURA;
--    Pintro->rect_paisagem.h=ALTURA;
--    
--    //paisagem
--    Pintro->paisagem = NULL;
--    tmp = IMG_Load("./imagens/win.png");
--
--    Pintro->paisagem = SDL_DisplayFormat(tmp);
--
--    SDL_FreeSurface(tmp);
--    tmp = NULL;
--
--    //paisagem na tela
--    SDL_BlitSurface(Pintro->paisagem,NULL,Pmotor->tela,&Pintro->rect_paisagem);
--    
--    //flip
--    SDL_Flip(Pmotor->tela);
--
--    Mix_HaltMusic();
--    Mix_PlayMusic(Pmotor->musica_vitoria,-1);*/
