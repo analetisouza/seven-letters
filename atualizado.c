@@ -481,6 +481,7 @@ SDL_Renderer* renderer = NULL;
 
 //Variáveis de controle
 int cont = 0, reseta = 0, ncolisao = 0;
+int virada = 10;
 
     int now = 0;
     int ex = 0;
@@ -1192,7 +1193,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   //game->chaves.y = 340; //350
 
   //inimigo
-  game->inim.x = 2515;
+  game->inim.x = 500;
   game->inim.y = 644;
   //game->stars[i].phase = 2*3.14*(random()%360)/360.0f;
 
@@ -1284,10 +1285,10 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->plat[63].x = 2771;
   game->plat[63].y = 424;
 
-  game->plat[64].x = 2889;
+  game->plat[64].x = 2899;
   game->plat[64].y = 424;
 
-  game->plat[65].x = 3460;
+  game->plat[65].x = 3456;
   game->plat[65].y = 490;
 
   game->plat[66].x = 3584;
@@ -1581,23 +1582,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.lives == 0) {
       SDL_RenderCopy(renderer, vida4, NULL, &vidaRect);
       SDL_Delay(300);
-      //game->alice.Chaves = 0;
-      game->alice.Carta1 = 0;
-      Mix_HaltChannel(game->musicChannel);
-      digitarecorde(game, renderer);
-      //telafim(renderer,game);
-      cont = 1;
-      reseta = 1;
-    }
-
-    //chavinha = loadTextura("media/keyYellow.png");
-    //SDL_Rect chavRect = {370, 7, 50, 50};
-
-    //printf("%f\n", game->alice.y);
-    /*if (game->alice.Cartas == 7) {
-      //SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
-      //fazer colisao
-        //game->alice.Chaves = 0;
+        game->alice.Cartas = 0;
         game->alice.Carta1 = 0;
         game->alice.Carta2 = 0;
         game->alice.Carta3 = 0;
@@ -1607,11 +1592,27 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
         game->alice.Carta7 = 0;
         Mix_HaltChannel(game->musicChannel);
         digitarecorde(game, renderer);
-        //telafim(renderer, game);
-      cont = 1;
-      reseta = 1;
-      }
-    }*/
+        cont = 1;
+        reseta = 1;
+    }
+
+  game->alice.Cartas = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
+  if (game->alice.Cartas == 7) {
+        game->alice.Cartas = 0;
+        game->alice.Carta1 = 0;
+        game->alice.Carta2 = 0;
+        game->alice.Carta3 = 0;
+        game->alice.Carta4 = 0;
+        game->alice.Carta5 = 0;
+        game->alice.Carta6 = 0;
+        game->alice.Carta7 = 0;
+        Mix_HaltChannel(game->musicChannel);
+        digitarecorde(game, renderer);
+        cont = 1;
+        reseta = 1;
+  }
+    //chavinha = loadTextura("media/keyYellow.png");
+    //SDL_Rect chavRect = {370, 7, 50, 50};
 
     pause = loadTextura("media/botao_pausa.png");
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
@@ -1837,57 +1838,27 @@ void processo(GameState *game) {
     }
   }
 
-  //Inimigo
-
-  //init stars
-  /*for(int i = 0; i < NUM_STARS; i++)
-  {
-    game->stars[i].baseX = 320+random()%38400;
-    game->stars[i].baseY = random()%480;
-    //game->stars[i].mode = random()%2;
-    //game->stars[i].phase = 2*3.14*(random()%360)/360.0f;
-  }
-  for(i = 0; i < NUM_STARS; i++) {
-        game->stars[i].x = game->stars[i].baseX;
-        game->stars[i].y = game->stars[i].baseY;
-        
-        if(game->stars[i].mode == 0)
-        {
-          game->stars[i].x = game->stars[i].baseX+sinf(game->stars[i].phase+game->time*0.06f)*75;
-        }
-        else
-        {
-          game->stars[i].y = game->stars[i].baseY+cosf(game->stars[i].phase+game->time*0.06f)*75;
-        }
-      }
-    }*/
 
   //movimento do inimigo
-  int virada = 1;
   int velX = 10; 
   INIMIGO *inim = &game->inim;
 
   if(virada > 0) {
-      inim->x += velX;
-      virada += 10;
-      if(virada == 200) {
-          virada = -1;
+      game->inim.x += velX;
+      virada += 1;
+      if(virada == 20) {
+          virada = -10;
       }
   }
   else {
-    inim->x -= velX;
-    virada -= 10;
-    if(virada == -200) {
-      virada = 1;
+    game->inim.x -= velX;
+    virada -= 1;
+    if(virada == -20) {
+      virada = 10;
     }
   }
 
 
-  /*inim->x -= velX;
-  if (inim->x + 3 == 0) {  //vai só pra esquerda
-    //game->inim.x = game->inim.baseX + sinf(game->stars[i].phase + game->time*0.06f)*75;
-    inim->x = 1280; //respawn
-  }*/
 
   //scrollX
   game->scrollX = -game->alice.x + 598;
@@ -1926,42 +1897,49 @@ void colisao(GameState *game) {
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) { //carta 1;
       game->alice.Carta1 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[0].x = -50;
       game->cartas[0].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[1].x, game->cartas[1].y, 68, 118, 50, 30)) { //carta 2;
       game->alice.Carta2 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[1].x = -50;
       game->cartas[1].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[2].x, game->cartas[2].y, 68, 118, 50, 30)) { //carta 3;
       game->alice.Carta3 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[2].x = -50;
       game->cartas[2].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[3].x, game->cartas[3].y, 68, 118, 50, 30)) { //carta 4;
       game->alice.Carta4 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[3].x = -50;
       game->cartas[3].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[4].x, game->cartas[4].y, 68, 118, 50, 30)) { //carta 5;
       game->alice.Carta5 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[4].x = -50;
       game->cartas[4].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[5].x, game->cartas[5].y, 68, 118, 50, 30)) { //carta 6;
       game->alice.Carta6 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[5].x = -50;
       game->cartas[5].y = -50;
   }
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[6].x, game->cartas[6].y, 68, 118, 50, 30)) { //carta 7;
       game->alice.Carta7 = 1;
+      game->alice.pontos = game->alice.pontos + 500;
       game->cartas[6].x = -50;
       game->cartas[6].y = -50;
   }
@@ -2148,3 +2126,4 @@ void colisao(GameState *game) {
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
+
