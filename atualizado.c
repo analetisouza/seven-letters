@@ -50,11 +50,6 @@ typedef struct {
   float x, y;
 } PAREDE;
 
-typedef struct { //struct para pontos do record
-  char nome[11];
-  char ponto[11];
-  int pontos;
-} PONTUACAO;
 
 typedef struct { //jogo
   float scrollX; //rolagem
@@ -72,9 +67,6 @@ typedef struct { //jogo
   PORTA azul[2];
   PORTA rosa[2];
   PORTA verde[2];
-  PAREDE parede1[5];
-  PAREDE parede2[5];
-  PAREDE parede3[5];
   INIMIGO inim;
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
@@ -89,9 +81,6 @@ typedef struct { //jogo
   SDL_Texture *portaamarela;
   SDL_Texture *portarosa;
   SDL_Texture *portaroxa;
-  SDL_Texture *muro1;
-  SDL_Texture *muro2;
-  SDL_Texture *muro3;
   //SDL_Texture *chave;
   SDL_Texture *carta;
   //SDL_Texture *fire;
@@ -1107,10 +1096,6 @@ bool nivel1(SDL_Renderer *renderer) {
   game.portalaranja = loadTextura("media/porta8.png");
   game.portarosa = loadTextura("media/porta3.png");
 
-  game.muro1 = loadTextura("media/muro1.png");
-  game.muro2 = loadTextura("media/muro2.png");
-  game.muro3 = loadTextura("media/muro3.png");  
-
   game.aliceFrames[0] = loadTextura("media/alice1.png");
   game.aliceFrames[1] = loadTextura("media/alice2.png");
   game.aliceFrames[2] = loadTextura("media/alice3.png");
@@ -1141,7 +1126,6 @@ bool nivel1(SDL_Renderer *renderer) {
       }
       else {
         SDL_Delay(periodeFps - delta_s);
-        //printf ("delay: %f\n", periodeFps - delta_s); // não tá entrando
       }
     }
 
@@ -1159,9 +1143,6 @@ bool nivel1(SDL_Renderer *renderer) {
   SDL_DestroyTexture(game.portalaranja);
   SDL_DestroyTexture(game.portaazul);
   SDL_DestroyTexture(game.portamarrom);
-  SDL_DestroyTexture(game.muro1);
-  SDL_DestroyTexture(game.muro2);
-  SDL_DestroyTexture(game.muro3);
   SDL_DestroyTexture(game.aliceFrames[0]);
   SDL_DestroyTexture(game.aliceFrames[1]); 
   SDL_DestroyTexture(game.aliceFrames[2]);
@@ -1205,6 +1186,16 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
 
   game->time =  0;
   game->scrollX = 0; 
+
+  //chave
+  //game->chaves.x = 370;
+  //game->chaves.y = 340; //350
+
+  //inimigo
+  game->inim.x = 2515;
+  game->inim.y = 644;
+  //game->stars[i].phase = 2*3.14*(random()%360)/360.0f;
+
 
   //posição das plataformas 
   for (i = 0; i < 39; i++) { //do chão
@@ -1264,93 +1255,90 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->plat[54].x = 2223;
   game->plat[54].y = 210;
 
-  game->plat[55].x = 2095;
-  game->plat[55].y = 589;
-
-  game->plat[56].x = 2223;
-  game->plat[56].y = 505;
-
-  game->plat[57].x = 2351;
-  game->plat[57].y = 505;
-
   // Parte 3
 
-  game->plat[58].x = 2771;
+  game->plat[55].x = 2771;
+  game->plat[55].y = 230;
+
+  game->plat[56].x = 2899;
+  game->plat[56].y = 230;
+
+  game->plat[57].x = 3027;
+  game->plat[57].y = 230;
+
+  game->plat[58].x = 3155;
   game->plat[58].y = 230;
 
-  game->plat[59].x = 2899;
+  game->plat[59].x = 3283;
   game->plat[59].y = 230;
 
-  game->plat[60].x = 3027;
+  game->plat[60].x = 3411;
   game->plat[60].y = 230;
 
-  game->plat[61].x = 3155;
+  game->plat[61].x = 3539;
   game->plat[61].y = 230;
 
-  game->plat[62].x = 3283;
-  game->plat[62].y = 230;
+  game->plat[62].x = 2643;
+  game->plat[62].y = 424;
 
-  game->plat[63].x = 3411;
-  game->plat[63].y = 230;
+  game->plat[63].x = 2771;
+  game->plat[63].y = 424;
 
-  game->plat[64].x = 3539;
-  game->plat[64].y = 230;
+  game->plat[64].x = 2889;
+  game->plat[64].y = 424;
 
-  game->plat[65].x = 2643;
-  game->plat[65].y = 424;
+  game->plat[65].x = 3460;
+  game->plat[65].y = 490;
 
-  game->plat[66].x = 2771;
-  game->plat[66].y = 424;
+  game->plat[66].x = 3584;
+  game->plat[66].y = 490;
 
-  game->plat[67].x = 2889;
-  game->plat[67].y = 424;
+  game->plat[67].x = 3712;
+  game->plat[67].y = 490;
 
-  game->plat[68].x = 3460;
-  game->plat[68].y = 490;
+  game->plat[68].x = 3780;
+  game->plat[68].y = 350;
 
-  game->plat[69].x = 3584;
-  game->plat[69].y = 490;
+  game->plat[69].x = 3908;
+  game->plat[69].y = 350;
 
-  game->plat[70].x = 3712;
-  game->plat[70].y = 490;
+  game->plat[70].x = 4448;
+  game->plat[70].y = 270;
+
+  game->plat[71].x = 4576;
+  game->plat[71].y = 270;
+
+  game->plat[72].x = 4704;
+  game->plat[72].y = 270;
+
+  game->plat[73].x = 4832;
+  game->plat[73].y = 270;
 
   // Parte 4
 
-  game->plat[71].x = 4064;
-  game->plat[71].y = 270;
-
-  game->plat[72].x = 4192;
-  game->plat[72].y = 270;
-
-  game->plat[73].x = 4320;
-  game->plat[73].y = 270;
-
-  game->plat[74].x = 4704;
+  game->plat[74].x = 4064;
   game->plat[74].y = 270;
 
-  game->plat[75].x = 4832;
+  game->plat[75].x = 4192;
   game->plat[75].y = 270;
 
-  game->plat[76].x = 4064;
-  game->plat[76].y = 440;
+  game->plat[76].x = 4320;
+  game->plat[76].y = 270;
 
-  game->plat[77].x = 4192;
+  game->plat[77].x = 4124;
   game->plat[77].y = 440;
 
-  game->plat[78].x = 4320;
+  game->plat[78].x = 4252;
   game->plat[78].y = 440;
 
-  game->plat[79].x = 4448;
+  game->plat[79].x = 4380;
   game->plat[79].y = 440;
 
-  game->plat[80].x = 4576;
+  game->plat[80].x = 4508;
   game->plat[80].y = 440;
 
-  game->plat[81].x = 4704;
+  game->plat[81].x = 4636;
   game->plat[81].y = 440;
-
-  game->plat[82].x = 4832;
-  game->plat[82].y = 440;
 
   //MOEDINHAS
   game->moedas[0].x = 540;
@@ -1480,13 +1468,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->verde[1].x = 4128;
   game->verde[1].y = 307;
 
-  //chave
-  //game->chaves.x = 370;
-  //game->chaves.y = 340; //350
-
-  //inimigo
-  game->inim.x = 2515;
-  game->inim.y = 644;
 
   //cartas
   game->cartas[0].x = 285;
@@ -1510,33 +1491,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->cartas[6].x = 4827;
   game->cartas[6].y = 370; 
 
-  // Paredes
-
-  game->parede1[0].x = 2315;
-  game->parede1[0].y = 72;
-
-  game->parede1[1].x = 2771;
-  game->parede1[1].y = 92;
-
-  game->parede1[2].x = 2607;
-  game->parede1[2].y = 208;
-
-  game->parede1[3].x = 4062;
-  game->parede1[3].y = 302;
-
-  game->parede1[4].x = 4412;
-  game->parede1[4].y = 132;
-
-
-  game->parede2[0].x = 476;
-  game->parede2[0].y = 441;
-
-  game->parede2[1].x = 3460;
-  game->parede2[1].y = 260;
-
-
-  game->parede3[0].x = 2607;
-  game->parede3[0].y = 346;
 
 }
 
@@ -1559,7 +1513,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *vida2 = NULL;
   SDL_Texture *vida3 = NULL;
   SDL_Texture *vida4 = NULL;
-  SDL_Texture *placa = NULL;
+  //SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
   //SDL_Texture *chavinha = NULL;
@@ -1659,10 +1613,6 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       }
     }*/
 
-    placa = loadTextura("media/signRight.png");
-    SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
-    SDL_RenderCopy(renderer, placa, NULL, &placRect);
-
     pause = loadTextura("media/botao_pausa.png");
     SDL_Rect pauseRect = { 1100, 15, 74, 75 };
     SDL_RenderCopy(renderer, pause, NULL, &pauseRect);
@@ -1672,7 +1622,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(vida2);
     SDL_DestroyTexture(vida3);
     SDL_DestroyTexture(vida4);
-    SDL_DestroyTexture(placa);
+    //SDL_DestroyTexture(placa);
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
     SDL_DestroyTexture(cartinha);
@@ -1692,7 +1642,7 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_Rect placRect = { game->scrollX + delta_s + 2050, 120, 70, 100 };
     SDL_RenderCopy(renderer, placa, NULL, &placRect);*/
 
-  for (i = 0; i < 83; i++) { //quantidades de plataformas que existirão 
+  for (i = 0; i < 82; i++) { //quantidades de plataformas que existirão 
     SDL_Rect platRect = { game->scrollX + game->plat[i].x + delta_s, game->plat[i].y, 128, 30 };
     SDL_RenderCopy(renderer, game->plataforma, NULL, &platRect);
   }
@@ -1752,22 +1702,6 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->portaverde, NULL, &verdeRect);
   }
 
-  // Paredes
-
-  for (i = 0; i < 5; i++) {
-    SDL_Rect muro1Rect = { game->scrollX + game->parede1[i].x + delta_s, game->parede1[i].y, 36, 138};
-    SDL_RenderCopy(renderer, game->muro1, NULL, &muro1Rect);
-  }
-
-  for (i = 0; i < 2; i++) {
-    SDL_Rect muro2Rect = { game->scrollX + game->parede2[i].x + delta_s, game->parede2[i].y, 36, 230};
-    SDL_RenderCopy(renderer, game->muro2, NULL, &muro2Rect);
-  }
-
-  for (i = 0; i < 1; i++) {
-    SDL_Rect muro3Rect = { game->scrollX + game->parede3[i].x + delta_s, game->parede3[i].y, 36, 322};
-    SDL_RenderCopy(renderer, game->muro3, NULL, &muro3Rect);
-  }
 
   //inimigo
   //SDL_Rect inimRect = { game->scrollX + game->inim.x + delta_s, game->inim.y, 50, 28 };
@@ -1908,12 +1842,38 @@ void processo(GameState *game) {
     }
   }
 
+  //Inimigo
+
+  //init stars
+  /*for(int i = 0; i < NUM_STARS; i++)
+  {
+    game->stars[i].baseX = 320+random()%38400;
+    game->stars[i].baseY = random()%480;
+    //game->stars[i].mode = random()%2;
+    //game->stars[i].phase = 2*3.14*(random()%360)/360.0f;
+  }
+  for(i = 0; i < NUM_STARS; i++) {
+        game->stars[i].x = game->stars[i].baseX;
+        game->stars[i].y = game->stars[i].baseY;
+        
+        if(game->stars[i].mode == 0)
+        {
+          game->stars[i].x = game->stars[i].baseX+sinf(game->stars[i].phase+game->time*0.06f)*75;
+        }
+        else
+        {
+          game->stars[i].y = game->stars[i].baseY+cosf(game->stars[i].phase+game->time*0.06f)*75;
+        }
+      }
+    }*/
+
   //movimento do inimigo
   int velX = 10; //**
   INIMIGO *inim = &game->inim;
 
   inim->x -= velX;
-  if (inim->x + 3 < 0) {  //vai só pra esquerda
+  if (inim->x + 3 == 0) {  //vai só pra esquerda
+    //game->inim.x = game->inim.baseX + sinf(game->stars[i].phase + game->time*0.06f)*75;
     inim->x = 1280; //respawn
   }
 
@@ -1995,17 +1955,18 @@ void colisao(GameState *game) {
   }
 
   //teleporte marrom
-  if (collide2d(game->alice.x, game->alice.y, game->marrom[0].x - game->marrom[1].x/4, game->marrom[0].y, 68, 118, 113, 133)) { 
-      game->alice.x = game->marrom[1].x - 90;
+  if (collide2d(game->alice.x, game->alice.y, game->marrom[0].x - game->marrom[1].x/4, game->marrom[0].y, 68, 118, 113, 133)) {
+      game->alice.x = game->marrom[1].x - 150;
       game->alice.y = game->marrom[1].y+3;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
       alice->y += alice->dy;
-      alice->dy += Gravidade;  
+      alice->dy += Gravidade;
   }
 
+
   if (collide2d(game->alice.x, game->alice.y, game->marrom[1].x+game->marrom[1].x/4, game->marrom[1].y, 68, 118, 20, 133)) { 
-      game->alice.x = game->marrom[0].x + 110;
+      game->alice.x = game->marrom[0].x + 90;
       game->alice.y = game->marrom[0].y;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
@@ -2015,7 +1976,7 @@ void colisao(GameState *game) {
 
   //teleporte verdeagua
   if (collide2d(game->alice.x, game->alice.y, game->verdeagua[0].x + game->verdeagua[0].x/8, game->verdeagua[0].y, 68, 118, 10, 133)) { 
-      game->alice.x = game->verdeagua[1].x - 90;
+      game->alice.x = game->verdeagua[1].x - 120;
       game->alice.y = game->verdeagua[1].y + 3;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
@@ -2024,7 +1985,7 @@ void colisao(GameState *game) {
   }
   
   if (collide2d(game->alice.x, game->alice.y, game->verdeagua[1].x + game->verdeagua[1].x/22, game->verdeagua[1].y, 68, 118, 60, 133)) { 
-      game->alice.x = game->verdeagua[0].x - 110;
+      game->alice.x = game->verdeagua[0].x - 50;
       game->alice.y = game->verdeagua[0].y;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
@@ -2032,9 +1993,9 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;
   }
 
-    //teleporte amarelo
-  if (collide2d(game->alice.x, game->alice.y, game->amarela[0].x - game->amarela[0].x/4, game->amarela[0].y, 68, 118, 20, 133)) { 
-      game->alice.x = game->amarela[1].x - 20;
+  //teleporte amarelo
+  if (collide2d(game->alice.x, game->alice.y, game->amarela[0].x - game->amarela[0].x/16, game->amarela[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->amarela[1].x + 75;
       game->alice.y = game->amarela[1].y + 3;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
@@ -2042,8 +2003,8 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;  
   }
   
-  if (collide2d(game->alice.x, game->alice.y, game->amarela[1].x - game->amarela[1].x/4, game->amarela[1].y, 68, 118, 20, 133)) { 
-      game->alice.x = game->amarela[0].x - 110;
+  if (collide2d(game->alice.x, game->alice.y, game->amarela[1].x - game->amarela[1].x/22, game->amarela[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->amarela[0].x + 110;
       game->alice.y = game->amarela[0].y;
       Alice *alice = &game->alice;
       alice->x += alice->dx;
@@ -2051,8 +2012,84 @@ void colisao(GameState *game) {
       alice->dy += Gravidade;
   }
 
+    //teleporte rosa
+  if (collide2d(game->alice.x, game->alice.y, game->rosa[0].x - game->rosa[0].x/30, game->rosa[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->rosa[1].x + 50;
+      game->alice.y = game->rosa[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->rosa[1].x - game->rosa[1].x/30, game->rosa[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->rosa[0].x + 100;
+      game->alice.y = game->rosa[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
 
-  for (i = 0; i < 83; i++) { //71
+    //teleporte roxo
+  if (collide2d(game->alice.x, game->alice.y, game->roxa[0].x - game->roxa[0].x/30, game->roxa[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->roxa[1].x + 50;
+      game->alice.y = game->roxa[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->roxa[1].x - game->roxa[1].x/60, game->roxa[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->roxa[0].x + 100;
+      game->alice.y = game->roxa[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
+
+    //teleporte verde
+  if (collide2d(game->alice.x, game->alice.y, game->verde[0].x - game->verde[0].x/30, game->verde[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verde[1].x + 50;
+      game->alice.y = game->verde[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->verde[1].x - game->verde[1].x/40, game->verde[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->verde[0].x + 100;
+      game->alice.y = game->verde[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
+
+    //teleporte laranja
+  if (collide2d(game->alice.x, game->alice.y, game->laranja[0].x - game->laranja[0].x/30, game->laranja[0].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->laranja[1].x + 50;
+      game->alice.y = game->laranja[1].y + 3;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;  
+  }
+  
+  if (collide2d(game->alice.x, game->alice.y, game->laranja[1].x - game->laranja[1].x/40, game->laranja[1].y, 68, 118, 113, 133)) { 
+      game->alice.x = game->laranja[0].x + 50;
+      game->alice.y = game->laranja[0].y;
+      Alice *alice = &game->alice;
+      alice->x += alice->dx;
+      alice->y += alice->dy;
+      alice->dy += Gravidade;
+  }
+
+
+  for (i = 0; i < 82; i++) { //71
   float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
   float ax = game->alice.x, ay = game->alice.y; //posição da alice
 
@@ -2093,44 +2130,13 @@ void colisao(GameState *game) {
       }
     }
   }
+}
 
-  //distancia dos muros
-  for (i = 0; i < 5; i++) {
-    if(distancia(game->alice.x, game->alice.y, game->parede1[i].x, game->parede1[i].y) <= 5) {
-      if ((game->alice.x + 68 + 10) > game->parede1[i].y) { //
-        game->alice.x = game->parede1[i].y - 68; //
-    }
-    
-    float aw = 68, ah = 112; //largura e altura -3 pra ficar no chao da alice;
-    float ax = game->alice.x, ay = game->alice.y; //posição da alice  
-    float pw = 36, ph = 138; //largura e altura da plat;
-    float px = game->parede1[i].x, py = game->parede1[i].y; //posição da plat;
-
-      //game->alice.x -= 5;
-    if(ay+ah > py && ay < py+ph) { //direita
-      if(ax < px+pw && ax+aw > px+pw && game->alice.dx < 0) {
-        game->alice.x = px+pw;
-        ax = pw+pw-10;
-
-        game->alice.dx = 0;
-      }
-
-      else if(ax+aw > px && ax < px && game->alice.dx > 0) {
-        game->alice.x = px-aw;
-        ax = px-aw;
-        
-        game->alice.dx = 0;
-      }
-    }
-    }
-  }
-    //if(collide2d(game->alice.x, game->alice.y, game->parede1[i].x, game->parede1[i].y, 68, 118, 36, 138))
-  }
 
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
 
-/*int distancia (int x1, int y1, int x2, int y2) {
+int distancia (int x1, int y1, int x2, int y2) {
   return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
-}*/
+}
