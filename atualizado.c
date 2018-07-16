@@ -10,15 +10,13 @@
 
 #define Gravidade 6.0f //
 #define STATUS_STATE_LIVES 0
-#define STATUS_STATE_GAME 1
-#define STATUS_STATE_GAMEOVER 2
 
 
 typedef struct {
   float x, y;
   float dx, dy;
   short lives;
-  int pontos, Chaves, Carta1, Carta2, Carta3, Carta4, Carta5, Carta6, Carta7;
+  int pontos, Carta1, Carta2, Carta3, Carta4, Carta5, Carta6, Carta7, Cartas; //Chaves
   int onPlat;
 
   int animFrame, facingLeft, slowingDown;
@@ -32,9 +30,9 @@ typedef struct {
   float x, y;
 } INIMIGO;
 
-typedef struct {
+/*typedef struct {
   float x, y;
-} CHAVE;
+} CHAVE;*/
 
 typedef struct {
   float x, y;
@@ -65,7 +63,7 @@ typedef struct { //jogo
   PLAT plat[100];
   MOEDA moedas[100];
   CARTA cartas[7];
-  CHAVE chaves;
+  //CHAVE chaves;
   PORTA marrom[2];
   PORTA verdeagua[2];
   PORTA roxa[2];
@@ -78,11 +76,6 @@ typedef struct { //jogo
   PAREDE parede2[5];
   PAREDE parede3[5];
   INIMIGO inim;
-
-  PONTUACAO recorde[10];
-    int recordista;
-    int contador_recordista;
-    char nome_recordista[5]; 
 
   SDL_Texture *aliceFrames[5]; //alterar pra não dar erro de seg
   SDL_Texture *inimFrames[4];
@@ -99,9 +92,9 @@ typedef struct { //jogo
   SDL_Texture *muro1;
   SDL_Texture *muro2;
   SDL_Texture *muro3;
-  SDL_Texture *chave;
+  //SDL_Texture *chave;
   SDL_Texture *carta;
-  SDL_Texture *fire;
+  //SDL_Texture *fire;
   SDL_Texture *label;
   SDL_Texture *label2;
   int labelW, labelH, label2W, label2H;
@@ -229,8 +222,7 @@ void digitarecorde(GameState *game, SDL_Renderer *renderer) {
   SDL_StopTextInput();
   telafim(renderer,game);
 
-
-  }
+}
 
 void recebe_string (char *str, char *str1) {
     int i;
@@ -451,7 +443,7 @@ void Ranking(GameState *game, SDL_Renderer *renderer) {
     SDL_RenderCopy(renderer, texture5P, NULL, &dstrect5P);
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(3000);
+    SDL_Delay(2000);
 
   SDL_FreeSurface(surface1);
   SDL_FreeSurface(surface2);
@@ -1039,7 +1031,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_RenderCopy(renderer, jogarnvm2, NULL, &jogarnv2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
-              game->alice.Chaves = 0;
+              //game->alice.Chaves = 0;
               game->alice.Carta1 = 0;
               game->alice.Carta2 = 0;
               game->alice.Carta3 = 0;
@@ -1055,7 +1047,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
               cont = 1;
-              game->alice.Chaves = 0;
+              //game->alice.Chaves = 0;
               game->alice.Carta1 = 0;
               game->alice.Carta2 = 0;
               game->alice.Carta3 = 0;
@@ -1103,7 +1095,7 @@ bool nivel1(SDL_Renderer *renderer) {
 
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
-  game.chave = loadTextura("media/chave.png");
+  //game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
 
   game.portamarrom = loadTextura("media/porta1.png");
@@ -1157,7 +1149,7 @@ bool nivel1(SDL_Renderer *renderer) {
 
   SDL_DestroyTexture(game.plataforma);
   SDL_DestroyTexture(game.moeda);
-  SDL_DestroyTexture(game.chave);
+  //SDL_DestroyTexture(game.chave);
   SDL_DestroyTexture(game.carta);
   SDL_DestroyTexture(game.portaroxa);
   SDL_DestroyTexture(game.portarosa);
@@ -1201,6 +1193,7 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->alice.lives = 3;
   game->alice.pontos = 0;
   game->statusState = STATUS_STATE_LIVES;
+  game->alice.Cartas = 0;
   game->alice.Carta1 = 0;
   game->alice.Carta2 = 0;
   game->alice.Carta3 = 0;
@@ -1209,11 +1202,6 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->alice.Carta6 = 0;
   game->alice.Carta7 = 0;
 
-  game->recordista = 0;
-  game->contador_recordista = 0;
-  for(i = 0; i < 5; i++) {
-     game->nome_recordista[i] = '\0';
-  }
 
   game->time =  0;
   game->scrollX = 0; 
@@ -1493,8 +1481,8 @@ void loadGame(GameState *game) { //posição dos elementos do mapa que podem ser
   game->verde[1].y = 307;
 
   //chave
-  game->chaves.x = 370;
-  game->chaves.y = 340; //350
+  //game->chaves.x = 370;
+  //game->chaves.y = 340; //350
 
   //inimigo
   game->inim.x = 2515;
@@ -1574,7 +1562,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
   SDL_Texture *placa = NULL;
   SDL_Texture *pause = NULL;
   SDL_Texture *Nivel1 = NULL;
-  SDL_Texture *chavinha = NULL;
+  //SDL_Texture *chavinha = NULL;
   SDL_Texture *cartinha = NULL;
   SDL_Texture *fim = NULL;
 
@@ -1613,8 +1601,8 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
 
     if (game->alice.Carta1 >= 0) {
       char str[10] = "";
-      int totalchaves = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
-      sprintf (str, "x%d", totalchaves);
+      int totalcartas = game->alice.Carta1 + game->alice.Carta2 + game->alice.Carta3 + game->alice.Carta4 + game->alice.Carta5 + game->alice.Carta6 + game->alice.Carta7;
+      sprintf (str, "x%d", totalcartas);
       SDL_Surface *tmp = TTF_RenderText_Blended(game->font1, str, preto); //colcar menor
       game->labelW = tmp->w;
       game->labelH = tmp->h;
@@ -1639,7 +1627,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     if (game->alice.lives == 0) {
       SDL_RenderCopy(renderer, vida4, NULL, &vidaRect);
       SDL_Delay(300);
-      game->alice.Chaves = 0;
+      //game->alice.Chaves = 0;
       game->alice.Carta1 = 0;
       Mix_HaltChannel(game->musicChannel);
       digitarecorde(game, renderer);
@@ -1648,14 +1636,14 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       reseta = 1;
     }
 
-    chavinha = loadTextura("media/keyYellow.png");
-    SDL_Rect chavRect = {370, 7, 50, 50};
+    //chavinha = loadTextura("media/keyYellow.png");
+    //SDL_Rect chavRect = {370, 7, 50, 50};
 
     //printf("%f\n", game->alice.y);
-    if (game->alice.Chaves == 1) {
-      SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
-      if (game->alice.Carta1 == 1 && game->alice.x > 2451 && game->alice.x < 2454 && game->alice.y > 87 && game->alice.y < 90) { //fazer colisao
-        game->alice.Chaves = 0;
+    /*if (game->alice.Cartas == 7) {
+      //SDL_RenderCopy(renderer, chavinha, NULL, &chavRect);
+      //fazer colisao
+        //game->alice.Chaves = 0;
         game->alice.Carta1 = 0;
         game->alice.Carta2 = 0;
         game->alice.Carta3 = 0;
@@ -1669,7 +1657,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
       cont = 1;
       reseta = 1;
       }
-    }
+    }*/
 
     placa = loadTextura("media/signRight.png");
     SDL_Rect placRect = { game->scrollX + 120, 570, 70, 100 };
@@ -1688,7 +1676,7 @@ void RenderNivel(SDL_Renderer *renderer, GameState *game) {
     SDL_DestroyTexture(pause);
     SDL_DestroyTexture(Nivel1);
     SDL_DestroyTexture(cartinha);
-    SDL_DestroyTexture(chavinha);
+    //SDL_DestroyTexture(chavinha);
     SDL_DestroyTexture(fim);
     if(game->label != NULL) {
       SDL_DestroyTexture(game->label);
@@ -1714,8 +1702,8 @@ void RenderObjetos(SDL_Renderer *renderer, GameState *game) {
     SDL_RenderCopy(renderer, game->moeda, NULL, &moedaRect);
   }
 
-  SDL_Rect chaveRect = { game->scrollX + game->chaves.x + delta_s, game->chaves.y, 75, 40}; //chave era 100 e 50
-  SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
+  //SDL_Rect chaveRect = { game->scrollX + game->chaves.x + delta_s, game->chaves.y, 75, 40}; //chave era 100 e 50
+  //SDL_RenderCopy(renderer, game->chave, NULL, &chaveRect);
 
   for (i = 0; i < 7; i++) {
     SDL_Rect cartaRect = { game->scrollX + game->cartas[i].x + delta_s, game->cartas[i].y, 50, 30}; //carta era 69 e 42
@@ -1958,11 +1946,11 @@ void colisao(GameState *game) {
     }
   }
 
-  if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao da chave
+  /*if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao da chave
       game->alice.Chaves = 1;
       game->chaves.x = -50;
       game->chaves.y = -50;
-  }
+  }*/
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) { //carta 1;
       game->alice.Carta1 = 1;
@@ -2143,6 +2131,6 @@ int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
 
-int distancia (int x1, int y1, int x2, int y2) {
+/*int distancia (int x1, int y1, int x2, int y2) {
   return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
-}
+}*/
