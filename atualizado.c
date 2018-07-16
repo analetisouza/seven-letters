@@ -623,6 +623,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
   SDL_Texture *retornar = NULL;
   SDL_Texture* sair = NULL;
   SDL_Texture *ajuda = NULL;
+  int nivell = 0;
 
   SDL_Texture *imgNiveis = NULL;
   imgNiveis = loadTextura("media/menu_niveis.png");
@@ -656,6 +657,10 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
   SDL_Texture *retornar2 = NULL;
   SDL_Rect ret2Rect = {30, 600, 100, 100};
   retornar2 = loadTextura("media/retornar2.png");
+
+  SDL_Texture *play = NULL; //
+  SDL_Rect playRect = {230, 320, 100, 100};
+  play = loadTextura("media/play.png");
 
 
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -700,13 +705,14 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
 
   while (gameloop == true) {
     while ( SDL_PollEvent (&event) ) {
+      //printf ("%d\n", event.motion.x);
       if (event.type == SDL_QUIT) {
         gameloop = false;
         sucesso = false;
         saida();
         exit(1);
         break;
-      }
+      } 
       else {
       switch (event.type) {
         case SDL_MOUSEMOTION: //colocar som
@@ -738,6 +744,10 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
             Mix_VolumeChunk(game->passa, 8);
             game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
            }
+           if (event.motion.x > 240 && event.motion.x < 325 && event.motion.y > 333 && event.motion.y < 410) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+          }
 
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 287 && event.motion.x < 600 && event.motion.y > 382 && event.motion.y < 460 && event.button.button == SDL_BUTTON_LEFT) {
@@ -754,9 +764,11 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
             else if (event.motion.x > 300 && event.motion.x < 610 && event.motion.y > 484 && event.motion.y < 546 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, niveis2, NULL, &niveis2Rect);
               SDL_RenderPresent(renderer);
+              nivell = 1;
               SDL_Delay(200);
               SDL_RenderClear(renderer);
               SDL_RenderCopy(renderer, imgNiveis, NULL, NULL);
+              SDL_RenderCopy(renderer, play, NULL, &playRect);
               SDL_RenderCopy(renderer, retornar, NULL, &retRect);
               SDL_RenderPresent(renderer);
             }
@@ -802,6 +814,12 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
               SDL_Delay(200); 
               telainicial(renderer, game);
             }
+            else if (nivell == 1 && event.motion.x > 240 && event.motion.x < 325 && event.motion.y > 333 && event.motion.y < 410 && event.button.button == SDL_BUTTON_LEFT) {
+                Mix_HaltChannel(game->musicChannel);
+                SDL_Delay(200);
+                nivel1(renderer);
+                nivell = 0;
+            }
             break;
         }
       }
@@ -824,6 +842,7 @@ bool telainicial (SDL_Renderer *renderer, GameState* game) {
     SDL_DestroyTexture(ranking2);
     SDL_DestroyTexture(niveis2);
     SDL_DestroyTexture(sair2);
+    SDL_DestroyTexture(play);
     SDL_DestroyTexture(retornar2);
     SDL_DestroyTexture(retornar);
     SDL_RenderClear(renderer);
@@ -1004,6 +1023,8 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
   SDL_Rect menuuRect = {80, 500, 175, 200};
   SDL_RenderCopy(renderer, Menu, NULL, &menuuRect);
 
+  game->passa = Mix_LoadWAV("media/passa.ogg");
+
   SDL_RenderPresent(renderer);
 
   while (gameloop == true) {
@@ -1011,12 +1032,19 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
     //printf ("%d\n", event.motion.y);
     switch (event.type) {
         case SDL_MOUSEMOTION:
+        if (event.motion.x > 90 && event.motion.x < 245 && event.motion.y > 307 && event.motion.y < 485) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+        }
+        if (event.motion.x > 92 && event.motion.x < 243 && event.motion.y > 503 && event.motion.y < 686) {
+            Mix_VolumeChunk(game->passa, 8);
+            game->musicChannel = Mix_PlayChannel(-1, game->passa, 0);
+        }
           case SDL_MOUSEBUTTONDOWN:
             if (event.motion.x > 90 && event.motion.x < 245 && event.motion.y > 307 && event.motion.y < 485 && event.button.button == SDL_BUTTON_LEFT) {
               SDL_RenderCopy(renderer, jogarnvm2, NULL, &jogarnv2Rect);
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
-              //game->alice.Chaves = 0;
               game->alice.Carta1 = 0;
               game->alice.Carta2 = 0;
               game->alice.Carta3 = 0;
@@ -1032,7 +1060,6 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
               SDL_RenderPresent(renderer);
               SDL_Delay(300);
               cont = 1;
-              //game->alice.Chaves = 0;
               game->alice.Carta1 = 0;
               game->alice.Carta2 = 0;
               game->alice.Carta3 = 0;
@@ -1061,6 +1088,7 @@ void telafim (SDL_Renderer *renderer, GameState *game) {
   SDL_DestroyTexture(telaFim);
   SDL_DestroyTexture(jogardnv);
   SDL_DestroyTexture(Menu);
+  Mix_FreeChunk(game->passa);
 
 }
 
@@ -1798,14 +1826,14 @@ void processo(GameState *game) {
         alice->animFrame = 1;
       }
       else if (alice->animFrame = 1) {
-        alice->animFrame = 2;
-      }
-      else if (alice->animFrame = 2) {
-        alice->animFrame = 3;
-      }
-      else {
         alice->animFrame = 0;
       }
+      //else if (alice->animFrame = 2) {
+        //alice->animFrame = 3;
+      //}
+      //else {
+        //alice->animFrame = 0;
+      //}
     }
   }
 
@@ -1869,12 +1897,6 @@ void colisao(GameState *game) {
       game->moedas[i].y = -30;
     }
   }
-
-  /*if (collide2d(game->alice.x, game->alice.y, game->chaves.x, game->chaves.y, 68, 118, 100, 50)) { //colisao da chave
-      game->alice.Chaves = 1;
-      game->chaves.x = -50;
-      game->chaves.y = -50;
-  }*/
 
   if (collide2d(game->alice.x, game->alice.y, game->cartas[0].x, game->cartas[0].y, 68, 118, 50, 30)) { //carta 1;
       game->alice.Carta1 = 1;
@@ -2107,4 +2129,3 @@ void colisao(GameState *game) {
 int collide2d(int x1, int y1, int x2, int y2, int wt1, int ht1, int wt2, int ht2) {
   return (!((x1 > (x2+wt2)) || (x2 > (x1+wt1)) || (y1 > (y2+ht2)) || (y2 > (y1+ht1))));
 }
-
