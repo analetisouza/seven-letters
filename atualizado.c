@@ -428,7 +428,7 @@ void Ranking(GameState *game, SDL_Renderer *renderer) {
     SDL_RenderCopy(renderer, texture5P, NULL, &dstrect5P);
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(2000);
+    SDL_Delay(500);
 
   SDL_FreeSurface(surface1);
   SDL_FreeSurface(surface2);
