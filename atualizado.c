@@ -1097,11 +1097,14 @@ bool nivel1(SDL_Renderer *renderer) {
   bool sucesso = true;
   bool jogando = true;
   GameState game;
-
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);  //tempo para carregar o jogo ou colocar uma imagem explicando o jogo
   SDL_RenderClear(renderer);
+
+  SDL_Texture *abertura = NULL;
+  abertura = loadTextura("media/abertura.png");
+  SDL_RenderCopy(renderer, abertura, NULL, NULL);
   SDL_RenderPresent(renderer);
-  SDL_Delay(500);
+  SDL_Delay(10000);
 
   loadGame(&game);
   game.font = TTF_OpenFont("media/TravelingTypewriter.ttf", 30);
@@ -1109,7 +1112,6 @@ bool nivel1(SDL_Renderer *renderer) {
 
   game.plataforma = loadTextura("media/plataforma.png");
   game.moeda = loadTextura("media/moeda.png");
-  //game.chave = loadTextura("media/chave.png");
   game.carta = loadTextura("media/carta.png");
 
   game.portamarrom = loadTextura("media/porta1.png");
@@ -1158,7 +1160,7 @@ bool nivel1(SDL_Renderer *renderer) {
 
   SDL_DestroyTexture(game.plataforma);
   SDL_DestroyTexture(game.moeda);
-  //SDL_DestroyTexture(game.chave);
+  SDL_DestroyTexture(abertura);
   SDL_DestroyTexture(game.carta);
   SDL_DestroyTexture(game.portaroxa);
   SDL_DestroyTexture(game.portarosa);
