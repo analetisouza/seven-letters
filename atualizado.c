@@ -87,7 +87,7 @@ typedef struct { //jogo
   TTF_Font *font, *font1;
 
   int musicChannel;
-  Mix_Chunk *bg, *MENU, *passa;
+  Mix_Chunk *bg, *MENU, *passa, *colidiu;
 
   int time;
   int statusState;
@@ -1894,37 +1894,6 @@ if (game->time % 8 == 0) {
   }
 
 
-  /*int vel2X = 3; 
-  INIMIGO *inim2 = &game->inim2;
-if (game->time % 8 == 0) {
-      if (inim2->animFrame == 0) {
-        inim2->animFrame = 1;
-      }
-      else if (inim2->animFrame = 1) {
-        inim2->animFrame = 0;
-      }
-    }
-
-  if(virada > 0) {
-    game->inim2.facingLeft = 0;
-      game->inim2.x += vel2X;
-      virada += 1;
-      if(virada == 40) {
-          virada = -10;
-      }
-  }
-  else {
-    game->inim2.facingLeft = 1;
-    game->inim2.x -= vel2X;
-    virada -= 1;
-    if(virada == -40) {
-      virada = 10;
-    }
-  }*/
-
-
-
-
   //scrollX
   game->scrollX = -game->alice.x + 598;
   if(game->scrollX > 0) {
@@ -1937,9 +1906,15 @@ if (game->time % 8 == 0) {
 
 
 void colisao(GameState *game) {
-  int i = 0, j = 0;
+  int i = 0;
+  game->colidiu = Mix_LoadWAV("media/porrada.wav");
+    if (game->colidiu != NULL) {
+      Mix_VolumeChunk(game->colidiu, 5);
+      //game->musicChannel = Mix_PlayChannel(-1, game->colidiu, 0);
+    }
 
   if (collide2d(game->alice.x-10, game->alice.y, game->inim.x, game->inim.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
+      game->musicChannel = Mix_PlayChannel(-1, game->colidiu, 0);
       SDL_Delay(100);
       game->alice.x = 30;
       game->alice.y = 500;
@@ -1947,6 +1922,7 @@ void colisao(GameState *game) {
     }
 
     if (collide2d(game->alice.x-10, game->alice.y, game->inim2.x, game->inim2.y, 68, 118, 50, 28)) {  //colisao inimigo com uma velocidade de 10
+      game->musicChannel = Mix_PlayChannel(-1, game->colidiu, 0);
       SDL_Delay(100);
       game->alice.x = 30;
       game->alice.y = 500;
